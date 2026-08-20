@@ -1,0 +1,111 @@
+/* Identidade visual herdada dos dossies entregues (relatorios/*.html):
+   vinho sobre papel quente, Bitter nos titulos, IBM Plex Mono em todo numero.
+   Manter os mesmos valores faz o sistema e os dossies parecerem a mesma coisa. */
+
+:root {
+  --wine: #7a1420;
+  --wine-2: #a32436;
+  --wine-soft: #f3e4e5;
+
+  --bg: #fbf8f7;
+  --surface: #ffffff;
+  --surface-2: #f5f0ef;
+  --surface-3: #ede5e4;
+
+  --border: #e6dcdb;
+  --border-strong: #cfc0c0;
+
+  --ink: #1b1416;
+  --ink-2: #3d3134;
+  --muted: #6b5f62;
+
+  --pos: #0f6e4c;
+  --pos-bg: #e4f0ea;
+  --neg: #9c3d14;
+  --neg-bg: #f7e8df;
+  --warn: #8a6a11;
+  --warn-bg: #f5eedc;
+  --info: #1f5673;
+  --info-bg: #e3eef4;
+
+  /* A barra lateral fica escura nos DOIS temas: e o que tira a cara de template. */
+  --sidebar-bg: #221619;
+  --sidebar-ink: #efe4e6;
+  --sidebar-muted: #a8969a;
+  --sidebar-border: #38272b;
+
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 8px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --shadow-1: 0 1px 2px rgba(27, 20, 22, 0.06);
+  --shadow-2: 0 2px 8px rgba(27, 20, 22, 0.08);
+  --shadow-3: 0 12px 32px rgba(27, 20, 22, 0.16);
+
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--wine-2);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --serif: 'Bitter', Georgia, serif;
+  --sans: 'Public Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --sidebar-w: 236px;
+  --topbar-h: 56px;
+
+  /* Rampa categorica derivada do vinho, para graficos. */
+  --c1: #7a1420;
+  --c2: #b4553f;
+  --c3: #c89b3c;
+  --c4: #4f7a5c;
+  --c5: #3f6b87;
+  --c6: #6e5a8c;
+  --c7: #a0505f;
+  --c8: #8a7f6b;
+}
+
+:root[data-theme='dark'] {
+  --wine: #e2919c;
+  --wine-2: #c4566a;
+  --wine-soft: #392327;
+
+  --bg: #151113;
+  --surface: #1d1719;
+  --surface-2: #251e21;
+  --surface-3: #2e2528;
+
+  --border: #332a2d;
+  --border-strong: #4a3c40;
+
+  --ink: #f3ecee;
+  --ink-2: #dacfd2;
+  --muted: #a29397;
+
+  --pos: #5fc79b;
+  --pos-bg: #12332a;
+  --neg: #e0956a;
+  --neg-bg: #35231a;
+  --warn: #d6b45c;
+  --warn-bg: #302818;
+  --info: #7fb4cd;
+  --info-bg: #162a33;
+
+  --sidebar-bg: #100c0e;
+  --sidebar-ink: #efe4e6;
+  --sidebar-muted: #8d7c80;
+  --sidebar-border: #2a1f22;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 12px 32px rgba(0, 0, 0, 0.55);
+}

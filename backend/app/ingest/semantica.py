@@ -191,6 +191,12 @@ def detectar(nome: str, valores: list, *, eh_numerico: bool,
         n_s = sn.get(p, 0.0)
         v_s, evid = sv.get(p, (0.0, ""))
         total = PESO_NOME * n_s + PESO_VALOR * v_s
+        if n_s >= 0.99:
+            # Nome da coluna e IGUAL a um sinonimo (ex.: coluna chamada exatamente
+            # "Distribuidor" ou "Periodo"), nao uma aproximacao fuzzy. Para papeis
+            # sem teste de forma proprio (DISTRIBUIDOR, MARCA, CIDADE) o nome exato
+            # e a unica evidencia possivel, e sozinho ja e forte o suficiente.
+            total = max(total, 0.62)
         partes = []
         if n_s:
             partes.append(f"o nome da coluna combina com '{p.lower()}' ({n_s:.0%})")

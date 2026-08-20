@@ -173,7 +173,14 @@ def perfilar_coluna(col: Coluna, n_linhas: int, ordem: int) -> dict:
         info_num, prob_num = _perfilar_numerica(arr)
         info_txt, prob_txt = {}, []
         finitos = arr[np.isfinite(arr)]
-        amostra_valores = [float(x) for x in finitos[:2000]]
+        amostra_num = finitos[:2000]
+        # Inteiro sem ".0": str(202501.0) tem um digito a mais que corrompe o
+        # teste de periodo/codigo em semantica.py (so_digitos pega o "0" do ".0").
+        amostra_valores = (
+            [int(x) for x in amostra_num]
+            if len(amostra_num) and bool(np.all(amostra_num == np.floor(amostra_num)))
+            else [float(x) for x in amostra_num]
+        )
         top = []
     else:
         nulos = int(np.sum(codigos < 0))
@@ -206,10 +213,16 @@ def perfilar_coluna(col: Coluna, n_linhas: int, ordem: int) -> dict:
         n_distintos=distintos, n_linhas=n)
 
     # Dispersao estatistica nao diz nada sobre um identificador: um EAN "fora da
-    # media" e so um produto de outra faixa de codigo, nao um dado suspeito.
+    # media" e so um produto de outra faixa de codigo, nao um dado suspeito, e a
+    # SOMA ou MEDIA de codigos de barras e um numero sem nenhum significado.
     if papel["valor"] in ("CODIGO_EAN", "CNPJ", "PERIODO", "CODIGO", "CHAVE"):
         problemas = [p for p in problemas if p["tipo"] != "OUTLIER"]
-        info_num.pop("n_outliers", None)
+        if papel["valor"] == "PERIODO":
+            # min/max ainda fazem sentido aqui (primeiro/ultimo periodo); o
+            # resto (soma, media, desvio...) nao.
+            info_num = {k: v for k, v in info_num.items() if k in ("min", "max")}
+        else:
+            info_num = {}
 
     return {
         "ordem": ordem,
