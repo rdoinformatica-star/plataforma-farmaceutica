@@ -1,0 +1,1247 @@
+<title>Dossiê MILLENIUM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --wine:#7A1420; --wine-2:#A32436; --wine-soft:#F3E4E5;
+  --bg:#FBF8F7; --surface:#FFFFFF; --surface-2:#F5F0EF;
+  --border:#E6DCDB; --border-strong:#CFC0C0;
+  --ink:#1B1416; --ink-2:#3D3134; --muted:#6B5F62;
+  --pos:#0F6E4C; --pos-bg:#E4F0EA;
+  --neg:#9C3D14; --neg-bg:#F7E8DF;
+  --warn:#8A6A11; --warn-bg:#F5EEDC;
+  --measure:68ch;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --wine:#E2919C; --wine-2:#C4566A; --wine-soft:#392327;
+    --bg:#151113; --surface:#1D1719; --surface-2:#251E21;
+    --border:#332A2D; --border-strong:#4A3C40;
+    --ink:#F3ECEE; --ink-2:#DACFD2; --muted:#A29397;
+    --pos:#5FC79B; --pos-bg:#12332A;
+    --neg:#E0956A; --neg-bg:#35231A;
+    --warn:#D6B45C; --warn-bg:#302818;
+  }
+}
+:root[data-theme="dark"]{
+  --wine:#E2919C; --wine-2:#C4566A; --wine-soft:#392327;
+  --bg:#151113; --surface:#1D1719; --surface-2:#251E21;
+  --border:#332A2D; --border-strong:#4A3C40;
+  --ink:#F3ECEE; --ink-2:#DACFD2; --muted:#A29397;
+  --pos:#5FC79B; --pos-bg:#12332A;
+  --neg:#E0956A; --neg-bg:#35231A;
+  --warn:#D6B45C; --warn-bg:#302818;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px 96px}
+p,ul,ol{max-width:var(--measure)}
+h1,h2,h3{font-family:"Bitter",Georgia,serif; text-wrap:balance; margin:0}
+a{color:var(--wine)}
+
+.mast{border-bottom:3px solid var(--wine); padding:48px 0 22px; margin-bottom:34px}
+.kicker{
+  font-size:11.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--wine); margin-bottom:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+}
+.kicker .sep{color:var(--border-strong)}
+h1{font-size:clamp(34px,6vw,56px); font-weight:800; line-height:1.03; letter-spacing:-.02em}
+.dek{font-size:18px; color:var(--ink-2); max-width:60ch; margin:18px 0 0; line-height:1.55}
+.meta{
+  margin-top:26px; display:flex; flex-wrap:wrap; gap:8px 26px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--muted);
+}
+.meta b{color:var(--ink-2); font-weight:600}
+
+.kpis{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px; background:var(--border); border:1px solid var(--border); margin:0 0 46px;
+}
+.kpi{background:var(--surface); padding:18px 18px 16px}
+.kpi .lbl{font-size:10.5px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+.kpi .val{
+  font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:600;
+  margin-top:9px; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+}
+.kpi .sub{font-size:12px; color:var(--muted); margin-top:5px; line-height:1.4}
+.up{color:var(--pos)} .down{color:var(--neg)} .flat{color:var(--ink)}
+
+section{margin:0 0 60px; scroll-margin-top:20px}
+.shead{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--border-strong); padding-bottom:11px; margin-bottom:24px}
+.snum{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+  color:var(--wine); letter-spacing:.06em; flex:none; padding-top:5px;
+}
+h2{font-size:clamp(21px,3vw,27px); font-weight:700; letter-spacing:-.01em}
+h3{font-size:17px; font-weight:700; margin:32px 0 12px; color:var(--ink)}
+
+.tag{
+  display:inline-block; font-size:10px; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; padding:3px 8px; border-radius:2px; vertical-align:2px; margin-right:9px;
+}
+.t-fato{background:var(--surface-2); color:var(--ink-2); border:1px solid var(--border-strong)}
+.t-hip{background:var(--warn-bg); color:var(--warn); border:1px solid transparent}
+.t-rec{background:var(--wine-soft); color:var(--wine); border:1px solid transparent}
+
+.claim{border-left:3px solid var(--border-strong); padding:2px 0 2px 18px; margin:20px 0; max-width:var(--measure)}
+.claim.hip{border-left-color:var(--warn)}
+.claim.rec{border-left-color:var(--wine)}
+.claim p{margin:0}
+.claim p + p{margin-top:9px}
+
+.insights{list-style:none; padding:0; margin:0; max-width:none; display:grid; gap:1px; background:var(--border); border:1px solid var(--border)}
+.insights li{background:var(--surface); padding:20px 22px; display:grid; grid-template-columns:34px 1fr; gap:16px; align-items:start}
+.insights .n{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--wine); padding-top:3px}
+.insights .txt{max-width:66ch}
+
+.tw{overflow-x:auto; border:1px solid var(--border); background:var(--surface); margin:20px 0}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:560px}
+th,td{padding:9px 13px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap}
+thead th{
+  background:var(--surface-2); font-size:10.5px; font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); position:sticky; top:0;
+}
+tbody tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+td.name{white-space:normal; min-width:230px; line-height:1.35}
+tfoot td{background:var(--surface-2); font-weight:700; border-top:2px solid var(--border-strong)}
+.cap{font-size:12px; color:var(--muted); margin:8px 0 0; max-width:var(--measure)}
+
+.curve{display:inline-block; width:17px; height:17px; line-height:17px; text-align:center; border-radius:2px; font-size:10.5px; font-weight:700; font-family:"Public Sans",sans-serif}
+.cA{background:var(--wine); color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cA{color:#221619}}
+:root[data-theme="dark"] .cA{color:#221619}
+.cB{background:var(--surface-2); color:var(--ink-2); border:1px solid var(--border-strong)}
+
+.pull{
+  background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--wine);
+  padding:22px 24px; margin:26px 0; display:grid; gap:5px;
+}
+.pull .big{font-family:"IBM Plex Mono",monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; color:var(--wine)}
+.pull .cx{font-size:14px; color:var(--ink-2); max-width:62ch; line-height:1.5}
+
+.pri{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase}
+.dot{width:8px; height:8px; border-radius:50%; flex:none}
+.d-alta{background:var(--neg)} .d-media{background:var(--warn)} .d-baixa{background:var(--pos)}
+
+.plan{display:grid; gap:1px; background:var(--border); border:1px solid var(--border); margin:22px 0}
+.act{background:var(--surface); padding:22px 24px}
+.act-h{display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; margin-bottom:12px}
+.act-n{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--wine)}
+.act-t{font-family:"Bitter",serif; font-size:17px; font-weight:700; flex:1; min-width:200px}
+.act dl{display:grid; grid-template-columns:max-content 1fr; gap:7px 18px; margin:0; font-size:13.5px; max-width:none}
+.act dt{font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); padding-top:3px}
+.act dd{margin:0; color:var(--ink-2); line-height:1.5}
+.act dd b{color:var(--ink); font-weight:600}
+
+.qs{list-style:none; padding:0; margin:0; display:grid; gap:1px; background:var(--border); border:1px solid var(--border)}
+.qs li{background:var(--surface); padding:17px 22px; display:grid; grid-template-columns:26px 1fr; gap:14px}
+.qs .q{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--wine); font-weight:600; padding-top:3px}
+.qs .why{display:block; font-size:12.5px; color:var(--muted); margin-top:5px; line-height:1.45}
+
+.note{
+  background:var(--surface-2); border:1px solid var(--border); padding:16px 20px;
+  font-size:13px; color:var(--ink-2); margin:24px 0; max-width:none; line-height:1.55;
+}
+.note b{color:var(--ink)}
+
+footer{border-top:1px solid var(--border-strong); padding-top:20px; margin-top:70px; font-size:12.5px; color:var(--muted); max-width:var(--measure)}
+
+@media (max-width:600px){
+  .wrap{padding:0 16px 64px}
+  .act dl{grid-template-columns:1fr; gap:3px 0}
+  .act dt{padding-top:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- alternador de tema ---------- */
+.tema{
+  position:fixed; top:14px; right:14px; z-index:99;
+  display:flex; align-items:center; gap:7px;
+  background:var(--surface); color:var(--ink-2);
+  border:1px solid var(--border-strong); border-radius:999px;
+  padding:7px 14px; cursor:pointer;
+  font-family:"Public Sans",sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:.04em; box-shadow:0 1px 4px rgba(0,0,0,.10);
+}
+.tema:hover{border-color:var(--wine); color:var(--wine)}
+.tema:focus-visible{outline:2px solid var(--wine); outline-offset:2px}
+.tema svg{width:14px; height:14px; flex:none}
+@media print{.tema{display:none}}
+@media (max-width:600px){.tema{top:8px; right:8px; padding:6px 11px; font-size:11px}}
+</style>
+
+<button class="tema" id="tema" type="button" aria-label="Alternar entre tema claro e escuro">
+  <svg id="temaIcone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+  <span id="temaTexto">Tema</span>
+</button>
+
+<script>
+(function(){
+  var SOL = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>';
+  var LUA = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>';
+  var raiz = document.documentElement;
+  var icone = document.getElementById('temaIcone');
+  var texto = document.getElementById('temaTexto');
+
+  function atual(){
+    var t = raiz.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function pintar(t){
+    // o botao oferece o tema OPOSTO ao que esta na tela
+    var alvo = t === 'dark' ? 'light' : 'dark';
+    icone.innerHTML = alvo === 'light' ? SOL : LUA;
+    texto.textContent = alvo === 'light' ? 'Claro' : 'Escuro';
+  }
+  function aplicar(t){
+    raiz.setAttribute('data-theme', t);
+    try { localStorage.setItem('dossie-tema', t); } catch(e) {}
+    pintar(t);
+  }
+
+  var salvo = null;
+  try { salvo = localStorage.getItem('dossie-tema'); } catch(e) {}
+  if (salvo === 'light' || salvo === 'dark') raiz.setAttribute('data-theme', salvo);
+  pintar(atual());
+
+  document.getElementById('tema').addEventListener('click', function(){
+    aplicar(atual() === 'dark' ? 'light' : 'dark');
+  });
+})();
+</script>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">
+    <span>Vitamedic</span><span class="sep">/</span>
+    <span>Gerência de Contas</span><span class="sep">/</span>
+    <span>Análise de Distribuidor</span>
+  </div>
+  <h1>MILLENIUM</h1>
+  <p class="dek">
+    Duas operações andando em direções opostas. O Espírito Santo cresceu 69% e
+    <strong>assumiu a liderança do estado</strong>. O Rio caiu 26% — mais que o próprio
+    mercado — e é o <strong>único recorte da conta abaixo da praça</strong>.
+    O consolidado de −3,8% esconde as duas histórias.
+  </p>
+  <div class="meta">
+    <span><b>Fontes</b> Sell-out Vitamedic (14/08/2026) · IQVIA Mercado Relevante</span>
+    <span><b>Período</b> jan/2025 – jul/2026 (19 meses fechados)</span>
+    <span><b>Comparação</b> jan–jul/25 vs jan–jul/26</span>
+    <span><b>CNPJs</b> 02.632.609/0001-09 (ES) · 02.632.609/0005-32 (RJ)</span>
+  </div>
+</header>
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="lbl">Sell-out 7M/26</div>
+    <div class="val">R$ 5,04 M</div>
+    <div class="sub"><span class="down">−3,8%</span> vs 7M/25</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">vs. Mercado</div>
+    <div class="val up">+16,4 pp</div>
+    <div class="sub">mercado Vitamedic caiu 20,2%</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Share no ES</div>
+    <div class="val up">40,5%</div>
+    <div class="sub"><span class="up">+16,49 pp</span> · assumiu a liderança</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Share no RJ</div>
+    <div class="val">28,0%</div>
+    <div class="sub"><span class="down">−2,65 pp</span> · ainda 1º, mas encolhendo</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">PDVs ativos</div>
+    <div class="val">5.198</div>
+    <div class="sub"><span class="up">+2,7%</span> · mix de 8,0 SKUs</div>
+  </div>
+</div>
+
+<!-- ============ 1 ============ -->
+<section id="resumo">
+  <div class="shead"><span class="snum">01</span><h2>Resumo executivo</h2></div>
+
+  <ol class="insights">
+    <li>
+      <span class="n">01</span>
+      <div class="txt">
+        <strong>O número consolidado não descreve nenhuma das duas operações.</strong>
+        A conta caiu 3,8% — mas isso é a média entre um Espírito Santo que cresceu
+        <strong>69,7%</strong> e um Rio que caiu <strong>25,8%</strong>. Gerir a conta pelo
+        consolidado seria administrar uma realidade que não existe em lugar nenhum.
+      </div>
+    </li>
+    <li>
+      <span class="n">02</span>
+      <div class="txt">
+        <strong>O Espírito Santo virou o ativo mais valioso da conta.</strong>
+        Share de 24,05% para <strong>40,54%</strong> — dezesseis pontos e meio em um ano —
+        subindo de 2º para <strong>1º do estado</strong>. Atende 70,8% de todos os PDVs
+        que compram Vitamedic no ES: a operação mais penetrada de toda a base analisada.
+      </div>
+    </li>
+    <li>
+      <span class="n">03</span>
+      <div class="txt">
+        <strong>O Rio é o único recorte da conta que perde para a própria praça.</strong>
+        O estado caiu 18,8%; o MILLENIUM caiu 25,8%. São <strong>7 pontos abaixo do mercado</strong> —
+        o oposto do que acontece em todos os outros recortes. O share recuou de 30,65% para 27,99%.
+      </div>
+    </li>
+    <li>
+      <span class="n">04</span>
+      <div class="txt">
+        <strong>E o Rio não perdeu clientes — perdeu valor dentro deles.</strong>
+        A base de PDVs até <em>cresceu</em> (3.533 para 3.576) e a penetração no estado subiu
+        de 47,1% para 48,4%. O que despencou foi o faturamento por PDV:
+        de R$ 1.142 para R$ 837, <strong>−26,7%</strong>. O problema é mix e ticket, não cobertura.
+      </div>
+    </li>
+    <li>
+      <span class="n">05</span>
+      <div class="txt">
+        <strong>O EMEFARMA encostou.</strong> A vantagem do MILLENIUM no Rio era de
+        10,36 pontos de share em 2025. Hoje é de <strong>3,61</strong>. Enquanto o líder
+        recuava 2,65 pontos, o 2º colocado avançava 4,09. Mantido o ritmo, a liderança
+        do estado muda de mãos dentro de doze meses.
+      </div>
+    </li>
+  </ol>
+
+  <div class="note">
+    <b>Contraponto necessário.</b> Os números acima cobrem jan–jul. Os últimos quatro meses
+    contam algo diferente: o MILLENIUM saiu de R$ 508 mil em fevereiro para
+    <b>R$ 986 mil em julho</b> — o melhor mês da série — com PDVs subindo de 2.370 para 3.167
+    e o portfólio de 110 para 130 SKUs. A conta está em recuperação acelerada,
+    e o acumulado do ano ainda carrega o peso de um primeiro trimestre fraco.
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="duas">
+  <div class="shead"><span class="snum">02</span><h2>Duas operações, direções opostas</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Recorte</th><th class="n">Un. 7M/25</th><th class="n">Un. 7M/26</th><th class="n">Δ Un.</th>
+        <th class="n">R$ 7M/25</th><th class="n">R$ 7M/26</th><th class="n">Δ R$</th><th class="n">PDVs</th><th class="n">Δ R$/PDV</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>MILLENIUM total</b></td><td class="n">1.299.672</td><td class="n">1.283.002</td><td class="n down">−1,3%</td>
+        <td class="n">5.243.622</td><td class="n">5.044.409</td><td class="n down">−3,8%</td><td class="n">5.198</td><td class="n down">−6,3%</td></tr>
+        <tr style="background:var(--pos-bg)"><td>&nbsp;&nbsp;MILLENIUM (ES)</td><td class="n">341.052</td><td class="n">543.671</td><td class="n up">+59,4%</td>
+        <td class="n">1.207.846</td><td class="n">2.049.486</td><td class="n up"><b>+69,7%</b></td><td class="n">1.620</td><td class="n up">+60,0%</td></tr>
+        <tr style="background:var(--neg-bg)"><td>&nbsp;&nbsp;MILLENIUM RJ</td><td class="n">958.620</td><td class="n">739.331</td><td class="n down">−22,9%</td>
+        <td class="n">4.035.776</td><td class="n">2.994.923</td><td class="n down"><b>−25,8%</b></td><td class="n">3.578</td><td class="n down">−26,7%</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Mercado Vitamedic (547 distr.)</td><td class="n">49,67 M</td><td class="n">36,66 M</td><td class="n down">−26,2%</td>
+        <td class="n">217,20 M</td><td class="n">173,41 M</td><td class="n down">−20,2%</td><td class="n">—</td><td class="n">—</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">95 pontos separam as duas unidades</div>
+    <div class="cx">
+      O ES cresce 69,7% e o RJ cai 25,8%, dentro da mesma empresa, no mesmo período,
+      com o mesmo portfólio e o mesmo preço. A diferença não está no produto nem no mercado —
+      está na execução. Entender o que o ES fez é a pergunta mais rentável desta conta.
+    </div>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Cada CNPJ atende uma praça, sem sobreposição.</b> O CNPJ do ES faturou R$ 2,04 M para
+    PDVs capixabas e R$ 13 mil fora; o do RJ faturou R$ 2,99 M para PDVs fluminenses e
+    R$ 162 no resto. Aqui o CNPJ coincide com a praça — a leitura por unidade e por
+    estado dá o mesmo resultado.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>O MILLENIUM RJ é o 5º maior distribuidor Vitamedic do país</b> em valor nos 19 meses,
+    entre 547. O CNPJ do ES é o 32º. Juntos representam 2,94% de todo o sell-out
+    Vitamedic nacional.</p>
+  </div>
+
+  <h3>A virada dos últimos meses</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Mês</th><th class="n">Unidades</th><th class="n">Valor</th><th class="n">PDVs</th><th class="n">SKUs</th><th class="n">R$/PDV</th></tr></thead>
+      <tbody>
+        <tr><td>dez/2025</td><td class="n">191.735</td><td class="n">662.321</td><td class="n">2.757</td><td class="n">109</td><td class="n">240</td></tr>
+        <tr><td>jan/2026</td><td class="n">210.625</td><td class="n">846.157</td><td class="n">2.680</td><td class="n">110</td><td class="n">316</td></tr>
+        <tr><td>fev/2026</td><td class="n">132.098</td><td class="n">508.043</td><td class="n">2.370</td><td class="n">110</td><td class="n">214</td></tr>
+        <tr><td>mar/2026</td><td class="n">128.515</td><td class="n">509.725</td><td class="n">2.491</td><td class="n">111</td><td class="n">205</td></tr>
+        <tr><td>abr/2026</td><td class="n">125.115</td><td class="n">515.743</td><td class="n">2.710</td><td class="n">118</td><td class="n">190</td></tr>
+        <tr><td>mai/2026</td><td class="n">201.440</td><td class="n">775.292</td><td class="n">3.171</td><td class="n">125</td><td class="n">244</td></tr>
+        <tr><td>jun/2026</td><td class="n">228.416</td><td class="n">903.606</td><td class="n">3.192</td><td class="n">126</td><td class="n">283</td></tr>
+        <tr style="background:var(--pos-bg)"><td><b>jul/2026</b></td><td class="n"><b>256.793</b></td><td class="n"><b>985.844</b></td><td class="n"><b>3.167</b></td><td class="n"><b>130</b></td><td class="n"><b>311</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Cinco meses consecutivos de alta em unidades</b> desde o fundo de abril, com o portfólio
+    ampliando de 110 para 130 apresentações e a base de PDVs subindo 34%. Julho é o melhor
+    mês da série em unidades, valor e SKUs simultaneamente.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    A recuperação a partir de maio coincide com a ampliação do portfólio (+20 SKUs) e
+    com a expansão da base. <b>Parece execução comercial nova, não sazonalidade</b> —
+    o mesmo período de 2025 não mostra esse padrão. Precisa confirmar se houve mudança
+    de equipe, meta ou política a partir do 2º trimestre.</p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="estado">
+  <div class="shead"><span class="snum">03</span><h2>Crescimento contra o próprio estado</h2></div>
+
+  <p>O recorte é o <strong>estado onde está o PDV</strong>. "Estado" significa todo o sell-out
+  Vitamedic para farmácias daquela UF, por qualquer um dos 547 distribuidores.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Praça</th><th class="n">7M/25</th><th class="n">7M/26</th><th class="n">Variação</th><th class="n">Vantagem</th></tr></thead>
+      <tbody>
+        <tr><td colspan="5" style="background:var(--surface-2); font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--pos)">Espírito Santo</td></tr>
+        <tr><td>Estado ES — valor</td><td class="n">5.023.101</td><td class="n">5.022.994</td><td class="n">0,0%</td><td class="n">—</td></tr>
+        <tr><td><b>MILLENIUM no ES</b></td><td class="n">1.207.851</td><td class="n">2.036.122</td><td class="n up">+68,6%</td><td class="n up"><b>+68,6 pp</b></td></tr>
+        <tr><td>Share em valor</td><td class="n">24,05%</td><td class="n">40,54%</td><td class="n up">+16,49 pp</td><td class="n">—</td></tr>
+        <tr><td>Penetração nos PDVs do estado</td><td class="n">65,6%</td><td class="n">70,8%</td><td class="n up">+5,2 pp</td><td class="n">—</td></tr>
+        <tr><td>Posição no estado</td><td class="n">2º</td><td class="n up"><b>1º</b></td><td class="n up">+1</td><td class="n">—</td></tr>
+
+        <tr><td colspan="5" style="background:var(--surface-2); font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--neg)">Rio de Janeiro</td></tr>
+        <tr><td>Estado RJ — valor</td><td class="n">13.168.937</td><td class="n">10.697.908</td><td class="n down">−18,8%</td><td class="n">—</td></tr>
+        <tr><td><b>MILLENIUM no RJ</b></td><td class="n">4.035.771</td><td class="n">2.994.760</td><td class="n down">−25,8%</td><td class="n down"><b>−7,0 pp</b></td></tr>
+        <tr><td>Share em valor</td><td class="n">30,65%</td><td class="n">27,99%</td><td class="n down">−2,65 pp</td><td class="n">—</td></tr>
+        <tr><td>Penetração nos PDVs do estado</td><td class="n">47,1%</td><td class="n">48,4%</td><td class="n up">+1,3 pp</td><td class="n">—</td></tr>
+        <tr><td>Posição no estado</td><td class="n">1º</td><td class="n">1º</td><td class="n">=</td><td class="n">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">−7,0 pp abaixo da própria praça</div>
+    <div class="cx">
+      Em todas as outras contas e recortes analisados, o distribuidor cai menos que o mercado.
+      O Rio do MILLENIUM é a exceção: caiu 7 pontos <b>mais</b> que o estado, num estado que
+      já estava caindo 18,8%. É o único lugar onde a conta perde participação de verdade.
+    </div>
+  </div>
+
+  <h3>Espírito Santo — como a liderança mudou de mãos</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th class="n">#</th><th>Distribuidor Vitamedic — ES</th><th class="n">7M/25</th><th class="n">7M/26</th><th class="n">Share 26</th><th class="n">YoY</th></tr></thead>
+      <tbody>
+        <tr style="background:var(--wine-soft)"><td class="n">1</td><td><b>MILLENIUM</b></td><td class="n">1.207.846</td><td class="n"><b>2.036.097</b></td><td class="n"><b>40,5%</b></td><td class="n up"><b>+69%</b></td></tr>
+        <tr><td class="n">2</td><td>DISTRIBUIDORA LABORSIL</td><td class="n">678.777</td><td class="n">900.252</td><td class="n">17,9%</td><td class="n up">+33%</td></tr>
+        <tr><td class="n">3</td><td>EMEFARMA ES</td><td class="n">275.075</td><td class="n">521.885</td><td class="n">10,4%</td><td class="n up">+90%</td></tr>
+        <tr><td class="n">4</td><td>BARATELA</td><td class="n">1.510.575</td><td class="n">292.520</td><td class="n">5,8%</td><td class="n down">−81%</td></tr>
+        <tr><td class="n">5</td><td>FARMACIA INDIANA</td><td class="n">297.138</td><td class="n">216.237</td><td class="n">4,3%</td><td class="n down">−27%</td></tr>
+        <tr><td class="n">6</td><td>NAVARRO ES 2</td><td class="n">171.336</td><td class="n">196.688</td><td class="n">3,9%</td><td class="n up">+15%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A liderança não foi conquistada num mercado em expansão — foi capturada de um concorrente
+    que ruiu.</b> A BARATELA era a líder com R$ 1,51 M e caiu para R$ 293 mil, liberando
+    R$ 1,22 milhão. O MILLENIUM ficou com <b>R$ 828 mil desse espólio (68%)</b>,
+    a LABORSIL com R$ 221 mil e o EMEFARMA com R$ 247 mil. O estado inteiro ficou parado
+    em 0,0%: não houve mercado novo, houve redistribuição.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>Ganho de share por captura tem prazo de validade.</b> Uma vez absorvido o espólio da
+    BARATELA, o ES volta a crescer no ritmo do estado — que é zero. Se a liderança veio
+    de captura e não de expansão de demanda, 2027 exige um motor diferente.
+    Vale checar quanto do crescimento veio de PDVs que eram da BARATELA.</p>
+  </div>
+
+  <h3>Rio de Janeiro — a corrida com o EMEFARMA</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th class="n">#</th><th>Distribuidor Vitamedic — RJ</th><th class="n">7M/25</th><th class="n">7M/26</th><th class="n">Share 26</th><th class="n">YoY</th></tr></thead>
+      <tbody>
+        <tr style="background:var(--wine-soft)"><td class="n">1</td><td><b>MILLENIUM RJ</b></td><td class="n">4.035.771</td><td class="n"><b>2.994.760</b></td><td class="n"><b>28,0%</b></td><td class="n down"><b>−26%</b></td></tr>
+        <tr><td class="n">2</td><td>EMEFARMA RJ</td><td class="n">2.672.041</td><td class="n">2.607.934</td><td class="n">24,4%</td><td class="n">−2%</td></tr>
+        <tr><td class="n">3</td><td>NAVARRO RJ</td><td class="n">809.014</td><td class="n">1.092.550</td><td class="n">10,2%</td><td class="n up">+35%</td></tr>
+        <tr><td class="n">4</td><td>MEDICAMENTAL 3</td><td class="n">1.734.004</td><td class="n">884.881</td><td class="n">8,3%</td><td class="n down">−49%</td></tr>
+        <tr><td class="n">5</td><td>DROG. PACHECO REDE</td><td class="n">840.766</td><td class="n">583.944</td><td class="n">5,5%</td><td class="n down">−31%</td></tr>
+        <tr><td class="n">6</td><td>MAXCENTER</td><td class="n">351.002</td><td class="n">313.317</td><td class="n">2,9%</td><td class="n down">−11%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">A vantagem caiu de 10,36 pp para 3,61 pp</div>
+    <div class="cx">
+      Em jan–jul/25 o MILLENIUM tinha 30,65% do Rio contra 20,29% do EMEFARMA.
+      Um ano depois: 27,99% contra 24,38%. A distância encolheu <b>65% em doze meses</b>,
+      com os dois se movendo em sentidos contrários.
+    </div>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Há um terceiro se movendo rápido.</b> A NAVARRO RJ cresceu 35% e passou de
+    R$ 809 mil para R$ 1,09 M, saindo de 6,1% para 10,2% de share. Junto com o EMEFARMA,
+    são os dois únicos do top 6 que não caíram — e ambos ganharam exatamente
+    onde o MILLENIUM perdeu.</p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="paradoxo">
+  <div class="shead"><span class="snum">04</span><h2>O paradoxo do Rio: mais PDVs, menos venda</h2></div>
+
+  <p>A queda do Rio não se explica por perda de cobertura. Todos os indicadores de alcance
+  melhoraram; o que caiu foi o quanto cada PDV compra.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Indicador no RJ</th><th class="n">7M/25</th><th class="n">7M/26</th><th class="n">Variação</th><th>Leitura</th></tr></thead>
+      <tbody>
+        <tr><td>PDVs atendidos</td><td class="n">3.533</td><td class="n">3.576</td><td class="n up">+1,2%</td><td>alcance cresceu</td></tr>
+        <tr><td>Penetração na base do estado</td><td class="n">47,1%</td><td class="n">48,4%</td><td class="n up">+1,3 pp</td><td>alcance cresceu</td></tr>
+        <tr><td>Unidades</td><td class="n">958.620</td><td class="n">739.331</td><td class="n down">−22,9%</td><td>volume caiu</td></tr>
+        <tr><td>Valor</td><td class="n">4.035.776</td><td class="n">2.994.923</td><td class="n down">−25,8%</td><td>faturamento caiu</td></tr>
+        <tr style="background:var(--neg-bg)"><td><b>Valor por PDV</b></td><td class="n">1.142</td><td class="n">837</td><td class="n down"><b>−26,7%</b></td><td><b>a variável que quebrou</b></td></tr>
+        <tr><td>SKUs vendidos</td><td class="n">136</td><td class="n">123</td><td class="n down">−13</td><td>portfólio encolheu</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Praticamente toda a queda do Rio está no valor por PDV.</b> Com a base estável,
+    a queda de 26,7% no ticket explica sozinha os 25,8% de perda de faturamento.
+    O distribuidor continuou visitando os mesmos clientes e vendendo menos em cada visita.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>O portfólio ativo no RJ encolheu de 136 para 123 apresentações</b>, enquanto o do ES
+    <em>cresceu</em> de 105 para 130. As duas unidades andaram em sentidos opostos também
+    no mix — e é o mix que sustenta o ticket.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>O padrão é de venda reativa.</b> Base mantida, frequência mantida, mix e ticket
+    caindo — é a assinatura de operação que passou a tirar pedido em vez de construir
+    pedido: menos sugestão de itens, menos campanha, menos argumentação de sortimento.
+    Ruptura prolongada em itens de giro produziria o mesmo efeito e precisa ser descartada
+    antes de concluir.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Não tratar o Rio como problema de cobertura.</b> Campanha de prospecção ou de ativação
+    de novos PDVs não corrige nada aqui — o alcance já cresceu. O que precisa subir é
+    o número de itens por pedido. Todo o esforço deve ir para mix dentro da base existente.</p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="abc">
+  <div class="shead"><span class="snum">05</span><h2>Curva ABC — onde está o faturamento</h2></div>
+
+  <p>Das <strong>240 apresentações</strong> do portfólio Vitamedic, o MILLENIUM vendeu
+  <strong>132</strong> no acumulado de 2026. Trinta e quatro concentram 80% do faturamento.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th class="n">#</th><th>Apresentação</th><th class="n">Valor 26</th><th class="n">% ac.</th>
+        <th class="n">Unidades</th><th class="n">YoY</th><th class="n">PDVs</th><th class="n">Cobertura</th><th class="n">Curva</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">586.072</td><td class="n">11,6</td><td class="n">136.023</td><td class="n up">+117%</td><td class="n">1.058</td><td class="n">20,4%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">2</td><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">348.254</td><td class="n">18,5</td><td class="n">192.436</td><td class="n up">+63%</td><td class="n">1.677</td><td class="n">32,3%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">3</td><td class="name">Cloridrato de Fexofenadina susp. 60ml</td><td class="n">307.953</td><td class="n">24,6</td><td class="n">24.956</td><td class="n up">+5%</td><td class="n">2.064</td><td class="n">39,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">4</td><td class="name">Lorasliv 10mg × 12</td><td class="n">243.148</td><td class="n">29,4</td><td class="n">126.864</td><td class="n down">−47%</td><td class="n">1.569</td><td class="n">30,2%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">5</td><td class="name">Loratadina 10mg × 12</td><td class="n">239.014</td><td class="n">34,2</td><td class="n">140.349</td><td class="n up">+65%</td><td class="n">1.678</td><td class="n">32,3%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">6</td><td class="name">Fosfato Sódico Prednisolona sol. 3mg</td><td class="n">185.068</td><td class="n">37,9</td><td class="n">24.916</td><td class="n up">+76%</td><td class="n">1.455</td><td class="n">28,0%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">7</td><td class="name">Fluconazol 150mg × 2</td><td class="n">173.281</td><td class="n">41,3</td><td class="n">90.036</td><td class="n up">+25%</td><td class="n">1.897</td><td class="n">36,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">8</td><td class="name">Dipirona 500mg 20×10</td><td class="n">150.348</td><td class="n">44,3</td><td class="n">3.253</td><td class="n up">+118%</td><td class="n">415</td><td class="n">8,0%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">9</td><td class="name">Vertizan 10mg × 50</td><td class="n">125.707</td><td class="n">46,8</td><td class="n">16.952</td><td class="n up">+34%</td><td class="n">1.790</td><td class="n">34,4%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">10</td><td class="name">Maleato de Enalapril 10mg × 30</td><td class="n">124.282</td><td class="n">49,2</td><td class="n">41.447</td><td class="n down">−17%</td><td class="n">570</td><td class="n">11,0%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">11</td><td class="name">Ivermectina 6mg × 4</td><td class="n">123.869</td><td class="n">51,7</td><td class="n">31.816</td><td class="n down">−67%</td><td class="n">939</td><td class="n">18,1%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">12</td><td class="name">Limp. Lentes KS 350 + gel 120</td><td class="n">114.046</td><td class="n">53,9</td><td class="n">3.195</td><td class="n up">+78%</td><td class="n">495</td><td class="n">9,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">13</td><td class="name">Nimelit 100mg × 12</td><td class="n">113.416</td><td class="n">56,2</td><td class="n">51.544</td><td class="n up">+43%</td><td class="n">454</td><td class="n">8,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">14</td><td class="name">Ivermectina 6mg × 8</td><td class="n">111.935</td><td class="n">58,4</td><td class="n">10.161</td><td class="n up">+1.078%</td><td class="n">443</td><td class="n">8,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">15</td><td class="name">Atenolol 50mg × 30</td><td class="n">94.379</td><td class="n">60,3</td><td class="n">37.138</td><td class="n up">+390%</td><td class="n">1.013</td><td class="n">19,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">16</td><td class="name">Algy-Flanderil 600mg × 20</td><td class="n">69.494</td><td class="n">61,7</td><td class="n">13.596</td><td class="n up">+29%</td><td class="n">384</td><td class="n">7,4%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">17</td><td class="name">Hepatovit Flaconete Abacaxi × 60</td><td class="n">65.949</td><td class="n">63,0</td><td class="n">1.691</td><td class="n down">−46%</td><td class="n">769</td><td class="n">14,8%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">18</td><td class="name">Ibuprofeno 600mg × 20</td><td class="n">64.357</td><td class="n">64,2</td><td class="n">14.443</td><td class="n up">+89%</td><td class="n">523</td><td class="n">10,1%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">20</td><td class="name">Nimesulida 100mg × 12</td><td class="n">58.604</td><td class="n">66,6</td><td class="n">35.936</td><td class="n down">−55%</td><td class="n">338</td><td class="n">6,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">22</td><td class="name">Energrip C efervescente × 10</td><td class="n">55.789</td><td class="n">68,9</td><td class="n">12.050</td><td class="n down">−51%</td><td class="n">146</td><td class="n">2,8%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">23</td><td class="name">Doralex 1g × 10</td><td class="n">54.614</td><td class="n">70,0</td><td class="n">10.785</td><td class="n down">−77%</td><td class="n">183</td><td class="n">3,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">24</td><td class="name">Atenolol 25mg × 30</td><td class="n">52.071</td><td class="n">71,0</td><td class="n">33.901</td><td class="n up">+91%</td><td class="n">460</td><td class="n">8,8%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">26</td><td class="name">Butacid rev. 200mg × 20</td><td class="n">50.034</td><td class="n">73,0</td><td class="n">4.742</td><td class="n up">+649%</td><td class="n">875</td><td class="n">16,8%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">27</td><td class="name">Fluconid 150mg × 2</td><td class="n">49.288</td><td class="n">74,0</td><td class="n">22.300</td><td class="n down">−56%</td><td class="n">679</td><td class="n">13,1%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">29</td><td class="name">Biovarixon rev. 900mg × 30</td><td class="n">45.506</td><td class="n">75,8</td><td class="n">1.050</td><td class="n down">−80%</td><td class="n">255</td><td class="n">4,9%</td><td class="n"><span class="curve cA">A</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Recorte das 25 linhas mais relevantes das 132 apresentações com venda. Valores em R$. Curva completa: 34 apresentações A · 36 B · 62 C.</p>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Concentração menor que a média da praça.</b> Os 5 primeiros SKUs fazem 34,2% do
+    faturamento e os 10 primeiros, 49,2% — contra 37,9% e 52,4% do EMEFARMA.
+    O MILLENIUM depende menos de poucos itens, o que é um ativo de resiliência.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Seis produtos A em queda pesada:</b> Doralex (−77%), Ivermectina 6mg×4 (−67%),
+    Fluconid (−56%), Nimesulida (−55%), Energrip C (−51%) e Lorasliv (−47%).
+    Somam R$ 585 mil no acumulado. Biovarixon 900mg caiu 80%.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>E seis em aceleração forte:</b> Ivermectina 6mg×8 (+1.078%), Butacid (+649%),
+    Atenolol 50mg (+390%), Dipirona 500 20×10 (+118%), Dipirona 1g (+117%) e Atenolol
+    25mg (+91%). O Atenolol 50mg saltou para 1.013 PDVs — é a maior expansão de
+    cobertura do período.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Proteger o <b>Anlodipino 5mg</b>: é o 2º maior faturamento, cresceu 63%, e já está em
+    32,3% dos PDVs — a segunda maior cobertura da conta. Combinado com Atenolol e Enalapril,
+    forma um bloco de crônicos com recompra mensal previsível.</p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="cobertura">
+  <div class="shead"><span class="snum">06</span><h2>Cobertura e mix — o ativo e a alavanca</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Faixa de mix</th><th class="n">PDVs</th><th class="n">% da base</th><th class="n">Valor 7M/26</th><th class="n">% do valor</th><th class="n">R$ por PDV</th></tr></thead>
+      <tbody>
+        <tr><td>Apenas 1 SKU</td><td class="n">643</td><td class="n">12,4%</td><td class="n">69.943</td><td class="n">1,4%</td><td class="n">109</td></tr>
+        <tr><td>2 a 3 SKUs</td><td class="n">973</td><td class="n">18,7%</td><td class="n">291.019</td><td class="n">5,8%</td><td class="n">299</td></tr>
+        <tr><td>4 a 9 SKUs</td><td class="n">1.994</td><td class="n">38,4%</td><td class="n">1.225.387</td><td class="n">24,3%</td><td class="n">615</td></tr>
+        <tr style="background:var(--pos-bg)"><td><b>10 ou mais SKUs</b></td><td class="n">1.588</td><td class="n">30,6%</td><td class="n">3.458.060</td><td class="n">68,6%</td><td class="n"><b>2.178</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">Mix médio de 8,0 SKUs por PDV</div>
+    <div class="cx">
+      Contra 6,1 do EMEFARMA. E 30,6% da base do MILLENIUM compra 10 ou mais itens,
+      contra 20,2% do concorrente. <b>O mix é a vantagem competitiva estrutural desta conta</b> —
+      e é exatamente o que está sendo perdido no Rio, onde o portfólio ativo encolheu
+      de 136 para 123 apresentações.
+    </div>
+  </div>
+
+  <h3>Potencial de ampliar cobertura</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">PDVs hoje</th><th class="n">Cobertura</th><th class="n">R$ / PDV</th><th class="n">Ganho a +10 pp</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">1.058</td><td class="n">20,4%</td><td class="n">554</td><td class="n">287.940</td></tr>
+        <tr><td class="name">Dipirona 500mg 20×10</td><td class="n">415</td><td class="n">8,0%</td><td class="n">362</td><td class="n">188.315</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">443</td><td class="n">8,5%</td><td class="n">253</td><td class="n">131.340</td></tr>
+        <tr><td class="name">Nimelit 100mg × 12</td><td class="n">454</td><td class="n">8,7%</td><td class="n">250</td><td class="n">129.854</td></tr>
+        <tr><td class="name">Limp. Lentes KS 350 + gel 120</td><td class="n">495</td><td class="n">9,5%</td><td class="n">230</td><td class="n">119.760</td></tr>
+        <tr><td class="name">Maleato de Enalapril 10mg × 30</td><td class="n">570</td><td class="n">11,0%</td><td class="n">218</td><td class="n">113.336</td></tr>
+        <tr><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">1.677</td><td class="n">32,3%</td><td class="n">208</td><td class="n">107.944</td></tr>
+        <tr><td class="name">Algy-Flanderil 600mg × 20</td><td class="n">384</td><td class="n">7,4%</td><td class="n">181</td><td class="n">94.070</td></tr>
+        <tr><td class="name">Nimesulida 100mg × 12</td><td class="n">338</td><td class="n">6,5%</td><td class="n">173</td><td class="n">90.125</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">1.569</td><td class="n">30,2%</td><td class="n">155</td><td class="n">80.553</td></tr>
+      </tbody>
+      <tfoot><tr><td><b>20 principais SKUs</b></td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n"><b>1.940.478</b></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="cap">Ganho projetado = receita média por PDV comprador × 520 PDVs (10% da base de 5.198). Premissa: o PDV novo compra como a média atual do SKU. Valores em R$ para 7 meses (~R$ 3,33 M/ano).</p>
+
+  <h3>Cross-selling a partir das âncoras</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Produto ausente</th><th class="n">Falta em</th><th class="n">Potencial</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">1.488</td><td class="n">824.267</td></tr>
+        <tr><td class="name">Energrip C efervescente × 10</td><td class="n">1.981</td><td class="n">756.970</td></tr>
+        <tr><td class="name">Dipirona 500mg 20×10</td><td class="n">1.865</td><td class="n">675.658</td></tr>
+        <tr><td class="name">Doralex 1g × 10</td><td class="n">1.954</td><td class="n">583.142</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">1.842</td><td class="n">465.427</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Base âncora: os 2.064 PDVs que compram Fexofenadina suspensão, o item mais capilarizado da conta. Potencial teórico de saturação total — serve para ordenar prioridade, não como meta.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="churn">
+  <div class="shead"><span class="snum">07</span><h2>Movimentação de PDVs</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Status</th><th class="n">PDVs</th><th class="n">% base 25</th><th class="n">Valor 2025</th><th class="n">Valor 2026</th><th class="n">Ticket</th></tr></thead>
+      <tbody>
+        <tr><td><b>Retidos</b></td><td class="n">4.140</td><td class="n">81,8%</td><td class="n">4.379.745</td><td class="n">4.470.096</td><td class="n up">+2,1%</td></tr>
+        <tr><td><b>Perdidos</b></td><td class="n">922</td><td class="n">18,2%</td><td class="n">863.877</td><td class="n">0</td><td class="n">937</td></tr>
+        <tr><td><b>Novos</b></td><td class="n">1.058</td><td class="n">—</td><td class="n">0</td><td class="n">574.313</td><td class="n">543</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Retenção de 81,8% — bem acima do EMEFARMA (72,5%).</b> E a base retida cresceu 2,1%.
+    Mas o PDV perdido do MILLENIUM vale R$ 937 contra R$ 626 do concorrente: quando perde,
+    perde cliente grande. O vazamento líquido é de <b>R$ 290 mil</b>.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>UF</th><th class="n">PDVs perdidos</th><th class="n">Valor perdido</th><th class="n">Ticket médio</th></tr></thead>
+      <tbody>
+        <tr><td>Rio de Janeiro</td><td class="n">784</td><td class="n">800.058</td><td class="n">1.021</td></tr>
+        <tr><td>Espírito Santo</td><td class="n">138</td><td class="n">63.819</td><td class="n">462</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>93% do valor perdido está no Rio.</b> São 784 PDVs valendo R$ 800 mil, com ticket
+    médio de R$ 1.021 — mais que o dobro do PDV perdido no ES. O churn reforça o
+    diagnóstico: o Rio é onde a conta está sangrando.</p>
+  </div>
+
+  <h3>Alvos prioritários de recuperação</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>PDV</th><th>UF</th><th>Cidade</th><th class="n">Valor 2025</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Drogaria N. Sra. das Graças</td><td>RJ</td><td>Rio de Janeiro</td><td class="n">59.961</td></tr>
+        <tr><td class="name">Sales &amp; Teixeira</td><td>RJ</td><td>Nova Friburgo</td><td class="n">23.227</td></tr>
+        <tr><td class="name">Drogaria Três Irmãos da Barrinha</td><td>RJ</td><td>São José do Vale</td><td class="n">21.395</td></tr>
+        <tr><td class="name">Intrafarmacos Produtos Médicos</td><td>RJ</td><td>Rio de Janeiro</td><td class="n">13.826</td></tr>
+        <tr><td class="name">Drogaria e Perfumaria Ju Farma</td><td>RJ</td><td>Nova Iguaçu</td><td class="n">13.118</td></tr>
+        <tr><td class="name">Drogaria Tokio</td><td>RJ</td><td>Cachoeiras de Macacu</td><td class="n">12.174</td></tr>
+        <tr><td class="name">Drogaria e Perfumaria Le Farma</td><td>RJ</td><td>Nova Iguaçu</td><td class="n">11.404</td></tr>
+        <tr><td class="name">Drogaria LMJ de Urucania</td><td>RJ</td><td>Rio de Janeiro</td><td class="n">10.975</td></tr>
+        <tr><td class="name">Drogaria Mais em Conta Miguel Couto</td><td>RJ</td><td>Duque de Caxias</td><td class="n">10.590</td></tr>
+        <tr><td class="name">Drog Conselheiro</td><td>RJ</td><td>Nova Friburgo</td><td class="n">10.518</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>Nova Friburgo concentra perda desproporcional.</b> Sales &amp; Teixeira, Drog Conselheiro
+    e Teixeira e Sales (Bom Jardim) somam R$ 41,9 mil — e os nomes sugerem o mesmo grupo
+    familiar. Perda concentrada em uma região serrana, com razões sociais relacionadas,
+    raramente é coincidência de mercado.</p>
+  </div>
+
+  <h3>Uma parte da perda não é do distribuidor</h3>
+
+  <p>Cruzando a carteira do MILLENIUM com a do EMEFARMA, <strong>268 PDVs foram perdidos
+  pelos dois ao mesmo tempo</strong>. Desses:</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Destino do PDV</th><th class="n">PDVs</th><th class="n">Valor 2025</th><th>Leitura</th></tr></thead>
+      <tbody>
+        <tr style="background:var(--warn-bg)"><td>Sumiram da Vitamedic inteira</td><td class="n">178</td><td class="n">448.021</td><td><b>perda da indústria</b>, não do distribuidor</td></tr>
+        <tr><td>Seguiram comprando de outro distribuidor</td><td class="n">90</td><td class="n">256.425</td><td>perda competitiva real</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>178 PDVs pararam de comprar Vitamedic de qualquer distribuidor</b>, levando R$ 448 mil.
+    Cobrar isso do MILLENIUM seria injusto — nem o concorrente conseguiu segurar.
+    No agregado, a Vitamedic passou de 100.778 para 97.198 PDVs compradores no país:
+    <b>13.914 sumiram, valendo R$ 17,0 milhões</b>.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Separar as duas conversas na reunião.</b> Os 90 PDVs que migraram para concorrentes
+    são responsabilidade compartilhada e cabem no plano de recuperação. Os 178 que saíram
+    da marca são pauta da indústria — provavelmente descontinuação de linha, ruptura
+    prolongada ou perda de espaço em gôndola. Misturar as duas coisas gera cobrança errada
+    e desgasta a relação.</p>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="whitespot">
+  <div class="shead"><span class="snum">08</span><h2>White spot — onde o share do SKU fica abaixo do share da conta</h2></div>
+
+  <p>O MILLENIUM detém <strong>32,0%</strong> do sell-out Vitamedic em RJ+ES
+  (R$ 5,03 M de R$ 15,72 M). O gap abaixo é o que falta para cada apresentação atingir
+  esse mesmo patamar.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">Mercado RJ/ES</th><th class="n">MILLENIUM</th><th class="n">Share</th><th class="n">Gap</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">1.036.735</td><td class="n">123.869</td><td class="n down">11,9%</td><td class="n">207.899</td></tr>
+        <tr><td class="name">Cloridrato de Metformina 500mg</td><td class="n">508.924</td><td class="n">19.514</td><td class="n down">3,8%</td><td class="n">143.348</td></tr>
+        <tr><td class="name">Algy-Flanderil 300mg × 500</td><td class="n">343.476</td><td class="n">0</td><td class="n down">0,0%</td><td class="n">109.916</td></tr>
+        <tr><td class="name">Biovarixon rev. 450mg × 60</td><td class="n">259.660</td><td class="n">27.893</td><td class="n down">10,7%</td><td class="n">55.201</td></tr>
+        <tr><td class="name">Cloridrato de Fexofenadina susp. 60ml</td><td class="n">1.131.695</td><td class="n">307.953</td><td class="n">27,2%</td><td class="n">54.203</td></tr>
+        <tr><td class="name">Algy-Flanderil 600mg × 500</td><td class="n">128.130</td><td class="n">0</td><td class="n down">0,0%</td><td class="n">41.003</td></tr>
+        <tr><td class="name">Cloridrato de Fexofenadina susp. 150ml</td><td class="n">322.567</td><td class="n">62.682</td><td class="n down">19,4%</td><td class="n">40.543</td></tr>
+        <tr><td class="name">Ibuprofeno 600mg × 20</td><td class="n">325.250</td><td class="n">64.357</td><td class="n down">19,8%</td><td class="n">39.727</td></tr>
+        <tr><td class="name">Sulfametoxazol + Trimetoprima</td><td class="n">114.573</td><td class="n">4.118</td><td class="n down">3,6%</td><td class="n">32.547</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">429.931</td><td class="n">111.935</td><td class="n">26,0%</td><td class="n">25.648</td></tr>
+        <tr><td class="name">Biovarixon rev. 900mg × 60</td><td class="n">158.717</td><td class="n">28.918</td><td class="n down">18,2%</td><td class="n">21.873</td></tr>
+        <tr><td class="name">Dicloridrato de Flunarizina 10mg</td><td class="n">92.773</td><td class="n">12.010</td><td class="n down">12,9%</td><td class="n">17.679</td></tr>
+      </tbody>
+      <tfoot><tr><td><b>Soma das 15 maiores lacunas</b></td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n"><b>829.569</b></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="cap">Valores em R$ para 7 meses. Projetado para 12 meses: ~R$ 1,42 M apenas para igualar o próprio share médio da conta.</p>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A Ivermectina 6mg × 4 é a maior lacuna isolada — e piorou.</b> Mercado de R$ 1,04 M
+    em RJ/ES, o MILLENIUM ficou com 11,9% quando vale 32,0% na praça.
+    O SKU caiu 67% na conta no período.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Duas apresentações de 500 unidades com share zero:</b> Algy-Flanderil 300mg × 500
+    (mercado de R$ 343 mil) e 600mg × 500 (R$ 128 mil). O MILLENIUM vende as versões × 20
+    dos dois, mas nenhuma unidade das × 500 — o mesmo padrão observado no EMEFARMA.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>Nenhum dos dois maiores distribuidores do Rio atende o canal das embalagens × 500.</b>
+    Quando dois concorrentes independentes têm exatamente zero no mesmo formato,
+    a explicação provável não é comercial e sim estrutural: o item não é oferecido a eles,
+    ou o canal que o consome (clínicas, fracionamento, hospitalar) é atendido por outra via.
+    Vale checar quem são os R$ 471 mil que compram esse formato em RJ/ES.</p>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="preco">
+  <div class="shead"><span class="snum">09</span><h2>Preço contra os outros distribuidores</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">Un. MILLENIUM</th><th class="n">Preço MILLENIUM</th><th class="n">Preço mercado</th><th class="n">Diferença</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">136.023</td><td class="n">4,31</td><td class="n">4,33</td><td class="n">−0,6%</td></tr>
+        <tr><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">192.436</td><td class="n">1,81</td><td class="n">1,82</td><td class="n">−0,7%</td></tr>
+        <tr><td class="name">Cloridrato de Fexofenadina susp.</td><td class="n">24.956</td><td class="n">12,34</td><td class="n">12,32</td><td class="n">+0,1%</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">126.864</td><td class="n">1,92</td><td class="n">1,92</td><td class="n">−0,4%</td></tr>
+        <tr><td class="name">Loratadina 10mg × 12</td><td class="n">140.349</td><td class="n">1,70</td><td class="n">1,70</td><td class="n">+0,5%</td></tr>
+        <tr><td class="name">Fluconazol 150mg × 2</td><td class="n">87.336</td><td class="n">1,92</td><td class="n">1,93</td><td class="n">−0,1%</td></tr>
+        <tr><td class="name">Dipirona 500mg 20×10</td><td class="n">3.253</td><td class="n">46,22</td><td class="n">45,85</td><td class="n">+0,8%</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">31.816</td><td class="n">3,89</td><td class="n">4,07</td><td class="n up">−4,4%</td></tr>
+        <tr><td class="name">Atenolol 50mg × 30</td><td class="n">36.658</td><td class="n">2,54</td><td class="n">2,55</td><td class="n">−0,2%</td></tr>
+        <tr><td class="name">Energrip C efervescente × 10</td><td class="n">12.050</td><td class="n">4,63</td><td class="n">4,72</td><td class="n up">−1,9%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Amostra de 10 das 22 apresentações analisadas. Preço = valor de sell-out ÷ unidades, em R$.</p>
+
+  <div class="pull">
+    <div class="big">0 de 22 SKUs fora da faixa</div>
+    <div class="cx">
+      Nenhuma apresentação do MILLENIUM está mais de 8% acima ou abaixo do preço praticado
+      pelos concorrentes na mesma praça — e a maior parte fica dentro de 1%.
+      O preço médio geral aparece 17,1% abaixo do mercado, mas isso é <b>efeito de mix</b>:
+      o MILLENIUM vende proporcionalmente mais genéricos baratos de alto giro.
+    </div>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Preço não entra na pauta desta reunião.</b> Está alinhado e não explica a queda do Rio —
+    que é de mix e ticket, não de competitividade. Verba disponível rende muito mais
+    em campanha de sortimento do que em desconto.</p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="industrias">
+  <div class="shead"><span class="snum">10</span><h2>Preço contra as indústrias concorrentes</h2></div>
+
+  <p>Aqui a comparação é entre a <strong>Vitamedic e as indústrias concorrentes na mesma
+  molécula</strong> — se EMS, Cimed, Neo Química, Prati e afins estão tirando venda por preço.</p>
+
+  <div class="note">
+    <b>Fonte e método.</b> IQVIA Mercado Relevante, recorte RJ + ES, acumulado jan–jun/26
+    contra jan–jun/25. Cada "mercado relevante" é o conjunto competitivo de uma molécula em
+    dosagem e apresentação equivalentes. O share é da <b>indústria Vitamedic no varejo</b>,
+    não do MILLENIUM. "vs líder" compara o preço Vitamedic ao do concorrente líder em volume.
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>SKU no MILLENIUM</th><th class="n">R$ distrib.</th><th class="n">Share Vitamedic</th>
+        <th class="n">Δ Share</th><th class="n">Preço Vita</th><th class="n">Preço líder</th>
+        <th class="n">vs líder</th><th>Líder da molécula</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">586.072</td><td class="n">6,4%</td><td class="n up">+1,8pp</td><td class="n">4,32</td><td class="n">5,33</td><td class="n up">−19%</td><td>Neo Química</td></tr>
+        <tr><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">348.254</td><td class="n">7,7%</td><td class="n down">−2,5pp</td><td class="n">1,83</td><td class="n">2,68</td><td class="n up">−32%</td><td>Cimed</td></tr>
+        <tr><td class="name">Fexofenadina susp. 60ml</td><td class="n">307.953</td><td class="n">23,1%</td><td class="n up">+3,0pp</td><td class="n">12,52</td><td class="n">29,77</td><td class="n up">−58%</td><td>Opella</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">243.148</td><td class="n">21,6%</td><td class="n down">−10,4pp</td><td class="n">1,93</td><td class="n">3,07</td><td class="n up">−37%</td><td>Cimed</td></tr>
+        <tr><td class="name">Loratadina 10mg × 12</td><td class="n">239.014</td><td class="n">19,0%</td><td class="n up">+2,1pp</td><td class="n">1,69</td><td class="n">2,48</td><td class="n up">−32%</td><td>Cimed</td></tr>
+        <tr><td class="name">Prednisolona sol. 3mg 60ml</td><td class="n">185.068</td><td class="n">10,6%</td><td class="n up">+3,0pp</td><td class="n">7,41</td><td class="n">10,43</td><td class="n up">−29%</td><td>Aché</td></tr>
+        <tr><td class="name">Fluconazol 150mg × 2</td><td class="n">173.281</td><td class="n">12,5%</td><td class="n down">−0,9pp</td><td class="n">1,93</td><td class="n">2,38</td><td class="n up">−19%</td><td>Cimed</td></tr>
+        <tr style="background:var(--pos-bg)"><td class="name">Dipirona 500mg 20×10</td><td class="n">150.348</td><td class="n up"><b>84,0%</b></td><td class="n up"><b>+69,4pp</b></td><td class="n">46,11</td><td class="n">46,17</td><td class="n">0%</td><td>Prati Donaduzzi</td></tr>
+        <tr><td class="name">Vertizan 10mg × 50</td><td class="n">125.707</td><td class="n">19,6%</td><td class="n down">−1,8pp</td><td class="n">7,33</td><td class="n">11,14</td><td class="n up">−34%</td><td>Neo Química</td></tr>
+        <tr><td class="name">Enalapril 10mg × 30</td><td class="n">124.282</td><td class="n">2,1%</td><td class="n down">−3,2pp</td><td class="n">2,91</td><td class="n">5,54</td><td class="n up">−47%</td><td>Cimed</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">123.869</td><td class="n">29,2%</td><td class="n down">−15,8pp</td><td class="n">4,16</td><td class="n">4,65</td><td class="n up">−11%</td><td>Germed Pharma</td></tr>
+        <tr><td class="name">Nimelit 100mg × 12</td><td class="n">113.416</td><td class="n">11,8%</td><td class="n down">−3,4pp</td><td class="n">2,20</td><td class="n">5,27</td><td class="n up">−58%</td><td>Cimed</td></tr>
+        <tr><td class="name">Atenolol 50mg × 30</td><td class="n">94.379</td><td class="n">7,6%</td><td class="n up">+3,6pp</td><td class="n">2,53</td><td class="n">2,77</td><td class="n up">−9%</td><td>Sandoz</td></tr>
+        <tr><td class="name">Hepatovit Abacaxi × 60</td><td class="n">65.949</td><td class="n">35,6%</td><td class="n up">+6,6pp</td><td class="n">38,86</td><td class="n">32,14</td><td class="n down">+21%</td><td>Arte Nativa</td></tr>
+        <tr style="background:var(--neg-bg)"><td class="name">Nimesulida 100mg × 12</td><td class="n">58.604</td><td class="n">2,6%</td><td class="n down">−2,8pp</td><td class="n">1,65</td><td class="n">1,47</td><td class="n down"><b>+12%</b></td><td>Globo</td></tr>
+        <tr><td class="name">Fluconid 150mg × 2</td><td class="n">49.288</td><td class="n">30,8%</td><td class="n down">−19,0pp</td><td class="n">2,20</td><td class="n">2,14</td><td class="n">+3%</td><td>Globo</td></tr>
+        <tr style="background:var(--neg-bg)"><td class="name">Biovarixon rev. 900mg × 30</td><td class="n">45.506</td><td class="n">0,8%</td><td class="n down">−3,8pp</td><td class="n">43,47</td><td class="n">35,06</td><td class="n down"><b>+24%</b></td><td>Teuto Brasileiro</td></tr>
+        <tr><td class="name">Biovarixon rev. 450mg × 60</td><td class="n">27.893</td><td class="n">1,5%</td><td class="n up">+0,8pp</td><td class="n">43,74</td><td class="n">46,76</td><td class="n up">−6%</td><td>Neo Química</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">Apenas 3% do faturamento sofre por preço</div>
+    <div class="cx">
+      Dos R$ 3,64 milhões cobertos por esta análise: <b>63% em molécula saudável</b>
+      (competitiva e estável ou ganhando), <b>35% perdendo share apesar de preço competitivo</b>
+      — problema de execução, não de preço — e apenas <b>3%</b> em molécula onde a Vitamedic
+      está cara contra o líder e perdendo share.
+    </div>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A Dipirona 500mg 20×10 é um quase-monopólio.</b> A Vitamedic tem 84,0% do mercado
+    relevante em RJ/ES, com salto de 69,4 pontos no ano, praticando preço idêntico ao único
+    concorrente. O MILLENIUM faturou R$ 150 mil nela com cobertura de apenas 8,0% —
+    é o SKU com maior descompasso entre domínio de mercado e presença na carteira.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Duas moléculas com preço realmente desfavorável:</b> Nimesulida 100mg (+12% contra a
+    Globo, share caindo 2,8pp) e Biovarixon 900mg (+24% contra a Teuto, share caindo 3,8pp).
+    Juntas somam R$ 104 mil — 3% do faturamento analisado.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Quedas grandes de share sem causa de preço:</b> Fluconid perdeu 19,0 pontos,
+    Ivermectina 6mg×4 perdeu 15,8 e Lorasliv perdeu 10,4 — todos com preço igual ou
+    abaixo do líder. Nos três casos a explicação está na execução, não na tabela.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Levar a Dipirona 500mg 20×10 como pauta de abertura.</b> A indústria domina 84% do
+    mercado relevante, o preço está na paridade, o produto cresceu 118% na conta —
+    e ainda assim está em apenas 415 dos 5.198 PDVs. Ampliar cobertura aqui é vender
+    um produto que já venceu a disputa de mercado.</p>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="perfil">
+  <div class="shead"><span class="snum">11</span><h2>Perfil da carteira</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Tipo de PDV</th><th class="n">PDVs</th><th class="n">Valor 7M/26</th><th class="n">% do valor</th><th class="n">R$ por PDV</th></tr></thead>
+      <tbody>
+        <tr><td>Independente</td><td class="n">2.794</td><td class="n">1.948.859</td><td class="n">38,6%</td><td class="n">698</td></tr>
+        <tr><td>Rede Associativista</td><td class="n">940</td><td class="n">1.399.397</td><td class="n">27,7%</td><td class="n"><b>1.489</b></td></tr>
+        <tr><td>Franquia</td><td class="n">1.121</td><td class="n">1.217.916</td><td class="n">24,1%</td><td class="n">1.086</td></tr>
+        <tr><td>Outras Redes</td><td class="n">254</td><td class="n">376.687</td><td class="n">7,5%</td><td class="n">1.483</td></tr>
+        <tr><td>Não informado</td><td class="n">89</td><td class="n">101.550</td><td class="n">2,0%</td><td class="n">1.141</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A Rede Associativista é o segmento mais denso da conta:</b> 940 PDVs gerando
+    R$ 1.489 cada — mais que o dobro do independente. A carteira organizada
+    (associativista, franquia e outras redes) responde por 59,3% do faturamento —
+    praticamente idêntico aos 59,5% do EMEFARMA. A diferença está na composição:
+    o MILLENIUM pesa mais em associativista (27,7% contra 23,6%) e o EMEFARMA em
+    "outras redes" (12,8% contra 7,5%), que é o segmento de maior valor por PDV nas duas contas.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Carteira pulverizada e de baixo risco.</b> Os 10 maiores PDVs somam 4,5% do valor
+    e os 100 maiores, 21,5%. Não há dependência de cliente grande — o que reduz risco,
+    mas também significa que ganho de escala só vem por capilaridade.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Pedir o de-para de rede/grupo dos PDVs: 98,9% do faturamento está em PDVs sem grupo
+    identificado na base. Com Rede Associativista rendendo o dobro do independente,
+    não conseguir desenhar campanha por rede é uma limitação cara.</p>
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="matriz">
+  <div class="shead"><span class="snum">12</span><h2>Matriz de oportunidades</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Oportunidade</th><th class="n">Potencial 12M</th><th>Facilidade</th><th>Impacto</th><th>Prioridade</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="name">Recuperar o ticket médio do RJ ao patamar de 2025</td>
+          <td class="n">R$ 1,87 M</td><td>Média</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Cobertura +10 pp nos 20 SKUs principais</td>
+          <td class="n">R$ 3,33 M</td><td>Alta</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Fechar gap de share em RJ/ES (15 SKUs)</td>
+          <td class="n">R$ 1,42 M</td><td>Média</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Recuperar 30% dos PDVs perdidos no RJ</td>
+          <td class="n">R$ 411 mil</td><td>Alta</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Ampliar cobertura da Dipirona 500mg 20×10</td>
+          <td class="n">R$ 323 mil</td><td>Alta</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Retomar Ivermectina 6mg × 4</td>
+          <td class="n">R$ 356 mil</td><td>Média</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Entrar em Metformina 500mg</td>
+          <td class="n">R$ 246 mil</td><td>Média</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Replicar no RJ o modelo de mix do ES</td>
+          <td class="n">a definir</td><td>Baixa</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <b>Sobre a soma dos potenciais.</b> As três primeiras linhas se sobrepõem fortemente —
+    recuperar ticket no RJ, ampliar cobertura e fechar gap de share são três ângulos do
+    mesmo movimento. <b>Não somar as colunas.</b> Cenário consolidado conservador,
+    considerando 35% de captura e descontando a sobreposição:
+    <b>R$ 1,4 a 1,9 milhão incrementais em 12 meses</b>.
+    A linha do ticket do RJ assume o retorno de R$ 837 para R$ 1.142 por PDV com a base atual;
+    as demais assumem que o PDV incremental compra como a média do SKU — premissa otimista
+    para PDVs pequenos.
+  </div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="plano">
+  <div class="shead"><span class="snum">13</span><h2>Plano de ação</h2></div>
+
+  <div class="plan">
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A1</span><span class="act-t">Mais Itens por Pedido</span>
+        <span class="pri"><span class="dot d-alta"></span>60 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd>Os <b>3.576 PDVs do Rio</b>, onde o ticket caiu de R$ 1.142 para R$ 837</dd>
+        <dt>Execução</dt><dd>Meta por vendedor em <b>itens por pedido</b>, não em faturamento. Kit sugerido de 3 itens complementares por perfil de PDV, montado a partir do que o ES vende e o RJ não. Ranking semanal de mix, com premiação para quem mais eleva a média da carteira.</dd>
+        <dt>Por que</dt><dd>A base do RJ cresceu e a penetração subiu — cobertura não é o problema. A queda de 25,8% no faturamento é explicada quase inteiramente pelos 26,7% de queda no valor por PDV. E o portfólio ativo encolheu de 136 para 123 apresentações.</dd>
+        <dt>Meta</dt><dd>Ticket do RJ de R$ 837 para R$ 1.000 (+19%) = <b>+R$ 583 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>Itens por pedido · valor por PDV · SKUs ativos no estado · mix médio</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A2</span><span class="act-t">O Manual do Espírito Santo</span>
+        <span class="pri"><span class="dot d-alta"></span>30 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd>Descobrir e documentar o que a unidade ES fez para crescer 69,7% e assumir a liderança</dd>
+        <dt>Execução</dt><dd>Sessão de trabalho com os dois gerentes comerciais. Mapear diferenças concretas: frequência de visita, tamanho e composição da equipe, política de meta, campanhas rodadas, sortimento sugerido, uso de televendas. Transformar em checklist replicável no RJ.</dd>
+        <dt>Por que</dt><dd>Mesma empresa, mesmo portfólio, mesmo preço, mesmo período — e 95 pontos de diferença no crescimento. A resposta está dentro do próprio cliente e não custa verba. É o benchmark interno mais barato disponível.</dd>
+        <dt>Meta</dt><dd>Checklist documentado e duas práticas do ES implantadas no RJ</dd>
+        <dt>KPI</dt><dd>Práticas replicadas · evolução do mix no RJ</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A3</span><span class="act-t">Volta pra Casa — Rio</span>
+        <span class="pri"><span class="dot d-alta"></span>45 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd><b>784 PDVs fluminenses</b> que compraram em 2025 e zeraram em 2026 — R$ 800 mil, ticket médio de R$ 1.021</dd>
+        <dt>Priorização</dt><dd>Onda 1: os 10 maiores (R$ 187 mil), visita do gerente. Onda 2: Nova Friburgo e região serrana (ver A4). Onda 3: o restante por televendas e WhatsApp.</dd>
+        <dt>Filtro obrigatório</dt><dd>Antes de cobrar, <b>separar os 178 PDVs que saíram da Vitamedic inteira</b> — esses não são falha do distribuidor e a cobrança seria indevida.</dd>
+        <dt>Por que</dt><dd>93% do valor perdido está no RJ, e o PDV perdido aqui vale R$ 1.021 — o dobro do ES. Cadastro, histórico e rota já existem: recuperar é mais barato que prospectar.</dd>
+        <dt>Meta</dt><dd>Reativar 30% (235 PDVs) = <b>+R$ 240 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>PDVs reativados · valor recuperado · motivo de saída mapeado</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A4</span><span class="act-t">Operação Região Serrana</span>
+        <span class="pri"><span class="dot d-media"></span>30 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd>Nova Friburgo e entorno — 7 PDVs perdidos concentrando R$ 79 mil, o segundo maior valor por cidade</dd>
+        <dt>Execução</dt><dd>Diagnóstico de rota com o gerente comercial. Sales &amp; Teixeira, Drog Conselheiro e Teixeira e Sales (Bom Jardim) somam R$ 41,9 mil e as razões sociais sugerem o mesmo grupo — verificar se foi decisão única de um dono.</dd>
+        <dt>Por que</dt><dd>Perda concentrada geograficamente, com razões sociais relacionadas, quase nunca é retração de mercado. Costuma ser troca de vendedor, mudança de frequência ou entrada de concorrente com condição melhor.</dd>
+        <dt>Meta</dt><dd>Causa identificada e plano de rota redefinido</dd>
+        <dt>KPI</dt><dd>PDVs ativos na região · frequência de visita · valor da praça</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A5</span><span class="act-t">Dipirona 500 em Todo Lugar</span>
+        <span class="pri"><span class="dot d-media"></span>60 dias</span></div>
+      <dl>
+        <dt>Produto</dt><dd>Dipirona Monoidratada 500mg 20×10 — a Vitamedic tem <b>84% do mercado relevante</b> em RJ/ES</dd>
+        <dt>Situação</dt><dd>Cresceu 118% na conta, R$ 362 por PDV comprador — o segundo maior da carteira — e está em apenas 415 dos 5.198 PDVs (8,0%).</dd>
+        <dt>Execução</dt><dd>Lista nominal dos 1.865 PDVs que compram Fexofenadina e não compram Dipirona 500. Argumento: a indústria domina a molécula e o preço está na paridade com o único concorrente — não há risco de o PDV encontrar melhor.</dd>
+        <dt>Por que</dt><dd>É vender um produto que já ganhou a disputa de mercado. Maior descompasso da conta entre domínio de molécula e presença na carteira.</dd>
+        <dt>Meta</dt><dd>Cobertura de 8,0% para 18% = <b>+R$ 188 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>PDVs compradores · cobertura % · unidades</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A6</span><span class="act-t">Retomar a Ivermectina</span>
+        <span class="pri"><span class="dot d-media"></span>60 dias</span></div>
+      <dl>
+        <dt>Produto</dt><dd>Ivermectina 6mg × 4 — maior lacuna isolada da conta</dd>
+        <dt>Situação</dt><dd>Mercado de R$ 1,04 M em RJ/ES; o MILLENIUM tem 11,9% quando vale 32,0% na praça. Caiu 67% no ano. O share da própria Vitamedic na molécula recuou 15,8 pp — mas o preço está 11% <b>abaixo</b> do líder Germed.</dd>
+        <dt>Execução</dt><dd>Checar estoque e cadastro primeiro. A apresentação × 8 cresceu 1.078% no mesmo período — investigar se houve migração interna de formato antes de tratar como perda.</dd>
+        <dt>Por que</dt><dd>Gap de R$ 208 mil em 7 meses, o maior da conta. Preço competitivo com share caindo é sinal de problema de disponibilidade ou de execução, não de mercado.</dd>
+        <dt>Meta</dt><dd>Share do SKU de 11,9% para 20% = <b>+R$ 84 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>Share do SKU na praça · PDVs compradores · unidades das duas apresentações</dd>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="perguntas">
+  <div class="shead"><span class="snum">14</span><h2>Perguntas para a reunião</h2></div>
+
+  <p>Apenas as que podem mudar a estratégia.</p>
+
+  <ol class="qs">
+    <li><span class="q">01</span><div>
+      O que a unidade do Espírito Santo fez diferente? Equipe, meta, frequência de visita, campanha, sortimento?
+      <span class="why">São 95 pontos de diferença de crescimento entre duas unidades da mesma empresa com o mesmo portfólio e preço. É a pergunta mais rentável da conta, e a resposta não custa verba.</span>
+    </div></li>
+    <li><span class="q">02</span><div>
+      Houve mudança de equipe, meta ou política comercial no Rio entre 2025 e 2026?
+      <span class="why">O ticket caiu 26,7% com a base intacta e o portfólio ativo encolheu 13 apresentações. O padrão é de venda reativa — mas ruptura prolongada produziria o mesmo efeito e precisa ser descartada.</span>
+    </div></li>
+    <li><span class="q">03</span><div>
+      A recuperação de maio a julho é consequência de alguma ação específica, ou é retomada natural?
+      <span class="why">Julho é o melhor mês da série (R$ 986 mil, 130 SKUs). Se houve ação deliberada, ela é replicável e deve entrar no plano imediatamente.</span>
+    </div></li>
+    <li><span class="q">04</span><div>
+      Quanto do crescimento no ES veio de PDVs que eram atendidos pela BARATELA?
+      <span class="why">Se o ganho foi majoritariamente captura do espólio de um concorrente que ruiu, o motor se esgota assim que a absorção terminar — e 2027 precisa de outra alavanca, já que o estado está parado em 0,0%.</span>
+    </div></li>
+    <li><span class="q">05</span><div>
+      A Ivermectina 6mg × 4 teve ruptura, ou os clientes migraram para a apresentação × 8?
+      <span class="why">Uma caiu 67% e a outra subiu 1.078% no mesmo período. Se foi migração de formato, não há perda real e o gap de R$ 208 mil sai do plano.</span>
+    </div></li>
+    <li><span class="q">06</span><div>
+      Vocês conseguem enviar o sell-out com identificação de vendedor e a classificação de rede dos PDVs?
+      <span class="why">Sem vendedor não há ranking, campanha de incentivo nem benchmark interno — que é o motor de metade deste plano. E 98,9% do faturamento está em PDV sem grupo identificado, justamente onde o valor por PDV é maior.</span>
+    </div></li>
+  </ol>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="limites">
+  <div class="shead"><span class="snum">15</span><h2>O que estas bases não permitem afirmar</h2></div>
+
+  <div class="note">
+    <p style="margin:0 0 12px"><b>Ausente — e necessário para aprofundar:</b></p>
+    <ul style="margin:0; padding-left:20px; max-width:none">
+      <li><b>Vendedor.</b> Não há identificação de vendedor no sell-out. Toda análise de performance individual, ranking e benchmark interno depende desse campo — e é o que sustentaria as ações A1 e A2.</li>
+      <li><b>Estoque e sell-in.</b> Sem posição de estoque no distribuidor, não é possível separar queda de demanda de ruptura. É a dúvida central do Rio e da Ivermectina.</li>
+      <li><b>Margem.</b> As recomendações de mix priorizam faturamento, não contribuição. Toda leitura de rentabilidade está limitada.</li>
+      <li><b>Vendedor na base IQVIA.</b> O dado de mercado mostra a indústria no varejo sem identificar qual distribuidor entregou. Não é possível medir a contribuição do MILLENIUM para o share Vitamedic de cada molécula — só inferir onde há espaço.</li>
+      <li><b>Elos diferentes da cadeia.</b> O preço do sell-out é do distribuidor para o PDV; o do IQVIA é do PDV para o consumidor. As duas análises de preço valem isoladamente e não devem ser comparadas entre si.</li>
+    </ul>
+    <p style="margin:14px 0 0">
+      As projeções de potencial assumem que o PDV incremental compra como a média atual do SKU —
+      premissa otimista para PDVs pequenos e conservadora para os grandes.
+      Nenhum número deste relatório foi estimado: vêm da base de sell-out de 14/08/2026
+      (6.802.108 registros) e da base IQVIA Mercado Relevante (134.611 registros,
+      24 meses até jun/2026).
+    </p>
+  </div>
+</section>
+
+<footer>
+  Dossiê gerado a partir de duas bases: sell-out Vitamedic (14/08/2026), recorte MILLENIUM
+  RJ + ES, período jan/2025 a jul/2026 — comparações YoY em janela fechada de janeiro a julho,
+  valores do distribuidor para o PDV; e IQVIA Mercado Relevante (24 meses até jun/2026),
+  recorte RJ + ES, comparações YTD de janeiro a junho, valores de varejo ao consumidor.
+  Análise comparativa com a conta EMEFARMA usa a mesma base e o mesmo recorte.
+</footer>
+
+</div>

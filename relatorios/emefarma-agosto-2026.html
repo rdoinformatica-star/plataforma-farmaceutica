@@ -1,0 +1,1732 @@
+<title>Dossiê EMEFARMA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700;800&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --wine:#7A1420; --wine-2:#A32436; --wine-soft:#F3E4E5;
+  --bg:#FBF8F7; --surface:#FFFFFF; --surface-2:#F5F0EF;
+  --border:#E6DCDB; --border-strong:#CFC0C0;
+  --ink:#1B1416; --ink-2:#3D3134; --muted:#6B5F62;
+  --pos:#0F6E4C; --pos-bg:#E4F0EA;
+  --neg:#9C3D14; --neg-bg:#F7E8DF;
+  --warn:#8A6A11; --warn-bg:#F5EEDC;
+  --measure:68ch;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --wine:#E2919C; --wine-2:#C4566A; --wine-soft:#392327;
+    --bg:#151113; --surface:#1D1719; --surface-2:#251E21;
+    --border:#332A2D; --border-strong:#4A3C40;
+    --ink:#F3ECEE; --ink-2:#DACFD2; --muted:#A29397;
+    --pos:#5FC79B; --pos-bg:#12332A;
+    --neg:#E0956A; --neg-bg:#35231A;
+    --warn:#D6B45C; --warn-bg:#302818;
+  }
+}
+:root[data-theme="dark"]{
+  --wine:#E2919C; --wine-2:#C4566A; --wine-soft:#392327;
+  --bg:#151113; --surface:#1D1719; --surface-2:#251E21;
+  --border:#332A2D; --border-strong:#4A3C40;
+  --ink:#F3ECEE; --ink-2:#DACFD2; --muted:#A29397;
+  --pos:#5FC79B; --pos-bg:#12332A;
+  --neg:#E0956A; --neg-bg:#35231A;
+  --warn:#D6B45C; --warn-bg:#302818;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px 96px}
+p,ul,ol{max-width:var(--measure)}
+h1,h2,h3{font-family:"Bitter",Georgia,serif; text-wrap:balance; margin:0}
+a{color:var(--wine)}
+
+/* ---------- cabeçalho ---------- */
+.brand{margin:40px 0 28px}
+.brand .card{
+  display:inline-block; background:#FFFFFF; padding:10px 18px; border-radius:8px;
+  border:1px solid var(--border); box-shadow:0 1px 2px rgba(27,20,22,.06);
+}
+.brand img{height:34px; width:auto; display:block}
+.mast{border-bottom:3px solid var(--wine); padding:0 0 22px; margin-bottom:34px}
+.kicker{
+  font-size:11.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--wine); margin-bottom:16px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+}
+.kicker .sep{color:var(--border-strong)}
+h1{font-size:clamp(34px,6vw,56px); font-weight:800; line-height:1.03; letter-spacing:-.02em}
+.dek{
+  font-size:18px; color:var(--ink-2); max-width:60ch; margin:18px 0 0; line-height:1.55;
+}
+.meta{
+  margin-top:26px; display:flex; flex-wrap:wrap; gap:8px 26px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--muted);
+}
+.meta b{color:var(--ink-2); font-weight:600}
+
+/* ---------- faixa de KPI ---------- */
+.kpis{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px; background:var(--border); border:1px solid var(--border); margin:0 0 46px;
+}
+.kpi{background:var(--surface); padding:18px 18px 16px}
+.kpi .lbl{font-size:10.5px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+.kpi .val{
+  font-family:"IBM Plex Mono",monospace; font-size:26px; font-weight:600;
+  margin-top:9px; letter-spacing:-.02em; font-variant-numeric:tabular-nums;
+}
+.kpi .sub{font-size:12px; color:var(--muted); margin-top:5px; line-height:1.4}
+.up{color:var(--pos)} .down{color:var(--neg)} .flat{color:var(--ink)}
+
+/* ---------- seções ---------- */
+section{margin:0 0 60px; scroll-margin-top:20px}
+.shead{display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--border-strong); padding-bottom:11px; margin-bottom:24px}
+.snum{
+  font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+  color:var(--wine); letter-spacing:.06em; flex:none; padding-top:5px;
+}
+h2{font-size:clamp(21px,3vw,27px); font-weight:700; letter-spacing:-.01em}
+h3{font-size:17px; font-weight:700; margin:32px 0 12px; color:var(--ink)}
+
+/* ---------- chips fato/hipótese/recomendação ---------- */
+.tag{
+  display:inline-block; font-size:10px; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; padding:3px 8px; border-radius:2px; vertical-align:2px; margin-right:9px;
+}
+.t-fato{background:var(--surface-2); color:var(--ink-2); border:1px solid var(--border-strong)}
+.t-hip{background:var(--warn-bg); color:var(--warn); border:1px solid transparent}
+.t-rec{background:var(--wine-soft); color:var(--wine); border:1px solid transparent}
+
+.claim{
+  border-left:3px solid var(--border-strong); padding:2px 0 2px 18px; margin:20px 0; max-width:var(--measure);
+}
+.claim.fato{border-left-color:var(--border-strong)}
+.claim.hip{border-left-color:var(--warn)}
+.claim.rec{border-left-color:var(--wine)}
+.claim p{margin:0}
+.claim p + p{margin-top:9px}
+
+/* ---------- insights numerados do resumo ---------- */
+.insights{list-style:none; padding:0; margin:0; max-width:none; display:grid; gap:1px; background:var(--border); border:1px solid var(--border)}
+.insights li{background:var(--surface); padding:20px 22px; display:grid; grid-template-columns:34px 1fr; gap:16px; align-items:start}
+.insights .n{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--wine); padding-top:3px}
+.insights .txt{max-width:66ch}
+.insights strong{font-weight:700}
+
+/* ---------- tabelas ---------- */
+.tw{overflow-x:auto; border:1px solid var(--border); background:var(--surface); margin:20px 0}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:560px}
+th,td{padding:9px 13px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap}
+thead th{
+  background:var(--surface-2); font-size:10.5px; font-weight:700; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--muted); position:sticky; top:0;
+}
+tbody tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+td.name{white-space:normal; min-width:230px; line-height:1.35}
+tfoot td{background:var(--surface-2); font-weight:700; border-top:2px solid var(--border-strong)}
+.cap{font-size:12px; color:var(--muted); margin:8px 0 0; max-width:var(--measure)}
+
+.curve{display:inline-block; width:17px; height:17px; line-height:17px; text-align:center; border-radius:2px; font-size:10.5px; font-weight:700; font-family:"Public Sans",sans-serif}
+.cA{background:var(--wine); color:#fff} :root[data-theme="dark"] .cA,:root:not([data-theme="light"]) .cA{color:#221619}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cA{color:#221619}}
+.cB{background:var(--surface-2); color:var(--ink-2); border:1px solid var(--border-strong)}
+
+.bar{display:inline-block; height:7px; background:var(--wine); vertical-align:middle; border-radius:1px; min-width:2px}
+.bar.neg{background:var(--neg)} .bar.pos{background:var(--pos)}
+
+/* ---------- destaque numérico ---------- */
+.pull{
+  background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--wine);
+  padding:22px 24px; margin:26px 0; display:grid; gap:5px;
+}
+.pull .big{font-family:"IBM Plex Mono",monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; color:var(--wine)}
+.pull .cx{font-size:14px; color:var(--ink-2); max-width:62ch; line-height:1.5}
+
+/* ---------- prioridade ---------- */
+.pri{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase}
+.dot{width:8px; height:8px; border-radius:50%; flex:none}
+.d-alta{background:var(--neg)} .d-media{background:var(--warn)} .d-baixa{background:var(--pos)}
+
+/* ---------- plano de ação ---------- */
+.plan{display:grid; gap:1px; background:var(--border); border:1px solid var(--border); margin:22px 0}
+.act{background:var(--surface); padding:22px 24px}
+.act-h{display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; margin-bottom:12px}
+.act-n{font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--wine)}
+.act-t{font-family:"Bitter",serif; font-size:17px; font-weight:700; flex:1; min-width:200px}
+.act dl{display:grid; grid-template-columns:max-content 1fr; gap:7px 18px; margin:0; font-size:13.5px; max-width:none}
+.act dt{font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); padding-top:3px}
+.act dd{margin:0; color:var(--ink-2); line-height:1.5}
+.act dd b{color:var(--ink); font-weight:600}
+
+.qs{list-style:none; padding:0; margin:0; display:grid; gap:1px; background:var(--border); border:1px solid var(--border)}
+.qs li{background:var(--surface); padding:17px 22px; display:grid; grid-template-columns:26px 1fr; gap:14px}
+.qs .q{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--wine); font-weight:600; padding-top:3px}
+.qs .why{display:block; font-size:12.5px; color:var(--muted); margin-top:5px; line-height:1.45}
+
+.note{
+  background:var(--surface-2); border:1px solid var(--border); padding:16px 20px;
+  font-size:13px; color:var(--ink-2); margin:24px 0; max-width:none; line-height:1.55;
+}
+.note b{color:var(--ink)}
+
+footer{border-top:1px solid var(--border-strong); padding-top:20px; margin-top:70px; font-size:12.5px; color:var(--muted); max-width:var(--measure)}
+
+@media (max-width:600px){
+  .wrap{padding:0 16px 64px}
+  .act dl{grid-template-columns:1fr; gap:3px 0}
+  .act dt{padding-top:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+
+/* ---------- alternador de tema ---------- */
+.tema{
+  position:fixed; top:14px; right:14px; z-index:99;
+  display:flex; align-items:center; gap:7px;
+  background:var(--surface); color:var(--ink-2);
+  border:1px solid var(--border-strong); border-radius:999px;
+  padding:7px 14px; cursor:pointer;
+  font-family:"Public Sans",sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:.04em; box-shadow:0 1px 4px rgba(0,0,0,.10);
+}
+.tema:hover{border-color:var(--wine); color:var(--wine)}
+.tema:focus-visible{outline:2px solid var(--wine); outline-offset:2px}
+.tema svg{width:14px; height:14px; flex:none}
+@media print{.tema{display:none}}
+@media (max-width:600px){.tema{top:8px; right:8px; padding:6px 11px; font-size:11px}}
+</style>
+
+<button class="tema" id="tema" type="button" aria-label="Alternar entre tema claro e escuro">
+  <svg id="temaIcone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+  <span id="temaTexto">Tema</span>
+</button>
+
+<script>
+(function(){
+  var SOL = '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>';
+  var LUA = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>';
+  var raiz = document.documentElement;
+  var icone = document.getElementById('temaIcone');
+  var texto = document.getElementById('temaTexto');
+
+  function atual(){
+    var t = raiz.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function pintar(t){
+    // o botao oferece o tema OPOSTO ao que esta na tela
+    var alvo = t === 'dark' ? 'light' : 'dark';
+    icone.innerHTML = alvo === 'light' ? SOL : LUA;
+    texto.textContent = alvo === 'light' ? 'Claro' : 'Escuro';
+  }
+  function aplicar(t){
+    raiz.setAttribute('data-theme', t);
+    try { localStorage.setItem('dossie-tema', t); } catch(e) {}
+    pintar(t);
+  }
+
+  var salvo = null;
+  try { salvo = localStorage.getItem('dossie-tema'); } catch(e) {}
+  if (salvo === 'light' || salvo === 'dark') raiz.setAttribute('data-theme', salvo);
+  pintar(atual());
+
+  document.getElementById('tema').addEventListener('click', function(){
+    aplicar(atual() === 'dark' ? 'light' : 'dark');
+  });
+})();
+</script>
+
+<div class="wrap">
+
+<div class="brand"><div class="card"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABtQAAAItCAYAAACpaZ6jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAMsAAADLAAShkWtsAAKTPSURBVHhe7d0JmC1JWed/RXFXRMZdx3Vw32gXHGEuy7238pxT93YDDY64Ioq4/VFUEFQaxYVFUBDEDUVFWQQRVJQBxI3FBcRdEBVBYBAQVAQEdf5vnPtWd91Tb1XlEhHvG5nfz/P8nm7oqsg3IzMjIzPqVL0DUNor3ulGtzicv7/+De+b8vLrv9+zj8sr3uVG/69PrO89aP8gh7etJQEAAAAAAAAAAAD1HF6wOrxQZi2ARcnuwhsLbgAAAAAAAAAAAJistUWzsdldbNPdBwAAAAAAAAAAAK5zsHg254WzoTm80Man2QAAAAAAAAAAABbm8CfPrMUkYocFNgAAAAAAAAAAgJni02dlcvApNhbYAAAAAAAAAAAAGpMWeA4W0ayFIFImB59g08MAAAAAAAAAAACASPgUWqzw6TUAAAAAAAAAAIAAWERrJyyuAQAAAAAAAAAAVMIiWvthcQ0AAAAAAAAAACCztPiSFmFaWEQ7WOxLSTUfLB4dju7WJIfbO9jOQQ62b9UXLale3SUAAAAAAAAAAAAMlRaLoi0MHbdYpiWHtLvwFnHB7aA2LRkAAAAAAAAAAADHibSIdu3CUwOLZmPtLrRZ/VA7LKwBAAAAAAAAAAAYvBfSDi+eaUmLFmGR7aAGLQkAAAAAAAAAAGCZvBbS0jbTYg0LaP0c/iSb1Z+lw8IaAAAAAAAAAABYnNoLMyyg5XWwwFZ7MZSFNQAAAAAAAAAAMGs1P42WtrPdFgtoVaSFrpqLpCysAQAAAAAAAACAWam1kMYiWgwHn16zjlHusLAGAAAAAAAAAACaVmMhjUW02GotrrGwBgAAAAAAAAAAmlJrIY1FtLbUWFxjYQ0AAAAAAAAAAIRXcsGERbT5SOdJyXOFhTUAAAAAAAAAABAOC2kYi4U1AAAAAAAAAAAwa6V+vSOLaMuTFr9KLa6xsAYAAAAAAAAAAKpjIQ2lpONfYmGNRTUAAAAAAAAAAFBNicUOFtJgYWENAAAAAAAAAAA0Jfen0lJbLG6gDxbWAAAAAAAAAABAeLl/vSOLGRgj98Ia5yEAAAAAAAAAAJgsfSrNWogYGxYwkAMLawAAAAAAAAAAwF3uX+/IggVKyLmwxjkKAAAAAAAAAAB6Y5ECreGcBQAAAAAAAAAA1eT6VNq2nXe60S20WaCKXAtrLKoBAAAAAAAAAIAjcv2tNBbS4I1PqwEAAAAAAAAAgOz4VA/miPMaAAAAAAAAAABMlj5JluNXPKY2tEkgnBwLa3zyEgAAAAAAAACABWKRAUvCp9UAAAAAAAAAAMAgORYXWFhAizj3AQAAAAAAAADAqab+ikc+lYbW5fhVp+n7tTkAAAAAAAAAADAXaRHBWhgYEj6Zgznh02oAAAAAAAAAAOBaUxcO+FQa5oqFZgAAAAAAAAAAMHkxjcUCLAHXCQAAAAAAAAAACzX170TxqTQsCYtqAAAAAAAAAAAszJTFtPS92gywOFMW1rh2AAAAAAAAAABowNS/CcWnbIDpn1bj050AAAAAAAAAAAQ1dTGNRQDgOvwKSAAAAAAAAAAAZmbqr6ljMQ04Kl0XU359KotqAAAAAAAAAAAEMWUxjRf+wOm4xgAAAAAAAAAAaBgv+oE6uNYAAAAAAAAAAGgQL/iBurjmAAAAAAAAAABoyJQX+/y9NGC8dP2Y11WPsKgGAAAAAAAAAEAlYxfTXn7993s2i2lAHtvrybjOTguLagAAAAAAAAAAFDZlMU2bAJAJi2oAAAAAAAAAAAQzdjGNl/dAOVyXAAAAAAAAAAAEwUt7IC6uTwAAAAAAAAAAnPGyHoiP6xQAAAAAAAAAACe8pAfawfUKAAAAAAAAAEBlvJwH2sN1CwAAAAAAAABAJbyUB9o19vp9xTvd6BbaBAAAAAAAAAAAOEl6qW6+bD8lLKYBcbCoBgAAAAAAAABAQeZL9lPCYhoQD4tqAAAAAAAAAAAU8PLrv9+zzRfsJ4TFNCCuMYtqaRzQbwcAAAAAAAAAAIeNefHOYhoQH4tqAAAAAAAAAABkwGIaMG9c4wAAAAAAAAAATMCLdmAZuNYBAAAAAAAAABjhFe90o1tYL9FPCr8KDmjXmL+TmMYJ/XYAAAAAAAAAAJbHfHl+QlhMA9o3ZlFNvxUAAAAAAAAAgGXhpTqwTHwyFQAAAAAAAACAHsb8LSV+7RswH2MW1fh7agAAAAAAAACAxRizmMaLdGB+GAsAAAAAAAAAADDwqRQAh41ZVOPTqgAAAAAAAACAWRv6d9NYTAPmb+iiGn9PDQAAAAAAAAAwW7w0B3AcFtsBAAAAAAAAAIvHr3UDcJIxvw6WMQIAAAAAAAAAMCvmy/ATwqdPgOUZs6im3woAAAAAAAAAQNuGfjqNxTTMyXaRSJPO7fSrDQ/HugZ2c/jrUxsHmeMntLb7ZfTBcUl9ot8KAAAAAAAAAECbhr4cT1+v3wo052Dh7GDxyzrHS+VgsW0Oi2xD+45xAwAAAAAAAADQNOvl90nRbwOacPhTZ9b57JmDBbZWF5usfToxM/y0HgAAAAAAAABgAbaflrFefB8TPmWCFnh9Am1qWltcS/1s7cdxScdDvxUAAAAAAAAAgDawmIa5OVhIs87f1tLK4hrjCAAAAAAAAABg1qyX3SdFvw0IZU6LaFbSvkVfhBra//ptAAAAAAAAAADENvRTJfztI0Qz94U0K1EX1vjVjwAAAAAAAACA2Vnir2jbvvA/Jmn/tn2i/1u/BYEtbSFtNxGvyaHjCtcaAAAAAAAAACA08+X2MWntkyQHi2Kp7hyLLgftHCy46WbgZPCizcwTbWFt6DWn3wYAAAAAAAAAQCxz+xTJ4QU0s/4COVhgi7aYMWe1j3FriXIubq9Ho77jwjUEAAAAAAAAAAjJeql9XKK+7PZYRDspLK6VlfrW6ndyeaKcg4OPl1zL+q0AAAAAAAAAAPgb+qJbvy2MFj6lxMJaXnwqbXginINDjlv6Wv02AAAAAAAAAAB8DV1Mi7Qw1MJC2m5S/7G4Nt72U4hGv5J+8T73Bh8/PqUGAAAAAAAAAIjAfIl9TKIsBLW4kLYbFtWGS31m9SUZEceFKj6lBgAAAAAAAABoytAFCv02N3NYSNsNC2v9sJiWP57nnlXPceEaAQAAAAAAAAC4sl5eHxfvl9pzX1Bh0eB4cz/2nvE674YeU/02AAAAAAAAAADqauWF9hw/lXZi+JtRl2ExrXy8FtX41Y8AAAAAAAAAgPCsl9bHxeuFe1pcsuqZe7z6OxoW0+rFY8Fq8PXNYjMAAAAAAAAAoKYhCxVeiztLX0xZ+qIai2n147GoxqfUAAAAAAAAAABhWS+rj4t+S1UsplyXJS6scfz9UnvRik+pAQAAAAAAAABCGrJY4bGYw2LK0SxpUY3j75/ai2pDjjmfUgMAAAAAAAAAVGG9pD4u+i3VsJhyfJawqMbxj5Pqn1Qzajg2fEoNAAAAAAAAAFDSkAWL2gs4LKacnjl/Omfwr/4jxVNzDBhy/fMpNQAAAAAAAABAUdbL6eOi31IFi2n9M9fFBGtfiX9qLqpZ2z82fEoNAAAAAAAAAFDCkEWrqJ9MIYcyowWFtEho7iOJkUrn2pCxgE+pAQAAAAAAAACKsF5KHxf9liqs7ZOemcGiGguqjaTSuWZu+5jotwAAAAAAAAAAkAefTptxGl5U4/i3k1qfCIs6VgEAAAAAAAAAFsB6GX1c9FuKYzElYxpdVDP3hYRNrQWsIb8CVL8FAAAAAAAAAIBpIn7iIy0AWdsn49Li35NiQbXRVFi8HXRuNPwJTQAAAAAAAABAIOZL6GOi31LckE+gkH5paVGNxbR2U+s8s7ZtpcXFZAAAAAAAAABAMBE/ncZiSrm0sLjApxNnkAqfChu06M6n1AAAAAAAAAAAUwxZvNJvKc7aNsmXWgujYw1aKCFho4ezmCELr3xKDQAAAAAAAAAwifXy2QqfTptXoi6qcfznkxrnGJ9SAwAAAAAAAAAUN2jxotLLaHPbpEgiLqpZdZJ2o4e1GD6lBgAAAAAAAAAoznrpbKXWwgufTnJIoE/tcPznlxpjx5BPqem3AAAAAAAAAADQz5DFi1oLata2Sflo97tiMW2+0UNczJBPqfFrHwEAAAAAAAAAgwxZwNBvKYoFFb9E+FV4Vl1kHqmxIG9t1wq/9hEAAAAAAAAAMIj1stkKn05bRmodZwuLqfNOjUWsIb/2kU+pAQAAAAAAAAB6GbKAod9SFAsqQeKw0DDo1/WRdlP43BpyHnkuHgMAAAAAAAAAGmK9ZLZS68UzC2ox4vHr8Dj2y0ikT6l5nOcAAAAAAAAAgMZE/CSHtW3ik5qLDSymLSt62IsZ9GnHwp+YAwAAAAAAAAA0bsgihn5LUSyqxAsLqaRIKiximds1wqfUAAAAAAAAAAAnsl4uW6m1qMKCWtAUXvwY9GkiMovwax8BAAAAAAAAAE2I+CvRzG0T90Ra/CDziR76YiKOcQAAAAAAAACAxkT7dY98Sil2Sn9KkeO/wFRYxOJTagAAAAAAAACASayXylb4dY/k2hReAOEcWFZqjC0sqAEAAAAAAAAARhv0aaAKnyJJ+JV/8VNj0YHzYDmpcT5FHOsAAAAAAAAAAI0Y8kkg/ZbirG2TeCn9qaJBCyCk+ehhL6rvIm2NBT4AAAAAAAAAQEP6vmCu8SvZEhZRGkvhT/LwKbUFpcKnwlhQAwAAAAAAAACMYr1MNlPpV6Dxt7PaSumFBxZYF5QKY8yg86nSmAcAAAAAAAAACC7ir3tkQa29lP70Ip9SW0ZqfQq29/nEghoAAAAAAAAAIOm7eFXrRXfCglqjKbz4YG6TzCq1fs1i3wW1WvUAAAAAAAAAAIKzXiJbqbmgxqeR2kzpxQcWWuefWgtYQ37to34LAAAAAAAAAGCpor5UZkGt4RT+lBrnxrxTa0EtsbZvhl/7CAAAAAAAAADL1vcTPzVfcidWDaSNlD5XhiwCk/ZSc6zpuzhbe/wDAAAAAAAAAATT94VyzV/3mFg1kHZS+nzpe96SNqOHubioP1DQoujXJMcwrqg/JDHknLG+3ztaWlbWdggZEz2lmhD6143zCfoizL5uPZwrRYQeH0ZGdw2FbOe9mnT+pKQ5526sY7O0aJe5suoi47N7nh9cAwc5uDa0+1GQdXy8o6WhEu5H/aNddjnrC81UHtTMGkhbKXjObC96a5tkFtHDXNyQ80i/Bcdo4ZrUUhHM9uHJOF7eSXVpiaeyvt87WlpW1nYIGRM9pZoQdYxKSQ+5WiYysvq6+VR+ll8Ks68bj+4aJtg+F0kOv5y0+pqcHO1OV1ZdpF7StZOuo4NwL8vH6m/vaGnI6OB+dHAv4n40Ltqd19l2rPGFVvRbqrFqIG0lXah6OItgIJhv9BBXYW3fDJO3U4W/JjmGIZnHKkC0vF6s7/eOlpaVtR1CxkRPqSZY9UeKlomMrH5uPaWfy5Yo8mL7lOjuoafdl5VWn5Jx0S52ZdVF/JOutYNFNj1UGMjqV+9oaRiJ+1G5aBdfp+8k0GOQsuogDabgC+ztYGFtkzQfPcRV9L3RMFk7Xd97ilfSsdZSEUTUc2bo9W614R0tLStrO4SMiZ5S4UW/r21TcK69VGY/zyGcK1k1MT6MiO4ejrF9ByHhZWX5aJe7suoiMZPG5KHPcEtm9aF3tDT0lO5F6ZznflQ+2uXX6TsJ9BiUrDpIeyn9ApuBY57Rw1tF33GQxZh+rL4LFV4mhWIeowDR8nqz2vCOlpaVtR1CxkRPqfCs2qOF+Ul+Vj/PIsyBsjL7eAbR3cMhLKD5RLvflVUXiZ90vbK4djKr37yjpeEY6V7E/cgnegiuY32RGYfJt1kHaTIlb2TbAcXYJmk7enirGHIO6bfgBNFv7rx4jKPvYnbtjLlnWe14R0vLytoOIWOip1RoUccoMw7PanNm9vEMwhwonzk/g+ouLl46xry09I0eCldWXaStpOuYxbWjrL7yjpaGQ7bzDe5H7tHDccmQSaB+S1VWHaThyPmmhza7pl54kF7RQ1uNVYOZgufxXAy5t3hFS4UzFtTKRkvLytoOIWOip1RoVt1Rw0JJXlYfzyW6i5hozs+fuouLxEvLWNHD4sqqi7SbNHaPedabI6t/vKOlLd72nRr3o1DRQ3NJ30mg1wMaJ868Uvo8srZJ2ozHmNN7vGFBrZfw4zfHMQTz2ASIljeI1Y53tLSsrO0QMiZ6SoXV5Mty7m3ZmP07l3CeZGH27Uyiu7gYvLSMGz1Erqy6yDyy9IU1q0+8o6UtFvejuNFDdEnfB0WvQYaTaIYp+ADX5IsPYiZd+3pYq+k73njU1qJ0rVv9FyUcR39Rx+yxcx6rLe9oaVlZ2yFkTPSUCqvFeSX3tnys/p1LOE+miz7PnRrdzdnjxWX86KFyZdVF5hWvd97erL7wjpa2ONyP4kcP1SV9D5bX4MLJNL+UfoCztknaS+nzxNL3wdijtlaFH8PlmGupcGAekwDR8gaz2vKOlpaVtR1CxkRPqbCsmluIlo+JrL6dU3Q3MVKLC+5Dors5a7xraiN6uFxZdZF5ZmkLa1YfeEdLWwwW0tqJHrJLrC+wol9eHSfVPFPyJtV3UYTEjtdExqrFin45ThH9emRx1E/UF1FTxh6rPe9oaVlZ2yFkTPSUCinqGNUr/LBIFmbfzimcJ5OYfTqj6G7OUtPj+wKjh82VVReZb9I7Aq/3UbVZ++8dLW0RuB+1FT1sl1hfYEW/vDpOrvlGD3ERLMS2H68JjFWLGV5C9Gb2X6Bomags6v19ythjtecdLS0razuEjImeUiFZ9bYSflgkD6tv5xTOk/GW8AOcuquzko4b7wnaix4+V1ZdZP7xeidVk7Xf3tHSZm0J84g5Rg9f/5dZnpNtTrL5puTNifOm/XhNXno/ZMk5pt+CU4R/cOVYujCPRYBoeaNY7XlHS8vK2g4hY6KnVDh9n5FCh3vbZGa/ziy6qxhoFmPEKdFdnY0lHLO5Rg+hK6suspx4vZuqwdpf72hps8X9qN3oIex/ED0HDxZGZp6CD/v89FnjcXoR1Pe8mfOkKrfo47jnD40sVdRJ5NTr2mrTO1paVtZ2CBkTPaXCmcMcknvbdFa/zi4svI5i9uXMors6C1HnnaRf9DC6suoiy8pc3/9Y++odLW120pyL99RtRw8lC2rEPyUf9jl3Go/TA37f84YXVcOEnzg4nW9LZR6DANHyRrPa9I6WlpW1HULGRE+pUGY1f+TeNonZpzML89nhZjVGnBDd3ebx8rL96KF0ZdVFlpm5LaxZ++gdLW1WljJ3mHv0cA6YXDg/jJk1kfmk4PnFBLrd6CGsru+NjhcQw0SfQHA864n6U8I5Ho6sdr2jpWVlbYeQMdFTKpSoY9SYcG+bxurTOUZ3Fz3NaYw4Kbq7TeNdwDyih9OVVRdZbua0qGbtn3e0tNlgMW0+0UPa/8LRL3fDRGjeKfmwz8DVZrxfAFk1WdEvR0/Rx3ItE4WFfRGV4Yc7zHado6VlZW2HkDHRUyoUq86Wo7uFEaz+nGUy3P+WxOzDGUZ3t1m8Q5pP9JC6suoiy85cFtWsffOOljYLS/khnKVke1D7LjR4v9hOmAzNPyVvRgxg7cV7ctJ7zOEFxCDhF7g5nsVFPQdyjTlW297R0rKytkPImOgpFcYs54zc20Yz+3OGifC834rwc9mM0V1uEu+P5hU9rK6sugiZw/3T2i/vaGnN4130/LI9sH0ngxEGCE7CZUQPdxFMqtsKC2rzZfZjkMxhQhxd1Pt5rjHHats7WlpW1nYIGRM9pcKwamw93NvGs/pzrtFdximW9F5Cd7k5PPfPL3poXVl1EXJtGn4vZO6Pc7S0prGOMc8MOri5XjJNsaSfBFtySp5rnEONxXlC0vvmx4LaYOEfcjmmRZl9HiBa3mRW297R0rKytkPImOgpFcKsH3y5t41i9uVcwznSi9l3M43uclNYTJtn9PC6suoi5LI0eh8198U5Wlqz0rlg7RdpP9sD3NKCWmLVRmaYgjchJtjtRA+Zm9bGx5ZEn1zwk/zlRH1ZnfM6ttr3jpaWlbUdQsZET6kQoo5ROcK9bRyrL+cazpHTLe0Fme52M3jWn2/0ELuy6iLkSBpcVDP3wzlaWpNYTJt3tge590NjkAGBCdIyUvJhjoGtneghc9P3XOHlwzjRx3MtE5lZfR0hWl4WVvve0dKysrZDyJjoKRWCVd+s0uBLHm9mP844uts4xpwX3a3objdhacdmadHD7Mqqi5DdtPh+yNoP72hpTbL2h8wn24Pc+4UmC2qkdgqec0y24ycdIz1cblhQK6tv/7qFl47ZRR17c4831ja8o6VlZW2HkDHRU8rdEuaHzFmGs/px1mH+cyKzz2Yc3e3weL6ff/RQu7LqIsRKa/Mtax+8o6U1h3WL+Wd7oK3/YGX7xQGEfwFLsqX0DYhBLnYiLKglVm1W9MsxUOTrsLVJcAtYUPOLlpaVtR1CxkRPKXdWbXOM7i56svpwzmH+c7wlvovQXQ+NxbRlRA+3K6suQo5LlHdafVj1e0dLawrvmZeR7cG2/oOV7RcHwILaslLyBsS5FDt6mNxZtVnRL8dA4a9DqU9LRQZmHweIlpeNtQ3vaGlZWdshZEz0lHK1qBey3NsGMftw5tFdx44lLtzorofFYtpyoofclVUXISellUU1q3bvaGnN4H60nPR+kRntp9RY8V1W9LAXwYAXN3qI3PUeb3g5NZrZn0HCT2nnE3W8LfGQY23HO1paVtZ2CBkTPaVcWXXNNdzbhrH6cPZhXmsy+2rm0V0Py6qZzDN6yF1ZdRFyahq4p5p1O0dLawLvlpcVFtRIEynxsvMwzqd4KX3Mh+h9fvDiYbTokw8tExNZfRshWl5W1na8o6VlZW2HkDHRU8rNIh+Cmbf0ZvbfzMOi61F9353MLbr7IfEcv6zoYXdl1UXIaWnhnmrV7R0tLbylzg+WnN4HPdLL7YSTdYEp+NDP+RQvLKgtS/hrkGM7WdSX1aXGGmtb3tHSsrK2Q8iY6CnlZokLaiyY9Gf13xKiuw+1xHEiRXc/nKUejyVHD70rqy5C+qTUc2cuVs3e0dLCs2on807vSUjEC9+qk8w3pR/6mZDHih6WEHqfGyy6TBL5J0x56Thd2DG20HVrbss5WlpW1nYIGRM9pdxYNS0izF16MftuCeH8uIzZRwuI7n4oPLsvM3r4XVl1EdI7ge+rZr3O0dJC4360zPQ+8Onr9FwJI/LLV1IohW8+nFMxEm28aXmcbEm6vq1+DRNeKk1i9qlzSi6UWtvzjpaWVerDucbqQ+9Ydc4lekq56Hufn2O8+74VVt8tIZwf1wk/Ty0Y7YJQrDqXksP3zqVFD78r65h4xuqnVmLtz9yT9ltPpXCser2jpYW1tGeIw9dv2veDbOdIC0vTL4q3O2HUSuab0jcfzqkYiTbe9D0vIo6TrUnXuNW3EVJ6/JmzvnON2il5zVrb846Whh6izge0PGRm9fWSot2AE1j9tpRoFyxe1LlMjWgXhDH3Y3H4ZeV2PiLRXUcA1jHzytyeTw/O93Tup0R+NzApQa9ps1bnaGlhWTXPJdyHTtF7MsIFT4IknbN6+IvofU2QYtFDEcb2BmLUuZu5TWg99O1rr2iZGMjqywjR8oqwtucdLQ09RB2LtDxkxLxPwkPyqcx+W0o4P7bMvllItAtCmOOYnZ4htwsHXGtNsI6hV5b0/iFd+ynba8Xoi5YS9bhZtXpHSwtprvcj7kU99R6MgnboHAZTMiKFz0fOK7+km5IehjDS+WbVupuoE6PWWH0bJkwuBos60Sw91ljb9I6Whh76jvu1o+Uhozk+DA8N85fTWf22lHB+xL0n1Ip2QwhzGbPTdbV958CzRXOs4+mVJY/PaSxoejwIeO2bdTpHSwtnTvMC7kUjbTvO6NAjCdq5czqJSf+UnjhwXvml9EvuMfqeD0ue0OYUeWLMMR4u6vHU8oqxtukdLQ09RJ0HaHnIhPneoUhfaLfAYPbZgqLdsFhNv7TNEO0Gd3M4Dry4bJ91XL3Cs+mlcWF7XRn9EzkRj51Vp3e0tHC4H6H3gpp+eUhWvWQBKXzhL/3BySva/eFYte6GCW0+Vv+GCZOO3lJfmX3onDS+a4nFWNv1jpaGHqKeu1oeMvGe60V6AcQc5mRWny0qC5/7mH2yoGg3uLNqayW8uJwP6/h6hXv3dZp8fxdsTDBrdI6WFsos3hVzP5qu74OcfnlIkR5GSb3UmDxwbtVNjZfcY1n17oYJbT6Rrz2Oc39RJ5s1xhpru97R0tADC2rLYPVxzaSxKNT9jofrY5n9taAsee4T9X5QM9oVrlp9gbkd4xlbZ8U6zl7hufRyrY0T0Y6fVaN3tLRQWr0fpTBmZLS9wRudvBv98pCY5C43S30pOtfUOJ5jWfXuhptTPtHHdS0Tp7D6LkK0vKKs7XpHS0MPUccgLQ8ZRHgYjlLHQZjHHM/qr6VFu2JxWn5xlivaFa6suqIn8rMtxrOOtVe4b9v6vucOkUAL7mZ9ztHSwmh5TsA9KTOrk63ol4fV1IBJ8qbwDYgF23rRLg/Jqnc3TGjzCj2uB5r4RhV1sllrImlt2ztaGnpgQW3+rP6tmYOxKNq5tu0cHGH1Ve24z4sWOvcx+2Jh0a5w0+QLTJ4VZss83k7h/cPxWnlHHOkYWvV5R0sLo8n7UQr3pPzMjjaiXx5W1BcfpHxq3ICaHTQbSq2X3GNZNVvRL0cGkcd1Hl5OZ/VbhGh5xVnb9o6Whh6ijj9aHiaKMK/TUrZCvfThgdtk9lXtOI9LS5z78I7hUrQ73LT0LL4dzxlHZ8067l7hmfRkoeZXJyXImGHW5hwtLYQW5wTckwqyOtyKfnloVt1kIakwQDRzM2402s1hWTVb0S9HJqGvOyYmx4r64qPmwr21fe9oaegh6gOTloeJvMeo3Rdgkc633dpwidVX1RPgPNHuWIwI85kINWh3uIg6p7TC+LkM1rH3Cufc6UK/T9BEOY5Wbd7R0kJo6X6UwvhQmNXpVvTLQ2thoCRlUmug4Bwrk3Rj0i4Oy6rbin45Mok8aWGCcryox63mWGNt3ztaGnpgQW3erL6tGWssCjXH5AdGjjD7qXJSHe7nycLODbMPKiaNFRHmVNodLqLOKXfDc8FyWMffK5x3p4s6pz+SAPdXsy7naGkhWPVFDWNDBVbHW9EvD62ZgZIUSY0XpZxjhdLAw7lZtxH9cmRk9XOUaInYYfVVhGh5VVjb946Whh6i3u+1PEwQ9eV0pAU1HsKPsvqpetK45Dw2LenciHAfYEEt7pzycBgzl8U6B7zCuddP1Hn94dR4n3kaqy7vaGnuItyL+4ZxoRKr863ol4eXThyrfrKQyI1ST4ViWhpIW0iEiUMfVu1W9MuRUehxvcKY05qoY2TtscaqwTtaGnqI+uCt5WECq19r5rixKNw5x/3tMmYf1U46RwKcJ9olsxdhPpPqiDAP3naIg6hzyt1ouVgI6xzwCi/O+2thPNFS3Vg1eUdLc2fVFjbM4eswO9+Ifnl44R5GSdXUmlC0MrlvIce9WIrGqt2Kfjkyijyu8xBzlNVPEaLlVWPV4B0tDT1EHXe0PIwUYf520rwn0g+QcH+7nNVH1aMvSNzPk4W8qDH3vWIOxooI48K2QxxEGhOPSyvPssjHOg+8wr16mPBjivP91azJOVqaq8jvo3bDPaki6wBY0S9vQgsTL1IutQYQzrM80e4Mz6rdin45Mgt9vS3kxVIfafw1+8g5HhNLqw7vaGnoIeqDk5aHkaw+rR0txRTtvNOyIKz+qR6db3ifJ0t4gRvhWjyYu0SYA287xYFVS6Tw4nKZrHPBK0sYj3OKOr8/iPfxtGryjpbmKuo7jt1wT6rMOghW9MubEH2QJBWiD5ylhX7J30BaGvCt+q3olyOzyOM6DzLXCTvZrHRPOMyswzlaGnqIOuZoeRghwvjUZ95jfZ9bHMbOqMz+qR09HhHGp22nzFiE8UJLWeyCWtg55aFoqVgY61zwCs+hw4V/h+c49zLrcY6W5sqqK1r6PGMgM+tAWNEvbwYLHctOrYlF1BdurUS7sQlW/Vb0y1FA6HGdl45bZt84x2tyadXiHS0NPUS9v2t5GCHSC/KTRLrX1ZpPt8Dqn+o5NNdwP09mPu8x97liDs9dIowJWkpVVh2RwsvL5bLOB69wnx4u+js8z7HFqsc7WpqbCM8PvcL7qPr6TtD0y5sRfZAk5VPrRsS5Ni6tPYRY+2BFvxwFRL7WeKiOO9n0OjZWLd7R0tBD1PFGy8MIVn/WTN+xKNy5J/VoaYtm9k3tHDoW3ufJnF/iRrgGD48XS1xQCzcO7oR5/7JZ54RXWFAbJ8K4elw8j6lVj3e0NDdR33EcDvckJ30HEv3ypkQeJEmlVHoJEH3SHzHadc2w9mE3TGjLs/o9Qjj2cY+NlledVYt3tDT0EPW+ruVhoAgPw0MediM9w3B/u8Tqm+o59FzjPUbN+byIMF5oKVsRxgMtpZrwLzArvWNATOY54RTu0eOEf3/nNMaYtThHS3Nj1RQtWipq6ztB0y9vSvhBkhRPzQlG+Il/oAx5qRSFtR+7YUJbXoSXCsdmwQ/XUcc/z7HGqsc7Whp6iDqH1PIwkNWXtaOl9BLu/Fvw/e2A2S+1s3Mc3OdEMz0vzH2tmN25S4S5r5ZSTeT5fovPscjLOi+8wvuH8SKPM17H1arFO1qai6jPg4fDPclR30FEv7w5kQdJUic1B5i0LasGcnm0u5pi7cdumNCWF3lSs+TjH/Veq+W5sOrxjpaGHqKONVoeBogwNxszF7Xa8QrzmyDHY2cBy3ucmuN5EWHs3x0vIsyxtJRqrBqipOa7BcRknRde4f48XuT3CilaZlVWHd7R0ly08H5XS4WH3hO0nQl8K6IPkqRSKp6/LQy6nmnxIaTvOMKEto4ILxaOTaP3yimi3me9xxqrJu9oaegh6nmt5WGACPMyLWWQaPc6LWuxrD6pnd37mvc4Ncd5b8TxIsJYoKVUEeEYnBQtEwtmnRde4f3DNFafhonDewWzDudoaS5Cv3eSeL/vWLzeJ0jDLwmjXwSkUiqew9EfBLzS6oSv7wsLJrR1eL9AOilLnNREHe+8j4VVk3e0NPQQdZzR8tBThOM4dm4Q7hyUerS0RTL7pHKs+5r7c+7MzgtzHysm5DGWaClVRJ1XpnjPLRGDdW54hfcP00QYX4+Lx7G16vCOlubCqidSuCc56z2ANDxZDvdASlxS+4YU+WHAK60O+H3HEG5o9USd/HpMfL1Z/RAhWp4bqybvaGnoIercUctDTxHmYlPmBpHudUu8vx1m9UntWOeS91g1p/MiwrhvHeMI44CWUoW1/TCRc0TLxIKZ54ZTln5vnirqfD/F49hadXhHS6suwjPEadFS4aX3SdL45CHCRJT4Z8pLjTFaGIRrpXbf59T3OLa8j62JPPld0sN21DEuwrVo1eUdLQ09RB1jtDz0ZPVh7Wgpo4Q7Dxd0f9tl9kflWPc273NkTi9zI8xptJTLWF9XO1pKcVHvvQfRMrFw1rnhFRbUprP6NUwqz7vMGpyjpVUX9T3HQSK871i8vidJ6wcr+uSM1Evtczn6QFwr2h1NWso42RrrGETIkh5srP2PEC3PlVWXd7Q09BB13qjloYcI868c8wKrXa8s+cWd1R+1c9z55P6Do5Vf+JVi7lvFHHd9WV9bO1pKcRHG7ePCcx4OWOeHV1hQm879HnpSWFBze/axaokU7kkB9H1hMIeDFXmCRiqn8o1p6ede6+NH3+M3h3GyJUx+fUUd16Jch1Zt3tHS0EPf+XHtaHnoweq/2skxHoW71y3g/mYx+6JyjjufvMerObzQjTDmH3t8ja+tHS2luMhz+yjzS/izzg+vzGH89RZ53Kl9fK0avKOlVRX1OfCyLHQ+HkrfE2UuA7W1b2R58Tif0yTcqmUJ0S5oVu9jx02tqsgTnSU8dEcd06L0vVWbd7Q09BB1fNHycIoo45OWM0m0c3EJ9zeL1Re1c1zfe58jc3hPEGHM0FKOsL62drSU4qxtR4mWCIQ6T+fyntZT5HcKLKj5jL1RniNOipYKT30Hj9ksqAUeLEndsKhWJ3N48ZLOFWvfjkTGF/0WVNL72FTOXO6ZJ7H22zuR+t2qzztaGnqIOl/U8nCKCPOtnPOfaPc6LWtRrH6onZPOKfdzpPE5sLlPFXPS/MX6+trRUoqK/p5GywRCzfGX8MxZGmPPdazte0dLqyr6e9s5vGOdhb6Dx5wG6mgPpcQvHgNR9Bt2zsxl3Og9ZjT+MqFFoa+nGZ8PUSeZkSaXVn3e0dLQQ9SxRcvDKay+qx0tJYtw5+MC5ztmP1TOSfNq73Ok9Tm/tU81c9L8xfr62tFSioo6t0yZyzMt8rDOEa9wbuZh9W2YVJxzmdt3jpZWlVVHpER657F41gGyol/evKgvSYhPvAaj3os0DWcuA721b1b0y1FZ1Gtpzg841v5GiJYXglWfd7Q09BB1rqjl4QQRXsqWmP9Y2/HKEl/gWf1QOyf1Owtq40UYM7QUk/X1taOlFBXhOByXuTzTIg/rHPHKEu/HJaR+tPo3QmqOP9b2vaOlVWXVESoVF1lxCvMAGdEvn4XIEzZSP16T5Dmfh3N68LD2z4p+OSoL/UMSM5zsRB23oo05Vo3e0dLQAwtq7bL6rXZKjEfhXvYs7GHe7IPKOe3Fqfs50ug54d1vpx1X63tqR0spytpulMzpuRbTWeeIV04bP9CP+/3zhNQ8xtb2vaOlVRP1XcfhaKmIoPfgMbMHp8iDJqkfr4lyCwP2mOjuNa/vS1Ums76sYxIhczwvoo5ZWl4YVo3e0dLQAwtqbYoyPmk5WUU7J5c277H6oHZO63Pvc6TVc8Lal5o57RnU+p7a0VKKsrYbJjN7D4ZpzHPEKbyDyCPyO7max9javne0tGqiv589bc6AytIFah2oI5nZRCLqyxLiGKdzfG7n4pwG+b7Hhhubr8gTHy1xNqx99E7E68+q0ztaGnqIel/W8nCM3s80BVNyPIqwf5fFad7swdz/yjntpZr3uFXzpV8uEeaPWsqxrO+pHS2lmPDPwgsa63A68xxxSovjbkTRxyAtszhr297R0qqJ/F4pJeJ7j0Xre8LM8cCFezAl/nGcMEcfvPtkbuPEksfHloSeBM/oITzqGBXx+rPq9I6Whh6ijilaHgxRxictp4ho5+WS5j7W/tdOnxen7s+2jc15vPurzzG1vq92tJRios4vr82M5vKYzjxHnNJnDMHpos77r02lMcjctnO0tGqsGkKF+1EsfQePuT40WftKFh7HQSr8A8Up0d2Yjb7HY0kvlaJyf4l0TOb0oGPtX4RoeaFYdXpHS0MPUR+stTwYIsyfaswFrO16RsuaPWvfa6fX4ovz2NXanMfah5rpM2ZY31c7WkoxEcbvk6JlAlvWOeIVFtTysfo3TCq9nzS37RwtrRqrhkjRMhFF34n3XAfrqC9NiG+8F0iiP1hY8e6zEtK4Z+3rkVSa5OB4ocfyGZwfUcekqOOOVat3tDT0EHU80fJgsPqrdmqMR73nJbWykPmPue+V0+dZ3Hvsaul9QYR5jZZyrCj3Ii2nmHDj2k60TGDLOke80tKYG53Vv2FSaa5lbts5WloVUZ//DkdLRRR9T5o5D9bRJ3HEJ94vaqO+wLYS9aX2VL3HhkqTHJws6lg+h/tn1L7V8sKxavWOloYeoj5QaXnYEWW+pOUUFe3cnMP9rQ9r32unb1+7368bmRNHmNdoKceKcr1rOcVEnWMeRMsEtqxzxCtLuQfXEHkcqvWuzdq2d7S0KqI+/x2E6z0o62BZ0S+fJWt/CYmwUNTCwpqWOjvWvlrRL4ezyJMgLbFJUfs18kK+Va93tDT0EPWc1/Kww+qr2qk5HoV76SPXi5Y2W+Z+O0TLOZH7+NXI+WDWXjF9xowo9yItpxhrm5GiZQJb1jniFV6w58OCWsyxWEurIvp718jvPhat9+Ax4wemKBNWEi9RBq6oA/xcB/a+YwIT2VjCToYbvn8y9gxn1esdLQ09RJ0Tank4JMz4VHGMj3Z+LmEeZO23R7ScE3mfHy2cDyHGjR5jRpRrXcspxtpmqKTjQEJETxlX5jniFN5D5BP2HYKk1nG2tu0dLa2KqO88DhL53cei9R48gtzESol+ARG/RJqsRDpP5zyo9+1nbmyxRB3HW37gsfYnQrS8kKx6vaOloYftixujD72j5eGQKGO+llONVYNrZv6MaO6zQ7ScU7m/GAx+Prj3j0RLOVGUe5GWU0TU+y2JGT1tXFl1eaXl58toor5DSKl1nK1te0dLqyLyObDNzOfazep74ixhwI4wwSZxk64VPVXcpVq8z1ctZZb6jouRzglcYh2nEGlwEtT3Oqid6NedVbN3tDT0EPUFn5aHQ6x+qh2P8Sja88rc50LWPntEyzmV+xgWfL5j1lwxfa+XKPciLaeIqPdbEjN62riy6vLKEt7P1hL1mTel1nG2tu0dLa2K6GsBWiai6TuRWcKAzaSOnJaILw1STbVvAHN/edK3P+feDy2KOhlq8R5q7UeEaHlhWTV7R0tDD1HngloeVJSXH1pOVRHPUS1tlqz99YiWcyrv8yPyfCfEuCHHR8s5UZTrXMspIur9lsSMnjaurLq80uKzZVRR5pRWah1na9ve0dKqiPoO6SBaJqIZMpHRb5m1yIMpiZHtOdLzYai2VFvKlBtC+t6DWP89ta+bmy1rv63olyOQyA/nWmITot4LWxh/rLq9o6Whh6hjiJYHZfVR7XiOR+Ee/IPOi3Mw99chWk4v7udH0PMhwnWjpZwqyr1Iyyki6lyTxIyeNq6surySxjMtCxNFfn+QomUWZW3XO1paFeHm1YfCtR6cddCs6JfPXuSLicRJEy92ZXKQ6txNOscP/+/tJEIfftM/j7sGljKYW/tuRb8cwYQdw/Uaa8F2XLD2wTsN9KFZt3O0NPSwvR8afegdLQ8iyviU6tCSqot2ns55fmjtr0e0nF7cz4+g92qz1ooZMmZEuca1nCLCzjVJyOhp48qqyytLeS9TQ9S5/0G0zKKs7XpHS6vC2n6UcK0H1/vlY9DJcW7RB1QSK54vVHJK5/1pY4F+6az1fbjjxhZX1DG8pXPGqt87rfSfVbt3tDT0EHX80PIgrP7xiJbjxqrJNTN9TjT31SFaTi/e41jE+3WIxZsB10iUe5GWUwQLamRI9LRxZdXlFd5F5BN17n8QLbMoa7ve0dKqsLYfJXN53zxbaTC2DtxuljRoRx9USayka6PFgS6d532v/6UM5H0f7rixxdb3vK6eAS9TvPS9BmqnlWvOqt07Whp6iDr/0/IWL8r4FGE8inafm+tzorWvHtFyenM/P4LNdyJcL1pKL1HuRVpOEVHnmyRm9LRxZdXllbnecz1EnfsfRMssytqud7S0KqztR0kr70AWq+8AsrRBm0keGZPoA972epcMebBc0iDet1+4scUWdWLcwn3UqjtCtLzwrNq9o6Whh6hjh5a3eFHm5lqOq4jnqpY2K9Z+ukSOt5bUi/v5MbDe0swaK2boc8MSxroo+0jaiJ42rqy6vMKCWl5WH0eJlliUtV3vaGlVWNuPEt47Bjdkwq3fshhDFh0IOZxIA1+6xlM9Y87npU3WrD4wE+xFAY4yj1uAaHkhRX250dJE0qrfO1oaenB/CX1MtLzFs/qmdiKNR9GeU1oaq/uy9tMlI+adZjuVEun5IcTcZuDxizIf03KKiLKPpI3oaePKqssrS3tHU5rVx1GiJRZlbdc7WloV1vbDhPeO8ZkHzsrCDmbUFyuknaTJzvaBofK1k7aX5UXLgq75Ide7fgsCi/ai8doEvqaivtzQ8ppg1e8dLQ09DLkP1IyWt2hRxqdUh5bkLtr5OscXfNZ+umTE3MF9HhRkvhNhPqil9BZlvNNyiog65yQxo6eNK6sur8zxfuvJ6uMo0RKLsrbrHS2tCmv7YRL43RFU34lmpIfIWqK+XCFtJl1D2weITAPj9vyUpDbTdZzzoXFp1/v2uBj9sJul9Uuroo7dkR+ArHq909r1Zu2Dd7Q09BB13NDyFs3qF49oOWFYNbom0/w2CnMfPTKiX93HsyDngllbxYyZx/R9JikdLaeInM+sZP7R08aVVZdXIj9Ptsjq4yjREouytusdLa0Ka/thMrN59Sz1nbQtdeCOMqkl80y6rlLSedYnB19vtZUraTt6+i9G2merL3azxL5pVenrZHQCToz6nv+109r1Zu2Dd7Q09OD+AvqYaHmLFWV8ijgeRbvPpXq0tFmw9tElI+cNZluVEuFciDB2jBk3oox5Wk4RYefoJGT0tHFl1eWVud1rvVl9HCVaYlHWdr2jpVVhbT9KtERENuQFgn7L4jDpI0vJUidoVl+Y4adEmhH15XjEa8yqM0K0vGZY++AdLQ09sKAWU5g5eMD7f8hzdkbzJHP/PDKyT92vHedzIcLYoaUMwoIaIZdHTxtXVl1eifgs2TKrj6NESyzK2q53tLQqrO1HiZaI6KyDZ2ZGD0lDmf1ByMyip/uiDHkhpd+CRkR9YNfyQojy4mY3Y36q25u1H97R0tDDkHtBzWh5ixRpfNKSwol2n5vTiz5r/1wy8vnbfUxzfm9g1lQxY+cxLKgRcnn0tHFl1eUVFtTysvo4SrTEoqztekdLq8LafpRoiYiu76SmxRdcuUR90UJItjg/+Hrp++DK5LU9YcftQNda1JcaWl5TrP3wjpaGHqKOF1reIkV5sRz5+SfieaulNc/aN5dMmDOY7VWK57w5wtgxdtyIMu5pOUVEnXuSmNHTxpVVl1d4J5GX1cdRoiUWZW3XO1paFdb2o0RLRHR9JzVLH7yjTHAJyZ3IL4tK6zv+LbmPWmYdS+9EuZdGXUBo9Vqz9sU7Whp6YEEtHqs/PKLlhGXV7Jm5zJesfXPJhAW1vnPcYplQ+xTu+y3RUgaL8r5ByykiwvEh7URPG1dWXV6J8hw5F1YfR4mWWJS1Xe9oaVVY248SLRHRDXmJoN+yWFEmuYTkytIXiqw+MeP0UgDThH1oD3A+Rb2ftTomWfviHS0NPQyZC9eMlrc4UcanFsajaPe5ubzss/bNI1POQfdxzWmuY9ZSMVOOWZSxT8spwtoeIcdFTxtXVl1eYUEtL6uPo0RLLMrarne0tCqs7UeJlogWWAfQDC+V+akqMpssfUI25KFVvwWNifqSPMK1Z9XlnZbHJGt/vKOloQcW1GKx+sIjLSyohTx3Z/C8aO6XQ6aeg1abteJxT4+wIDXlmEWoP0XLKcLaHiHHRU8bV1ZdXln6+5vcrD6OEi2xKGu73tHSqrC2HyVaIlqQBmbrIO6GAfySvv1FSOTo6bxYfR9ap77MgK+o47WW5yLKC5vdtHytWfvjHS0NPbCgFkek8UlLCi/afW4Oz4vWfnlk6n3R/dyovLga4VrQUkaJMv5pOUVY2yPkuOhp48qqyytzuL9GYvVxlGiJRVnb9Y6WVoW1/SjREtGCvi8SGMAvifrihZDemcFPD09l9ouRll/yI/B47XgNmvUEiJbXJGt/vKOloYeo44SWtyhRXii3dO8Pef42Ps8098khU89D93Oj8nlg1lAxU49XlPFPyynC2h4hx0VPG1dWXV7hfWxeVh9HiZZYlLVd72hpVVjbjxItES0YNNlu/AEpF/cHFEJGpqWXRKUMuX71W9CwCD+xvBuvB6IoL2t20/q4ZO2Td7Q09BB1TqflLYrVDx7Rcpph7YNnWn/pZ+2TR3LcG612a6XmeRBhfjP1eEWZr2o5RVjbI+S46GnjyqrLK63fW6Ox+jhKtMSirO16R0urwtp+lGiJaEXfCRyD+HWivpgk5Li0/tI6l77XLuPdPIT9AQiHH1CJet/S8ppl7ZN3tDT0wIJaDFHGpxbnSlFexB+OltYka388kuNc9D43tIziIlwDWspoUa5jLacIa3uEHBc9bVxZdXmFdxN5WX0cJVpiUdZ2vaOlVWFtP0q0RLSi7wSOQfxyUV9OErKbFl8QlWL1jxX6bD6s4+sdj/upVYd35nCdWfvlHS0NPbCgFoPVBx5pcUyKeA63PLZb++ORHH3ofm5U+uEhc9sVk+NYsaBGyOXR08aVVZdXeBebl9XHUaIlFmVt1ztaWhXW9qNES0QrBk22K02MWxFl8kvIcWHydR3GumVKLzrMY+wcLa+KqH3Q8kvXA9Z+eUdLQw+D7gsVo+UtQqTxSUtqTrTnkZbnntb+eCTX/dFqu1ZqnAcRxo8cxyrKNazlFGFtj5DjoqeNK6sur/BOJy+rj6NESyzK2q53tLQqrO1HiZaIlvSdxDGQHxVlAkzIbrheLzfkoVu/BTMQ9YV5zUVbc/sBouU1zdov72hp6IEFNX/W/nsk1wKGhwiLCkfS6A8mmfvikFzno/dzqpZRTITncC1lkijvE7ScInhnQoZETxtXVl1e4b1OPmHfDWi0zKKs7XpHS6si8v1IS0RL+p5QDORHRR+QyYLT6MuMUsw+MtLySzXYIk6aat1PQ75olczlOrP2zTtaGnpgQc1XqPGp4TlTxPO41WdGa188kqv/3M+NwteVuc2KmcvC50G0nCIizsVJ3Ohp48qqyyut3lMjijr3P4iWWZS1Xe9oaVVEvh9piWjJoEGl8MS4RdEHZbLAcJ1ehjFu2cKO0RXOtagLalpe86x9846Whh6ijg1a3uxFGZ/m8KIq5MuBBudT5n44JOc5abVfKyWvrQjjBwtq/YUco0jY6GnjyqrLKyXH0qUJ+15AUus4W9v2jpZWRej7UYNzZ4i+JxWDuS3qS0uyvOR6uJuTIdenfgtmJuLEqcb91Nqud+Y0Rln75x0tDT2woObL2nePzGFMingut/jMaO2HR3L2nff8R8vILsK8TkuZLMK+pGg5RUTZR9JG9LRxZdXllZz3hKVjQS3WuX0QLa2K0PcjFtTaNOSk0m/BDhbViHdYTLNZfWWF/puvJb44j3pPmtN1Zu2fd7Q09MCCmp9I45OW1LyILwi0tGZY++CRnC/V3Me5Qi+HzG1VTM65TJRrV8spIvQLTBIuetq4surySs57wtJFfT5OqXWcrW17R0urIvT9iAW1Ng2abHOQjxV5gCbzzpxeUuc06JpkbJu1kJOnguecub0A0fJmwdo/72hp6GHQ3LditLxZs/bbI3OaO4V8BmlsXmXug0Nyv1SztlErJV4QRjjXc44dUeanWk4RIcennaQaSYzoaePKOke8UmIcXap0fll9HCG1jrO1be9oaVVEPgd4H9mwvpM5BvSThb5AySwTZeIZ0ZDrUb8FMxVxbC51P416H5rbWGXto3e0NPTAgpqPqOMTyZ/WnhmtffBI7n7r+4xfKlpGNt77k6KlZBFhf1K0nCJaGPe1VGDLOke80tq9NLLIY1Gt42xt2ztaWhWh70csqLVr0InFgT5RlIkxmX/SdaunHQxWn1mhH5fBOvbuKXA/jXoP0vJmw9pH72hp6IEFNR/MkReWhp4ZzfodkvulmvtYl/kcMLdRMbmfGaxteETLKSLq/fZwtFRgyzpHvFJroWUJIi+m1HofZW3bO1paFZHvR7yTbNiQE4tB/XS8MCClw3V4siETJv0WzFzEcTn3dRx1kjjHCaK1n97R0tBD1GtFy5ulFl6qkrxpaa5q1e+REn1mbadWcu5PhJehuecz1jY8ouUU0cLYr6UCW9Y54pWW7qPRpb60+jhCaj0rW9v2jpZWReT70RzflyzKkAFGvwUniDxgk7bDxOp0Vr9Z4ca1HEt4gR7hZZMZ6XstcTbM/XSOloYeljAeRBN2fCJl08j4b9bukBJzfO9nUi1jsgjP1lpKNtY2PKLlFBH5BeZBtFRgyzpHvMJ7n3wi3EOOCwtqdUS+H3GtN27QydXIw5GnFiaPpNFw/Z1oyEs7FtSWJeREOuP1bLbvnLlODq199Y6Whh6iztG0vFmy9pfMP63cA6zavaIlZeM+3mWa55htV0yJc9najke0nGKsbUaKlglsWeeIV3jJno/Vv1HCglo9Vg0RwrU+A9aBtcLB7ifqCxvScDK+fJ+rIQtq+i1YiIhjcq776ZDzvmbmumht7at3tDT0EHV+puXNTtTxidSJngahWXV7RUvKytpOreSY50QYQ0rMZ6zteETLKSadA9Z2w4TnaxxiniNO4b1rPlb/hkmlMcjctnO0tGqsGiKEa30GBk12mHj0EvWlDWkwXHOnGnK9zfVFP04W8qE+w7VtthsgWt7sWPvqHS0NPUSdm2l5s2PtK1lQGpi/mnU7RUvKynvuo2WMFmHupqVkZW3HI1pOMSHn3ofDMzYOMc8Rp6RrR8vCBFHn/dem0hhkbts5Wlo1ke9HWiJaNWSgYXDvL/wATsKHxZ9+hvwEq34LFibieDz1fhrhJ7etzHncsvbXO1oaeog6L9PyZiXq+ETqpYVnRqtur2hJWbmPebJ9LWUUs82KKXUOW9vyiJZTTOQXmNtMPD8xL+Y54hTeueYRdd5/EC2zOGvb3tHSqgl9P+Je1L5BJxgHvDdeKJCxmfNL6dys/rNCny6bdU54R0sbJer9RcubJWt/vaOloYeoD9Za3qww/yXbBH9mNGt2ipaUnbWtWpnyUjjCGFLqucHalke0nGKiv8zmnRYOM88Rp7Cglkf0uaiWWZy1be9oadWEPhe4F7VvyISHAX4YXiqQoSn1ADdHQ64v+nXZQv5k0oQJlNmec+Z+jVn77B0tDT1Efbmn5c2KtZ9keYn+zGjV7BUtKTvvuY+WMViEOZuWkp21LY9oOcVEvecehOdCHGadI17hfWseQ94T1U7NY2xt3ztaWjWh70cT3gchkCETV/0W9BR5MCexwuR+GKsPj4t+CxYq4kRq7GQ66j1l7uOXtc/e0dLQAwtqdTDnJZcl8IsCs16naEnZuY97I4+/2VbFlHzZaW3PI1pOUdZ2o4RFCxxmnSNe4dzMY8j77dqpeYyt7XtHS6sm6jNgCtf7TAw5yXjpPxwvGMhp4boaZsg1Rd8iCTmxHvGyyWwnQLS82bL22TtaGnqI+jCl5c2GtY9kuYn8osCq1ytaUhHW9mplzPGP8Mxc8rnB2p5HtJyiQs67NbzExGHWOeIVzs08rL6Nkprvpqzte0dLq8qqI0K43mfEOsBWOOjjRHhAIDHDgs9wVj8eF/0WLFzEF+pD76dR7yNLGMOs/faOloYeWFArj3kusaKnRzhWrV7RkopI8wxrm7WiZfQWYRzRUoqwtucRLaco73PvpPA+C4dZ54hXODfzsPo2Smo+N1vb946WVlXk+5GWiNYNmcAu4eVZCbxsILvhWhqOsQpjhZxMDfiUWtR7iJY3a9Z+e0dLQw8sqJVn7R8hQ+5xNZm1eqVgH7mPfQP3zWyjYkq+zI50H9KSior+3kPLBELdD1hQmy7SWGum4D1/l7l952hpVYW+H1U8H1CYeYCPiX4LBoo+uST1wmLPOFZfHhf9FmAr4gR7yDhgfb93ljKOWfvuHS0NPUR9uNbymsfclhyXqC8HrVrdUvhlirnNShly/COMIyXnNJHuQ1pSUVHvu9em8HWHdpjnh1NYUJsu+pxUy6zC2r53tLSqIt+PuOZnJB1M6yBbWcpLtBKG9DOZZxg4xxkyQWKMgsU6VzzTdyyI+nCwlOvM2nfvaGnoIeqDlJbXvKjjEwmSgC+uzTq9Urh/vJ87tYxTRRhHtJQiIt2HtKTirG2HScBxCT7M88MpvCOaLvqcVMuswtq+d7S06qxaIoRrfkaGTvT02zCC98MN8QuD5nhWfx4X/RbgMiHH3h4P9eb3BYiWN3vWvntHS0MPkV5kHo6W1zxr3wg5SMR5r1WnWwq/2Hcf/3run/m9laOlFBHpPqQlFRf5fQfP4zhgnR9e4byczurXKKl9fK0avKOlVRf5flR6HoiKhpxoS/nJ9FJCX9SkSJgkjTfkp40Ym3CcSC80DnLauBD1J+2WdJ1Z++8dLQ09RLzuU7S8pkUdn0iwBHtZYNbolQp9Y263Uvo8+0QYR0rPaSLdh7Sk4iK/6+CZHAes88MrnJfTRJ3vH6T2s7NVg3e0tOoi34+izZExwdBBSL8NI4W+sEnWMEGaxurT46LfAphCjrsnTKSi3ie0vEWw9t87Whp6iPqAreU1zdovQnYTbQ5s1eiWCi9SvOcRWsaxQizMFz4Oke5DWlJxUe+916bCtYf4zHPDKbwvmib6D3mxoOb37BP5fsR1PzNDJt21B4W5CT/RJNmihxwjDJkcMSbhNBHH3ePO26j3iKVdZ1YfeEdLQw9RryMtr1lD7s2E6GkTglWfW2R80rKKcR8DT9lH83sqR0spJtJ9SEuqwtp+mFS49hCfeW44hRfr01h9GiqVxxyzBudoaS6sesKE+9F8DJ7wcfAnGdzfpL1wjUxi9ukx0W8BTuT909q7Oe4BKuwL64WNaWYfOEdLQw9R51laXrNYUCODEui+YdbnlUr9Ym67Uk56SRxhHKnxQ0KR7kNaUhXR5tuHw+IFEuvc8Arn5HgtzEm11GqsGryjpbngfoRqhpxsHPzpor7sIRkS6AVCi4ZMjmo8EGMeQo65xlhhfp1zlnidWf3gHS0NPUSdY2l5TWLeSoYm0vOiVZ9bKj0neL9I0jKOCPEStMIxiDRmaklVhL9XVLr+EJd5XjiF96rjRV9Q83h+turwjpbmIvo5omViDgZPfpiMTBZ+wkmGh+tikqE3Pf02oBfrHPLM7kNU1EmfxwOBN6sfvKOloYeo8ystr0nRH0pJ0ASZF5u1OaXWPdV9HDzm2JtfWzlaSlGR7kNaUhVR778HWeKcFpezzguvsKA2ntWfkeIx1lh1eEdLc8H9CFUN+Uk2Bv88ol/kZECOeXBEf2a/HhNuQBgqnTPWueSaQ+OG+d8DRMtbFKsfvKOloYeocystr0nW/hByWqI8L1q1eaXm/NXafq1Yxz7CPKxW/0e6D2lJ1Qx5p+QRLRMLZZ0TXuGd6jghn+l34/Bu0KzDOVqam8j3I67/GbIO9HGp+UAwZ03cEMjJYTFtsqHXgX4b0FvEl+wH99Go94Gl3uetvvCOloYeWFDLi3kqmZQAc2SzLqfUvK96v0jSMq4VYiypdD5GGje1pGqiL6jx3L5s5jnhFF6oj2P1ZbRoqVVZdXhHS3MT/X601HctszV08qffhokiTbrJsDAI5mH17XGhzzFWtEnVwYNU1HvAttMWyOoL72hp6IEFtbysfSGkbyK8MLTq8krNOaz7WLizcGF+TeVoKcVFmtdpSdVEvQcfhEWMZbPOCa9wLg4X9Zn5cLzeVVm1eEdLcxP9fpSipWIuhrxw5CaQTws3B3J5vG6WczP03NdvAwYLOakKOtFb8vhm9Yd3tDT0EPWa0vKawtyU5IieTm6smrxS+95q1VArh98TRBhLavZ9pLFTS6pqyPskj9S+DhGHdT54hXepw1n9GC1e44tVi3e0NFfcj1DV4BcR8vX6rZgo0uSbnBwGvjyGnvP0O6aKPqmKkiVfa1Z/eEdLQw8sqOXDvJRkifOzolmTU2rfW73nPFpGjLGk4nkYaezUkqpq4t7BO6xFMs8Fp7CgNkwrc1IttzqrFu9oaa6aePfD/Whehpx03AjyauVGseSkY6SHCxNZ/Xtc6HfkEPVle7Rody2S1R/e0dLQQ9RrXMtrirUfhAyN97OiVZNXas9l3cdDfUlk/rfK2XZIJZGe57WkqlqYa/MOa5msc8ErnIP9tfKO1PN9lVWPd7Q0V9yPUN3Qk44X3Xm1csNYYjjX8xl6nuu3AZNZ5xe5Lksf56w+8Y6Whh6iPjhpec1gLkqyRhdWPJj1OMXj/mrVUSvpJVGEsaR2v0caP7Wk6tKxt+qJFF5iLo91HniF86+fFhZEDuJxjz9g1eMdLc1dC/cjz3MHBQyeCDo+KM1RpIk4uRQGuXxYtIcnxteTo920WFafeEdLQw8sqOVh7YNXmAP0F/WlgeeLQ6ser3j0g/c5EWHOVXsMiTTP1JKqa+UlOPeXZbHOAa943hdbEnVeY0VLdmHV4x0tzV0zi7KsqcyLeZCPCTeE/CJNxpceJtt5DZ0Y6bcBWTQzqXIIYx0PJK1jQW26aPNPxqX+Qt/fnF4UmLU4xeN5mTlP/fE30hiqJblo5UU495jlsI6/V3h/erpo89GT4j2OWDV5R0sLoZX7kddcGQUMnYAzGcmvpZvIXMN5ndfQc5r+RwnNTKpqh0kcDySNi/ryWMtrQrTxUctCT1Hvb14vD61avEIf1I/Hc0Sk53ctyUVLi7k8by6Ddey94nU/aEWkcbRXnJ+hzZqco6WF0Mr5xLgwM4MfyngZl11zN5MZhcl1XkMfrOh/lNLSQ36tMIG7xOob72hp6CHqta3lhRdtzsk8YLjI9zctsSqrDq943WcHP8/PKB5jSKRxVEtyY9UUNdxv5s867l7huet40eaipyXC2GHV5R0tLQyrxohhbJgZ6yAfFw5+GUt+EPIKk+r8rH4+KfptQBGMq5eHMe8Sq2+8o6WhBxbUpgn3EkOOp5aGAcy+jBCH42nW4RSv5+TIi6ylo11QVaRxVEtyE+6eckp4lzVv1jH3CuearcXn8wjP0FZd3tHSwmjtfsQz0EwMPfEiDChzxMvfeuEczo9xBNEs+QWTFe2WxbP6xjtaGnqIel1reeFZtXuFl03jRX1m8DimVh1e8TynrXrmHq9niaHPPCWjJbmy6gofXmTOknmsncIc53Lpmos6dzktuguurLq8o6WFYtUZObwTnYnBgxuTkCJavcm0FAat/IY+WHIMUAtj6qVwzV3H6h/vaGnogQW18Ybeq0uHcWm8qNfBNpWfEc0anOL5AnWJ8x2vMSTSWKoluYp2b+kb7kHzYx1nr3jeD6JpdYxIiTJOWLV5R0sLpcVzjXvRDIx5MNNvRWa8AC4XBqsyrL4+KfptQHEtT+BzRrsDwuof72hp6IEFtfGsuj2jZWGkqM8LtV8iWjV4xfMFauhF1kLRXa8u0rWnJblr9f1Fqpv3A/NhHWOveN4Pokj3pVbHhpRIx9CqzztaWjitnnPcixo39MUjN4lyWr7xRA0DVBlDxw2OA2qzzsMlhWvuclYfeUdLQw8sqI0z9F5dOoxL00U7ppdFrlMtszhz+07xfja2apprPMeQSM/pWpK71hd0t+NpxXELZVjH1itLflfa+kLaQSLNVa36vKOlhTOH+5HuClozdODjYJczh5tQlHCelrF9+DD6+7hwHOBh6WMp193lrD7yjpaGHqI+JGl5YQ29X5cO49J0kV8Y1HyRaG3fKzX327Kk+Y7nGBKpn7WkEOZw/qV92N4vWVxrknVMveJ9P6hpOx+RzOkeFG2eatXoHS0tJO5HcGMdzBPDAS5mTjclr/DSpozt4G7090nRbwWq2k7yjfNxKdFugLL6yDtaGnqIej1reSFF7DMtDRNFfk7QEouztu0ZLcvFkuY7ussuIl13WlIIczz/Dl5oHmS7jxLdZQRjHUOvpHNHy5qFg3M/JV0Laf8iz0GmRnc7DKtG72hpIW3PVaPmlsP9qBGjTj4OZDFzvlGVThpotBuR0ZgxgmMBT0sdR7nujrL6yTtaGnoYNUetEC0vpO1Dl1GzVxiX8ol6PWxT6dnQ3LZjtCw3Vk1zi/cYEmlOqSWFEe1+UyvpnFh69BRwZR0bz1j91FKsfVpCIs5TrTq9o6WFxf1oudFTwM/Qky9E0TOW+tfqd3J8It4I52Lo+cixgLfQLx0LRncfh1j95B0tDT2woDacVa9nmBPkZfVxhNR6NrS27Rkty80Snhm9x5BIfawlhcJ7i2VGD78rqy5ChiTqHNWq1TtaWmjcj5YZPfy+hp58PCCXxWDQP5yL5aS+tfr8uKTzVr8VcLW0MZRx0Gb1lXe0NPTAgtowQ+/ZNaKlIZPQ97YKn1Izt+sYLcvNEn6ASHfVTaRrTksKx6qVzDt66F1ZdREyJHoqhWPV6h0tLTyrdjLv6KH3NWZCzgu8siK+GIkWzsFyRp1/FV6mAH0s4SXT4TAW2qy+8o6Whh6iXsdaXjhWrZ5hXMov8r2txg9VWdv1jJblyqprLokwhrCgdrqlzbkJYx+ZQQK/tzLrdY6WFh73o+VFD72/MS/QeVgua8wxWUo498phLMAcWOfpXKO7jB1WX3lHS0MPLKj1F3K+GPhlRcuW/Ck1c5uO0bJchT4fJibCswULav2EvAeRYtHD7sqqi5A+if7eyqrZO1paE7gfLSt62GMYdfLxwFwUA8LRRL8JtmzMC0yOByKa80umw+H6O57VX97R0tADC2r9RZwramnILOp1kZLuu1pmEdY2PaNluYp8PkyN7qIrFtT6W8q8mwQZ+4y6CDktLTw3W3V7R0trBvej5UQPeRyjTj4W1YqK+KLEK7w8Lsvq85NS+uUJMNacXzIdju4uDFZ/eUdLQw8sqPVn1ekZ5mplWX0eJVpiEdb2PKNlubNqaz1RxhAW1IbhJeYyoofblVUXISellbmpVbt3tLSmcD9aRvRwx2IVelJ4qV4ei2oSFm6LGnPT0W8FQpr7RIqX1iez+sw7Whp6YEGtn4jzQy0NhYS+txWcq5vb80yQ55I5znWizG+s2ryiJYUW9b5N8kYPtyurLkKOS0vPzFb93tHSmsL9aBnRwx3LmJOPRbXylrqotn1QDPLQOldjHsZ5mY/oZj+RYlw8kdlnztHS0EPU61fLC8Oq0TM8D5QX+d5W8vhb23NNkHvwHOc6umvurNq8oiWFN8fzkVwePdSurLoIMRPkXt2XuQ/O0dKaw/1o/tFDHc+YxRtesJe3tEU1XsyUx7WOORuzWNxCuAZPZ/Wbd7Q09BD1IUjLCyHinJCxqY7Q97ZCL6/MbXkm0Es6s75GE2kMserzipbUBF5izjt6mF1ZdRFyONt5UqD7dF/WvnhHS2sS96N5Rw9zTGMe1HmQLm8pgwKLaeVxjWPu5jpech2ezuo372hp6CHqtavlhRBxUUVLQ2Fj5m+1Umr+bm3LNYFe1IVeYB2YSPMbqz6vaEnNiDxGkWnRQ+zKqouQg7T8HtHaH+9oac3ifjTf6CGOa8wEnRd9dczp4Wk3nEPljbmxcFzQIutcbj26aziB1W/e0dLQAwtqJ4v4cMgcoZ7wPyxSYLHJ3I5nAi2ohT8fBkR3KQSrPq9oSU2JeJ8i06OH15VVFyEprc9FrX3yjpbWNO5H84we3thYVItrjgMD5055Y86bln/SB8s2tx8+YIzsx+o772hp6IEFtZNFnP8xNtUV+d5W4lywtuOaQAtqiVljY4n2rGHV6BUtqTkR71VkWvTQurLqImQO81Brv7yjpTWP+9H8ooc2trEvNXiwrmNWA0Owh9M5Gnu+6LcDzZnTT26n6G7hFFbfeUdLQw8sqJ3Mqs07WhoqiX5v0zKzsbbhmmDPLHP44aFo7w6sGr2iJTVpbvPwpUcPqyurLrLcbO9/we7JY1n75x0tbRa4H80reljjG3visahWR+uLanO6CUY2+jzh2KBxc3jRlMI9tT+r/7yjpaGHqA88Wp6riHM+xiYf1rEIk8xzR3Mbngk2N446Zg6J7koYVo1e0ZKaNYfzk1yKHlJXVl1kmZnb/NPaR+9oabPB/Wg+0UPahrEnHg/Z9bT40pjzo46xL+A4PpiDuUycuB77s/rPO1oaeoh6zWp5rqy6vMPY5CPyvD/VpmVmYW3DNTJGaWlhmHU2ktznSw5WnV7Rkpo39nmUxIkeSldWXWR5mePc09pP72hps8P9qP3ooWzH2JOOB+16mhoYAj6MzhHXLTCPT6nprqAHq/+8o6WhBxbUbFHneFoeKgv/wyIZ5/lm+54J+AzT8jwn4jOHVadXtKRZaOpdBTkSPYyurLrIcrK91830PaK1v97R0maJ+1Hb0cPYlrEnXcSJ8lxFHxgi/hTiXHG9ApeEf/F4Srgmh7H60DtaGnqIer1qeW4izu8Ym3xFXkTJOd+32vdMxPO+5XmO7kIoVp1e0ZJmI52rLS8ALzl6CF1ZdZFlZO5zTmufvaOlzRb3o3ajh7A9Yx/oeeiua+xxKhoZsLQ8FMZ1ClzOOt9bie4CerL60DtaGnpgQc1m1eQdLQ1Owi+iZJr3m207Jupc2ao1eqL+oKVVq1e0pNkJ+a6CnBg9dK6susi8s13wWMB7RGvfvaOlzR73o/aih65NvKxvQ5SBIerD0lxxfQJHRRkPh4brcjirH72jpaEHFtSOijh+MbeLwTo2UZLr/mW17Zmo9+UWf8o6Yl9GuwdpWbMV8f5G7Oghc2XVReabqPfbEqz9946Wthjcj9qJHrJ2jT3ZljQoRuE1MCzlp0ki4boEbFFf0p8Wrs3hrH70jpaGHlhQO8qqxzuMTTFEX0TRMiex2vVM1HO/xXmOlh4KC2r1jX1+JXWjh8uVVReZX5b4HtHqB+9oaYvC/aiN6OFq29iTjZ9q9VFrcGAhzcfYlypRXwwAuUV/8bgb7pXjWH3pHS0NPbCgdrmoD3ZaHpyFX0TJ8DxgtuuYyPNmq96oiTrHiXZNaVmLEPV+Ry5FD5Mrqy4ynyz5PaLVH97R0haJ+1Hs6GFq39gTjReFfkoNDku+AXpKfb7te+OYnJbILwWA3KK9JDktXJ/jWH3pHS0NPUS9TrW86qxavMPYFMvYOWCN5Hjes9r1TOTzP/K5sJuo/RjtHqRlLUo6N6y+IL7Rw+PKqovMJAt/j2j2iXO0tEXjfhQzenjmYdJJtvCB01Pq+6kDxMEiGsfRx7bvjePSJ1EfZIGSWnrZpCVjIKsvvaOloYcp97WS0fKqivoQx/whlqjnybWZ+IxgtumYyOd/1PHTipYcTrQ+1LIWKfzYtrDoYXFl1UXaDnPKS6y+8Y6WBsH9KFb0sMzHlBOMQdRfenhIxyElvXC2Xjof/P/bYz3x4RjTcc0Bw7XysolrdDyrP72jpaGHqNeollfVlPt8yWh5CCL6fS09O2ipo1hteib6/dmqOWK03HCiXU9a1qKlay7q/XBJ0cPhyqqLtJftu0beJ17G6ifvaGk4hPtRjOjhmJcpJ1b6Xm0GwCm41oDxrB8YiBYtFSNY/ekdLQ09sKB2HasO7zCHiCn8fW3CizOzPcdMXSAsrYU5TuRxhAW12KY8A5Np0UPgyqqLtBMW0o5n9Zd3tDQcg/uRX/QQzM+Uk4qHdOB0XGPANNEnP1yn01h96h0tDT2woHZJ1HGK8SmmqNfNQaacN1Z7nom+oBb9XNgm8AvVaP2nZWFHOk5pXGlhAXku0a53ZdVFYodFtH6svvOOloZTcD+qH+36eZryEoABF7Cl62LKIM1LMOA61jUSJVyr01h96h0tDT2ke53Vh97R8qqxaogQLQ8BWccrUrTMway2PJPm4lpaWFbdkaJlhhTtHqRl4RS80Cwf7WpXVl0kTtL1d/A+N0UPG3qw+tM7WhoG4n5UPtrV8zVlUS2FF4rAdSY/3DGhAS4TeYKjJWIkq0+9o6Whh8n3u0LR8qqYOocuFebmsYV/cB85FzXbckzqZy0trMjnQvRxJNo9SMvCCOlYpvMthReb06Pd6sqqi9RPup5StvPVNGaOvL/jOlY/e0dLQwbcj/JGu3Xepk5I08mmTQGLtZ2oGNdH7zDBAY6Yen8qFe5701n96h0tDT1EvTa1vCrCPmgxnwgt6rVzkHRea6mDWG15Zux+1BT6XAg+jkTrOy0LmW2Ps+TgBWdKurZ3Yx2TpUa7zpVVF5kW67w/fF0cXCspehhQgHVsvKOloTDuR8OjXbcMUw5+Opm0GWBxplw72+9l4gMAAAAAAAAAQDu2P91gvPTvGxbWsCTbn1IwroO+SYtp2hQAAAAAAAAAAGgJi2rA6bhOAAAAAAAAAABYuKmLBdvwa+wwQ+m8nvq7cVlMAwAAAAAAAABgJnIsqrFwgDlhoRkAAAAAAAAAAJimfhpn+/0sIqBhOT6Vxt9LAwAAAAAAAABg5vi0GpaKcx8AAAAAAAAAAPSW5dfdSVhcQAtyfCothfMdAAAAAAAAAICFYZEBS5DjHN+2wa86BQAAAAAAAABgufi0GuaI8xoAAAAAAAAAAGSVa/EhhQUIeMr1yctt+FQaAAAAAAAAAADYxad60KqcC2mpHW0WAAAAAAAAAADgKD6thtZwzgIAAAAAAAAAABcsUiC6nOfo9tNt/IpHAAAAAAAAAAAwVM4FixQW1pAD5yUAAAAAAAAAAAiHBQxEkPs85G+lAQAAAAAAAACArHIvZqSwsIY+0nmy/ZWMxjk0Ovx6RwAAAAAAAAAAUAoLa6ghLXhlX0STcK4BAAAAAAAAAIBqSi2s8cmhZSu1kLZtk3MLAAAAAAAAAADUVmJRLSW1yyeJloWFNAAAAAAAAAAAMGulFtZSWFibr1KLaAfh3AEAAAAAAAAAAOGUXlhjgWQeSi+kpbZ1UwAAAAAAAAAAADGVXFhL2bbPr/FrSulFtBR+vSMAAAAAAAAAAGhO6YW1FBbX4jpYRGMhDQAAAAAAAAAA4BQ1FtZSWFzzV2sRLYWFNAAAAAAAAAAAMDu1FtZS0rZSdNMoqOYiWgoLaQAAAAAAAAAAYPZqLqylpAUYPr2WT+rH1J+1FtAOwgIpAAAAAAAAAABYnNoLawdJ22WBrT+vBbQUPo0GAAAAAAAAAAAgrl3gMhZUauTgE2wpWtKipQWs1CceC2gHYSENAAAAAAAAAADgGJ4La4dzeJFtrgs7ab8iLJ4dDgtpAAAAAAAAAAAAPV27mGUsunjlYOHp8EJb9MWfgxoPao60eHYQFtEAAAAAAAAAAAAmirawdlx2F9wOcrColWvR6HB7KQfbOdj+doHKqC9SDvopV58AAAAAAAAAAABAHCweWQs0JH6uXexjEQ0AAAAAAAAAAKA8FtfaCItoAAAAAAAAAAAAARwsrm0XboxFHVI3LKIBAAAAAAAAAAAElxbX+PRa3RwsoLGIBgAAAAAAAAAA0Bg+vVYmfAoNAAAAAAAAAABgpg4W2PgE27CkxbNtn7GABgAAAAAAAAAAsCyHF9j4FNulHP70GQtoAAAAAAAAAAAAMB0sss15oe1g4SztI4tnAAAAAAAAAAAAmOxg0amlxTZr0YyFMwAAAAAAAAAAALg4vGB1eNHtYOFtN9YCmBXrew9y0P7hbadoSQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYLoLFy581Gazufl6vb7tarW6SvJ58u8fof8ZAAAAAAAAAAAAWJ5z58591HrdPWC9Xv2Z5P9ZWa26l61Wqx9dr9efrt8GAAAAAAAAAAAAzN9qtXqQtYB2UuR7HqbfDgAAAAAAAAAAAMzTlVeeed/1uvtda8GsT1ar7re6rnsfbQ4AAAAAAAAAAACYl9Vq9evWQtnA/M6ZM2feTZsEAAAAAAAAAABJ13W3Wa1WXzc12hwAB3IN3ttYHBuV1ap7oDaLQ3bHvDE5e/bsDbQ5AAAAAAAAAEBLVqvVT1gv1Ydkter+rzYHoLLNZnNDuQbfbF2b47P+IG0eouu6D7P7aWjW/0ubBAAAAAAAAAC0hAU1oG1yDX+JdV1OSdd1d9HmIVhQAwAAAAAAAICFY0ENaJtcwz9rXZfT0v24Ng/BghoAAAAAAAAALBwLakDb5Bp+hnVdTkv3y9o8BAtqAAAAABCEPAR/nuS3M+QZ2iQAAEAvMn9gQQ1omFx/z7euy2lhQe0wFtQAAAAAIAh5CH6S/cA1PPKwd0abBQAAOBULakDb5Bp+inVdTkkaF7R5CBbUAAAAACCAvb29j7QftsYlPVBr0wAAAKdiQQ1om1zDD7Guy2nZ+/+0eQgW1AAAAAAggNWqe6j9sDU+8lB9Y20eAADgRCyoAW1br9e3tK7LKdnb2/s4bR6CBTUAAAAAcHbmzJl3th+0pmW16n5ENwEAAHAiFtSA9sl1+Lzd63J8uidrs1AsqAEAAACAs/V671vsB63pOXfu3HvqZgAAAI7FghrQPnmu2FjX5phsNuev0GahWFADAAAAAGfyUPWqow9ZudLdRzcDAABwLBbUgHmQ+f+3WtfnkMh4cDttDoewoAYAAAAAjuRh6gvsh6xseaNuCgAA4FgsqAHzIc8YY38DxpvW673bajPYwYIaAAAAADiSB6rfP/qAlTer1eordXMAAAAmFtSAeem67mZyTf6Sda0ek1/YbDafpt8OAwtqAAAAAOBEHlhvbj9g5Y08SP+FbhIAAMDEghowT+v1+tPl+r6HXKNPl3++RP75Rsnr1+vuxZKnyf93967rPlG/HCdgQQ0AAAAAnMgD7JPtB6wSWW90swAAAEewoAYAJ2NBDQAAAAAcbDabj7Yfrkqle5ZuGgAA4AgW1ADgZCyoAQAAAICD9br7Ifvhqlz29vZuopsHAAC4DAtqAHAyFtQAAAAAoLLb3/7272I/WJXNarV6jJYAAABwGRbUAOBkLKgBAAAAQGXrdXdP+8GqfPb39/+blgEAAHAtFtQA4GQsqAEAAABAZfIQ9fqjD1V1slqtHqhlAAAAXIsFNQA4GQtqAAAAAFCRPIR9of1QVSerVfcfWgoAAMC1WFADgJOxoAYAAAAAFckD1AuOPlDVTveNWg52pF+JuVqtPlOykgfmL5W++mbJA+R//cilf67utV7vfZX8tzPyIPxB+m1Vpb/BJ9v/RNn+lVLP3aSu+0i+X/JjqUb5b/eU//8rJbeTr7nlxYsX31u/ddE2m80NpT/+p/TLHaWfvubSsdwe0x+RPET+/T7yT+nPvS/bbLr13t7eR+q3YgQ5D99H+vCTpE/P6bX0rfLvD5N/PlG/BBVduLD3SXI8biHH4mo5DneVa+HbZVx7aDomku+U3E3yJZJbeY1tUZ0/f/7DpV9W0i9pbPgG+Vfpr+6hci4/XP79u+Wf6T5xZ/n326VzXsbod9JvbY7sw+IW1C5cOP+xcl18luS8HOM7pHu8HM90H72/5EclD5HcV3L3dJzlHLh9+lq5p3yyNgEgGJnP/3e5ZmXc7u6sY/T3yPj0w/J/pdxX/vfXpPuhXPP/S/73jfXbepHvW9yC2tmzZ28g/fQpqWYZI6+UcfBLpR/S/VDGxu1c4hHSp98r+Vbt2y+UXEhfL/98H20GAAAAAIaRB4oz9gNV/8hDyzOs/39gXqElhZVeSMq+/uGUyH7+qDZ3ovQgLQ9/3yh51k4/9cmrJI+R773zhQsXPlCbzE5qvJVs43tkv56/s/1eke/7bfn+azabvZtrk7Mn+3qLzWZ1f9n/p0tefrg/BuSfpe+fK3334+klamuLk5vN5n8cvibGZfWd2typ9vf3biJffy/pt9/c6cfLol++SNI/X2n385CsbqXNHWu9Xn9QeuElX/tY+Z5/so7DKflHiRzHNG6c/zRtdhHkujkr/ZYWUX5D+u61O/3SJ/8l3/cX8v1PSgv0t771rW+kTYcnNc96QU3mYR8j18Yd5LxOP0zxjJHXxuGkX+H9q9LWd0jO8QMsw8kxeJ304Wskr5J//wfJ38u//53kpXKcXiz/+y/l3/9M8sfy738kSfO735d//t7hnDt37gO0STdSx/3kPEj1pBpfqDX/qfzzzyV/Jf/tJfK//0b+/e/k318u/57299Xyv18j/3yt5HUydzmrzU0ibaa5zx9PidT4JG0uPJl/fK7O+Z4n+WeJdb0eG+n7v5B//oCMD500946XWrXJODLrBbUzZ86816Vn1vRstHqMnAfpGjTq7x/p3z+S9h4pbaUf3Bm0gAkAAABgweQB4pesh4xhWX+E/PNNR///YZFaPl/LCiktqFl1D4k8vD1emzNJH6QX/+mFh/n9YyJtPkoeQm+qm5hEjvUnyMPn90q7YxeDjsvrpc7vkD5+L93UbMh+pU+f/Vzax519zpju/8h27n7mzJn31c2GlRbU7H3oH9nX79PmTPLfz0l+VK63l1nfb0W/dZGkr77S6pNh2b7wM8n4k36t8HOPfs+0SN0vks1ekz7Fq5ualfV67wvS2CHn8Rus/c+Qp6dPPunmwpLjPKsFtWuuueZ66dhKTWn+lRaJzZrzpnuyXIcXtAScQvrru+x+HBY5d3v/8Ecpcp5NWqCV7/9XbWoyae/3d9sfkadrcyHt7e19nBz3h0i/pUVKq/6xeYvkUWkOpZu6zBwX1GSfPkP68v7Sl2kB2Kg1e1662azuLX3AJ+IBAAAA2ORB5WOMh4lBkYecV6a25IHnrtZ/HxJp4/e2hQWVaUHtl7S5y2w23V3kv/V++T8yjz537txH6SYHueqqq260XnePNNrMGumDf0kvsjabzQ11002Sa+td5Zh+g+zLi639LBXpv3+Xf/6AXEthf9I2x4Ka9OuDtbnL6OL+o49+/enRJhZJzpccC2pXanPXSi/m5L898+jXZs/b0zkxl1+Jeul4dH9i7GeRyLjxatnefWTcen8tIRTpj1ksqKVP+Ug///il+5xdZ4WkTyTdI93TtSwYcsz3UuRYv1abdCHH+o5WXUOyWu3dXZubTNqb7YKazG2ukP4eNf8YGtnOQ3Y//TiXBbW0H7J/3yS15DhXRkdq+Nn1+vwttSwAAAAAuEQeFh5hPUQMibRx7afKrP8+NPIgdTNtLpw8L1i6p2lzW7K/V8v/n/UTaafkv6SGQX+vTo7x167KfULCjGzvzalvtISmSP9eI/vwxt19qh3pw5+/cOHCqAXUkjItqP2QNnctOU/vLf/t7Ue/tl+0mUWSvpu8oCZtXKXNvcPFi2c/RP73T1lfVzqy3RM/vRhZOg5y3eb+VMOQpF8LeT8tJwzpl2YX1M6fP/9+Ml59r/NxPSbdN2uZMEgfPfVonw2P51xGtj/5k8HaVBbS3uwW1NIPgElNj9qpsUbeKmPjvbSM5hfUZLt3kO3/6tF6vNM9Lc1btUwAAAAAS3bmzJl3sx8chkWb21qtup+xvmZIpA3zE1wRZFpQe5Y2d7DwYnxNlTxmf3//PbQUkzycp7+v9zs731c1q9XetS8LopP+uo3UnP4mibkvHpHr6T/kPPtWLTGETAtqP6bNpZcwny7/3+R+1+YWKS3kWH0yJNLGdkFNroOPkX9Pf1vI/Loake2/KNff/KlBzuHPkZpz/C3SXPlLqed2Wp47qaXJBTUZp75RtvtvVj2B8qvnz5//WC0Zh8h595lGfw2OtPNsbbKq9PdDrXqGRM7fn9LmspA2Z7WgJsc2fQIw/d1iq84qkWP0M6kWmdP/d+u/D0/dBTWZM9xUxsqn2bWEyVtb+PXIAAAAAAqTh8D0t7qsh4Yh+QFtbkseit7f+JrBkXY+TJsMJdOvAPqd1JY8PBb/9YmnRR7Cn3PllVeaf3NLzo/Jv8IzYx6lZYV09uzZG0h/PdaoO1JeuNlsbq4lu8qxoCb9/ejUVvpbJfK/s/wNom1xCyX9mWVBTfIpMq68zfrvHpF6vlt3MSy5FzzYqj1CpP9CjL1SR1MLalLv7WR7pX+Fc868ReZdd9HycYj0zSt2+mpU9vfPf7w2WY2MLT9p1TIkaZFGm8tC2pzNgprU4fGptGPS/UH6lcf2fxuaOgtqUu8Hy1hZ5Vdk5kv3uAsXLnyg7gIAAACApVll+Knp9Ck3be5a0u5LrK8dmB/W5kLJtKD23PTga/z/LpHjdWRRTR5wIy2mbSN1bn8CN5q9vb3Plfr+crfeqJFjeyct3U2eT6itHp1e9Ml5kf5mnPXfB0fLWyQ5LyYvqHVd923W/+8d2beQC/JXX331u0ttv2jVHClyjf3Wer3+CC3bhfRTMwtqsp0/tLbfQqSf76G7ASV98hVWXw2NtPMwbbKK9BsIrDqGJJ3L2lw20m7zC2rph6hkHh/xE1WZPg1bfkFNrof729uOH7kuXnTx4sX31l0BAAAAsBTysPTF1kPCwDxPm7uMtH2l8bWDo82FkuuP1EeLPBz+iu5i+pThV1tfEyPrb9EyQ5C++nK7zujpvkd3wUWmX/n4OPv/Hx8tb5FWGRbUYqd7WqQXYNLfN470gxWnRep95f5+d2stvzrZfkMLaqtft7bfTtZfoLsCZffTsMj595/aXBVyHt7DqmNY1httLhtpt+kFtfRJQzmWf2TUNKOUX1DbbPZuYW+7lXS/rLsCAAAAYCnkYWDy3xuSh/XP0+aOsL5+aKT979DmwpjrgtqldA+QfLP93+JEzouVHg5XUsbXWfW1Eqn/Ebor1WX6hFr2aHmLJOfDzBfUtvlV3V1X0tc3llqy/Bq5mlmtujd0XfepuhtVSZ81s6C2tzf971Z5Z7PZC/HrgaNI90urn4Zms6n3azXT+W7V0Dfy/W/TprKStptdUJO5yw1lnvwnRj0zS51f+Sjn2G/Z228mIX+bCgAAAIAC5EHplsZDweBocyZ5SHqg9T1DIm28QZsLY94Las3kVefPn/9wPSQuVpf+CL1VW2PpHqC7VBULavEsZEEtLST/hO6yi6uuuupGUscf79bVSuS+/Bfnzp37AN2dalpaUEtke0/d3X5jeUX6e0y6O4uXznmjjwZHzuMXaZNFbTZ7F63tD4nUei9tLitpu9kFtbTdnTpmmjoLarKd/2lvv53IdXJv3R0AAAAAcyYPAL+6+0AwNPIAcXdt7ljW9w1Pd2dtLgQW1GIkLdjqIaluLSelVVOr6bruPrpr1bCgFo+M6YtYUEuR8eN+utu1vaP087OtmlqK9N9v6P5UI/3W1ILaZnPuk60aWor0+Y/o7kBIfzzH6qfhWX+ONlmMbGfywo82lZ203eSCmmzz0Ts1zDh1FtQSGZefYdfQTmQe/WG6OwAAAADmKNeLbG3uRPJ1v7n7fSPy59pcCCyoxYg8gP/L1Vdf/e56WKpJP6WeXspaNbWczaa7ve5iFSyoxbOkBbWUruvO6K5XI338o1Ytbab7Xt2tKlpbUEuk5idZdbSV9Sfo7izeZrO3Z/fR4DxGmywix/1Vzt2f1+ayk/abW1Br9+/ljk3NBbXVZ9o1tBO5tzxUdwcAAADAHK3X3SOth4EhkYefJ2hzJ0o/hWt9/9DI9s5pk+5YUIsTOS9O/ZRkbnL9PM6qZQZ5Vdd176+7WRwLavHI9bSoBbXVqnu+7noVcj/8AquOTHm9HL/0yfPHyBj1cPn3B8o/f1zyRPn3F+18bbbUXJSU/WhxQS39rTyzllYi+/Ao3R0I6ZM37vbRmGhzRcgxe6i1zSHZ29v7OG0uO2m/qQU16YsPlrHjDUYNM069BbVE7lVPs+toJxcuXPgo3R0AAAAAc7K/v/8e1kPA0KSXRNrkqeTr/3n3+4dGtvdMbc4dC2pxslp1L9HDUoWch3e16sicf5Tt/Nl63T1L/vnY9JJB9vMP5d9fbnxt1sg2iv1E+i4W1OKR4199QU3O7f9I17Gc578r23+S/PsvyT/Tr1X7a/n3/9z9+vzpvk13v6j0Qla2949Htz8+0j//V/rqOyWfqZs51qXtrx8u35fjU+PXRrb9At1EcbKt5hbUEjnHRv0QhtT6h/K9Pyj7fS/JV2423W3SS27Jp6d/dl13Qf77F0keLP89/RrRN+22kSvS/qfo7iye9Pc9rT4anu6e2mR29vb6R473n2lTRcg2mlpQk2P1c8b2s0aud7kXrv5S/v035Z9PkP/9+Ev/3v2F5G2Hv7ZO6i6opTHGruPkSN+8Wo7PE+Wf95M27ibj4hfK/W5P5phXyL/fVHI+/QYG+W/3kK97nPxT5ht2W1MjbT9CdwcAAADAnMjDxLdZDwFDIg8ML9fmepFtfqPVztCkF/DapKuaC2rygPgv0t9PkD78Qck95aHwy9frvW+R/+/75H9H+mnOV0geI3U9SPJNUuddpL5vlX9/oPz/WV/gHs16o4emKNnOB8n2irzUkOP8fOmva9LDv27OdP78+Q+XPv0K+Z5f2G0jV+TYfaFurigW1OKRc6vKgpps53Vyvj88LQjIePouuvkjzpw5825y3V0pX//Dco38k9XW1Ei7/3HhwoUP1E0WI/ub84Xs26RP7qpNDybX3s3l+3/baHdUpK0qnxSW7TS5oLa3t/eRVi1H0/2J7KPc2/c2Z8+evYF+e29XXHHF9eX77yTtPMtuf0q6R+pmIOw+GpxBc+m+ZFz9amNbA7O+rTZXhGyjmQU16c+bGdvOEhmP3iDX7CM2m72Lsp131U0eIffCd5av25fr8Ifk++T+abeXN3UX1BLZx6fYtVyW/5J++5n0nCFj6yfptw4i+/Y5qS9le2822p8Uub/eUDcDAAAAYC7Sy0PrAWBY1l+gzfVmtzMs6QFKm3NVY0FNHvKeIA/X53WTx7ryyivfV742fWrq73bbqBHZ9gMlp3464vz58+8nX3dvOYb/brUzJdLu/XQzRcnD94Ot7U+J9MeLpP476iYGkfPjM+R7n2C1OyXS5ot0E0U5LKi9Xo7hEyVfk14WppdF0oefmOqQf36W/O8uvaDR8hZJjn3RBbV0/0nX67lz595TN9nbxYsX31sO0fda7U5P2b8FJufYFfZ2h0f67xlyrmb5m1ay399lbWNEiiwM7JJ9b3JBLZHaf9aqJ0Vqenz621z6pVlcGudW/7W7rbGR+v9Sm4aQ/s3yq59lbDirTWYj7b5ydztDo00VI9toZkFNjnWJT6e9JY2/6b6mm+kt3T/levxuGTcKf4K7/oLa3t7ex9m1bPPn0mffnJ4n9Msnk368sfSj3FPN7Y2KzCdvo80DAAAAmIPNpvtSa/I/NNrcILkeSO9yl7tcX5t0U3ZBrXvWZrN3c93UIJvN6v52myXSvVgeGj9GN93bZrP5UPn+px9tb3zSw7A2X8z+/v5/t7Y9JfIgn2UhUK7rq3O/WJHa7qTNF1NvQa173N7e3lfoZnECOe4lF9R+Z71ef4RuarQ07sgx/QOj/dGR6+fNcj4W+6nyXPc/OT7ZfyVrWkS2tjU83ddrk8XI/je7oHb27NkPOVpP9+B0b9EvyW5/f+8msp0sf+8rJX3STptevLSobfXRiPyqNpmF1HVLYxuDItfZfbW5YmQ7TSyoXbhw/mON7U7NM3N8Kjr9vS45Vs812s+U+gtqiYyLTzxch+zji9KndvU/FyHb+NHD25wSucc8VJsFAAAAMAcyyf8ba/I/LN2DtblB0otUu72h6R6gTboptaAmx+dX0q910c2MIv1zH6vtnJE6H6ibG03qfLLV9phIPf+qzRYjD9sPs7Y9NtJe1gWe/f3uZtIPk38q/SDS1l9o08WUXlCTPn5813WfoZtDD9JnpRbUHqObyCL9hL6MIb9sbGd0ZN+LvESW8zzLp9Okvkdpk9llWlR7qTZXjPRBswtqiZyzP6k1/L3sy0r/76LSJ992+2B89r5Mm4WQQ/indj8NS84fFJOafsXaxpCkv7WszRUj22liQU2u2ay/mUCOT9Zx/JprrrmetPlYa1vT47OglhYKD2qQfau2OCXb+8Xr9n1S/libBAAAANC6rutubUz6B+fKK8+8rzY5mDwYpT+2bbY7IG/X5tyUWFBbZfyUVc7Fqt3IMfxO3cwk6YWNtJft11SWXDiRtt9VtvHW3W2Oz/qLtemsUh9I+28/ur2xKfsTwSUX1OQ8vZduBgNIv2VfUJOx7UnafHZS77OtbY5MkZdgMh6nv3ljbW9IXjHmV4MNIdt41M42R6TsC1g53k0vqMl977/JPlT/9IJs87utvhgaaefR2iSE9McdrX4anjw/KLa3t/fBdvv9I/tUbLw+TLbVyILa6qU72xwdGXuyf8L4gLT/1N3tTY/Pgloi23+MzGlP/JvCue3vn02/iSLLr8lN16I2CwAAAKBl8sCe4Y/Ud7+rzY2yXu99gd3u0JT/1VInKbCg9s/y4Dj41yceZ7PZfLKxjclZrbpf001ksdl0t7G2MybSf1+tzWaXFsCsbY7JarV6mDZbhLT/JdZ2x0Ta+glttohyC2p7V+omMJAc89wLai9PiwjafHZyDn20bON1O9uckDx/m+wwafdVR7czLHJcPl+bK0b68oZpscnaft9Ind+nzRWRxiRru0PiuaDmJf0Ai+z3a63+GBJp42XaJJT0S44fYnmTNjeJXB+TF07TrwnV5oqSbYVfUJP+/Exjm6Mibb2k5A9FXLx49kPk+ny1te3x8VtQ85LjGrqU4X9rHAAAAEAwp/yR597Z3+9urU2OZrU7NPLQ+PfanIv8C2p72R+85KHwZ+1tTcn0v3+0S47l8+1tDctmk+eTc5Z1tl8t1/2BNlmUHPsH2dsfnNdrk0WUWFDruu4+2jxGkHMn64KatFf819rJuHSlte1x6b5Zm80i06/be6E2V5z05bcb2x+Sor/qSk4nFtRGknP74VZ/DIn03X9oc1ByTj7Q6qvh2butNjma3W7/yL78tTZVnGyvhQW1+xrbHBVp61babDF574Upy1tQSz/caPfFsMjxvrs2CQAAAKBVMrmf/Kuccr1IkYeMLC/75aHngjZZXeYFtZdrs1nl/bsp24fDn9Kms5J2v87a3vB0D9cms8rxK5SuS/6FU8tms/lQe/tjUu7XPuZeUJMxqsqvqpozuR5zLqg9VZstTo79bxjbH5Pf1CazkHHpx4xtDEz3NdpccZl+ZdyNtbnspG0W1EbK9bL9yiuvHP1rv+fozJkz72X104g8T5scRcaJLzLaHBS5vu6ozRUn2wu/oCZ9+gfGNsfkF7TJ4mRbT9/Z9oQsb0EtkX3/86N9MTTd92hzAAAAAFp07ty597Qn+0PT3VObnOT2t7/9u9jtD8tq1T1fm6wu54Ka7Mf9tNns0otDa5tjstns3UKbzeo2tzn3Adb2RuSx2mRWst8XjW2NSJ1Ppx2Qbf7w0RqGZ5Xpb+ZZci+odV13M20aI+VcUJPjcUabLW69Xt/WqmFoZMz8J20yC+nPP7W2MyQlf2WmRWr+RauOvpHj/r+1qeykNhbURkrnkdUfQ5M+waFNQsk59WtWXw3NrW996xtpk4PJ9798t72h0aaqkO01sKC2etvO9kZFrplqfwtMtnXeqmFclrqg1v2k3R9D0j1SmwMAAADQotVq9R32ZH9YtLks5EEjw99z2z6kfqo2WVXOBbW9vb1P0mazk/afvbu9kflbbbKI1ar7e2ObA9P9H20uq/V6b+qvQNtms+m+VJusYpPt7+h1T9Yms8u5oCbj3DO1WUwg/ZhrQS3rJ736kNpfYtQxODImf6Q2OUmOHx6RsfGV2lw10o93t2rpn+4B2lR2UhsLaiNdc80117P6Y2g2m/OfrU1CyVz0ZlZfDU/349rkIHJdTP5bX9JG0b9/uEu2GXpBLc3Nje2NSJm56Ulku887WseYLHNBTa6Fh9j90T/SxhO0OQAAAAAtsib6I5L115WkhzRjG2Pyi9pkVbkW1Far7l+0ySLkQf6R1nZHpOivq5F++CVjm0PzAm0uK6nt8ca2Bkcerov9GrTjSO3/YNUyMC/V5rLL+wm16X9/BtsXSVkW1Gq/nE3Sy2irlqGR2ve1yUmknckvuWWfnnXhwoUPrBmpe2XX0jflXiBLaYtfUNvf33+Pq6666kbnzp37gAsXbiXHrH+s/hiedael4BDpm7872lfDo80NIt/3lN12hqbruvfX5qqQbYZeUJOx5vON7Q2OtFPsU/7HkW3e36pleNpdULviiiuun349bTqvrbHwpMgQ90N2fwxJ9ywtBQAAAEBr5KHqTvZEf1hKfBJstereYG1raKS299Emq8m4oPYb2mQRcvzvYW13ePL8us/jSPsPtrfbP9KXL9PmspJ2/9La3sC8SpurSrb7mJ06RuXs2bM30CazyrmgVqrGpZExI8uCWvpVqdpkNXIv+EKrlqGRPriXNjlJrvtva5Ex87XaBdlJn856QW1vb+/jZB9vJ/fEa6TWX5Ba/0j+d/rk5ask/yz/+z8P9sMr6TrTcnGIHLOvt/praIZ+mj3H33CTc+xXtLlqZLvRF9S+29jeiNRfgE7btGsZmpgLaldddesbyTh0Ro7R18quph8c/B3Jn8v4mH7bxeskb71Uv1+klhdpuQAAAABaIxP6HJ9Q+TttLqvNpvsGY1uDIw9Uj9Amq8m3oLZ6iDZZhDwMf5W13aGRB9fz2mQR+vLQ3HbfyLle5CWptP2vu9saGjnOT9LmqpLtZlkc2d/f/3htMqtcC2py7N3+nuLc5DpnZMyo+mmHRM6nD7VqGRo5nx6oTU6S69fFtpj06y61G7KS83NWC2rpU2ZynnyV7NevS21v2a01YqTWr9DyscPqr+HpXqzN9SLH4zvtdvpns9m7uTZXjWw3+oLajxjbGxyPH/a56U1v+u5WLcMTZ0FNjset5NpInxx7xdE6I2bYdQwAAAAgCHn4OGdP8odF2rmTNpmdtb0x0eaqybigdm9tsoj1eu8LrO0OzWazuUKbLEIePL/R2u7AvEabyyb9yhhjOyPi88fJ5fzat+sZlv39vc/VJrPKt6C2yrIAgu05M3lBbbXq/l2bq86qZ3i6h2tzk0g732+3P/+kX7Wl3ZCVnJ+zWFA7tIhm1hg5aYzQ3cAOueaz/NrZIX/H0fr+gXm5NlWVbDf0gpocy8cZ2xuaN2lz1cm2X79Ty4j4LqjJWPMpchx+SMbsHD8cWjVS80t0NwAAAAC0RCbzz7Em+UOjzRUhNf6Mtc2hkYeue2iTVeRaUEsv1bTJIqT9jb3doVl/hDZZhBy/r7C3Oyj/qM1lc+nTA+a2BkXO8/tpk1V1XXdTq56hkXbW2mRW+X7lY9nraEnSy3K7jwflldpcdXKtvdaoZ2C6n9TmJpG2HnW07WUkfVpQuyErOT+bXlCTsfRmsv3fsupqJZtNdxfdHexIcyWrz0ak19+tlevhKuN7ByWN+dpcVbLt4J9Q637N2N6gSBt/r81VJ/exF1s1DYvfgpqcl5l+5aZb/lp3BQAAAEAr5CHoE4zJ/eDIA83vSO5WKl3X3c/a7oi8Xne9ioyfULudNllErgW19Dc6tMkipB8mL6ilF+naXDZS142tbQ1NOte1yarOnz//sVY9QyP131GbzCrXgtpm091em8REcqxzLKj9sTZXnYwDk//mobTxeG1uEunLJ1ntLyHp2tZuyEr6tNUFtetJ7Q+z6mkv/ADDSeQ4p7/nZPTbsGhzJ5Jz+WXW9w6JNlWdbDv4J9RWz9vZ1pi8UJurTs7D5xr1DEz9BTXZ5h3kvE5/N9Kop6m8VHcJAAAAQCvW6+7njMn9zLO+g+5+cRkX1FbaZBG5FtSkqXe81GIZ0g05PqH2Om0um67rPtHYzoh0X6NNViXXRJaflpfj8yXaZFa5FtTkON1am8REcqxzLKi9QJurTq61PzHqGZpenw45jfTlU4y2FxG5Jj9VuyEr6dPmFtSkL95HtvvM3TpajRyDu+quwSD33Sutfhsa6eev0yZNe3t7H2d935DINor+Hd+TyPajf0LtD43tDc3ztLnq5Ng+26hnYOouqKVz3q6jvcj58ze6WwAAAABacPHixfe2JvdzjzyI/Zl2QXEZf+XjRpssYmELatk/pXj27NkPMbYzOF3X3UebrGqz2Vxh1TM0Uv8FbTKrXAtq6/X607VJTCTXYo6/oeb4a65Wr9qtZ3i6n9bmJknt2O3PPyyoXSLzsQ+R7f2eVUerkWP71bp7OIYc8wy/evbkX2Mt48uTje8ZlCF/qy032X70T6hNXgSX8crt1/7JOfinVk3DUm9BTfrqXnYNbUb252911wAAAAC0QB6yv8ea3C8hm83ms7Ubisr4CbV9bbKIJS2orVbdP2lz2Vx99dXvbm1raGT/HqpNVtV13XmrnqHZbPZurk1mlWtBTfr3U7RJTCR9meMTam/S5qqTceDfjXoGpnukNjeJ1PJQu/35R8ae99duyErOz5YW1N5Rtvfnu9tvPz6fuG6J9NF97L4blpPubdbXD4m0/UxtyoXUEHxBrXuisb1BkbHmDdpcdbLtV1s1DUudBTU5F+9hb7/p/J3uHgAAAIAWGJP6BaX7P9oNReVaUCv1yZ8Dy1pQWxV5cSFtv3V3W8PT/Zw2V5X0yR3teoZF2imyYJXxVz4W+TTMEsmxzrGg9v/29/ffQ5us5uzZszewahme7sHa5CTSl/e1259/tAuykz5tZkFNan2gtf3WI/v1tbqLOF5aTDX7b2DMBaM8C3brTptzITUE/5WP08ealDNnzryzNlmVbPvtu7UMT/kFtRy/ujRi5D7zMt1FAAAAANHJA2CWl6Et58KFCx+o3VFMrgW1zWbvojZZxMJ+5eM/a3NZyUPxPxjbGpo/1+aqkn7N8gmZrus+TJvMKteCmrTzadokJsp1Dyn1qcaTpBfEVi3D032XNjmJ9OXd7PbnH+2C7KRPm1hQkzHzZta25xA5Bif+bS9cIv3081b/DY02dxnr6wbmNdqUG6kh+ifUHmxsb3D29/c+V5usRu6Fn2PVMjzlF9TkOpnl3xqV/XL71dcAAAAABpIJ/Ousif2y0v2kdkcxGX/l41XaZBEL+5WP/6LNZSXt/pq1vaEp9SvQTiLb/ePdOkbkxL/jMkXGT6h9hjaJieRazLKgJu3cQ5usRrZ5f6uWoZF27qhNTrJer29ptT8w/3rNNddcr7VoF2Qnx6aJBTWZh/yute3xSe113ybn1JXSBzc+f/78+6VfSWz1/Umx2x6a7ut1N3GCvb29m9j9NyxyvO+tTW7J/e6C9XVDIm3eTZtzI3VEX1C7s7G9wZG+vrs2WY3Ufk+rluEpu6Am7d/B3u7ovDLdIzab7svl+vvc29zm3AekvyuePiVojYfHReamOeYSr9DdBAAAABDZZrO3Z0zoFxntkmLyfUKtu402WcTCFtT+VZvLar3uHmBtb2hKfxpx197e3gdbdYxIsb+zkmtBbX9/7ybaJCaSazHTp5y7J2uT1ch2n3e0juGRPsjyK0739/f/m9X+0Eg9N9YmFy+9LLX6aEhKL6jlGtcupftxOY8+XpuezN7GsMgxcF+MaYX01wt3+29o5Hz9D21uS/7331hfNyRpDqvNuZE6gi+o5fqU1+oXtMlq5BzJ8oNg5RfUusfZ2x0W2d8/klq/WJudTMa477O2MyRS0z9ocwAAAAAik8n7H1qT+mWmu492SxG5FtTkAfC22mQRC/uVj2/S5rKSc+mLjG0Njlyfj9cmq5A+zfJH3qWdH9Ams8v14lnauUKbxERyvLP92uDz589/uDZbXL5Pg1z+8noqae/vre0MiRyT6p9wiEr6IvyCmtwzvtXa7tDIvmZfuLK2MzRd132DNodTSF99udWHQyPnwudpex9m/fdh6R65Lc6Z1BJ6QS39HVBje6Ny8eLFD9Fmi5Pnik+wahiXcgtq6RO2so3Jf+dNxvPfkDngDbXZLOR6y7Gg9kptDgAAAEBUe3t7n2RN6JcaeZD5d+2aInItqHVdd7U2WcTCPqH2b9pcVnKMPtXa3pjIQ/9na7PFyfZevrv9MZFjcydtMjsW1OKR453z73AWW4zdtV53P2lsf3BkHPkjbTILafOpu9sYkVfJOPSu2uSiyfnZwoLaH1jbHZbu4dpcVrLvb7O3NyTdN2pz6EH6/M12P/aPnPfPTW1J3z/R+u9Dkp4XtoU5k1pCL6gl0v5f7WxvZLrv1yaLk239uF3DmJRbUJM6c/yw2ptk/vfR2mQ2Utt3GdsamldpcwAAAACikgf2JxmT+UWn67ov1e7JLuOvfLy9NlnEwhbU3qzNZSf1vcDa5tBIjVU+pSbH/aus7Y9J+ls92mx2LKjFk3lBLY3Dn6VNF5Ne+lnbHhPZ/wdps1lkemmY6vpubXLRpB+iL6i9o7XNoTl37twHaHtZyb7/m7W9IZFjwCcmB5D+eqDVj0OT2rL+/4H5nW1RAUgt4RfU5Ng9wtjmmPzXxYsXi/+tV7nfyu3Q3P7IlFtQk759kL3N/pHx7H7aXFZS23dY2xsSqe3V2lxVm835z5Z5xz0lD5b9+FnJQ+U4fvt6fb5Lf0tOvwwAAADA2bNnb2BN5pceeZh5mXZRdiyo5SUPfDl+5eNbtLnsLj2cmtscnLSv2mwR8jD9abKdt+5ud0yk1l/RZotgQS0eOeZZF9RKn0OJXJ/PsrY9Jl3XndFms5B7xbtIu2/Z3c6YbDZ7t9BmF0vOp9ALajn+dqXs41O0ueyk7TdY2xwSaeObtDn0kO9vKXa/Zf3/w1L214wPIfU08Am1PHNozVO12WLk2ny2sd0JKbqg9rP2NvtntTp/TpvLSuYUk39tb8n7jOF6UvM3y3ZftVvHTt6eFtpknvP++n0AAADAcqXJsTFpJpLcL0cPsKCWlzxY51hQe6s2l92FCxc+ytjeqMhD9n+mRS9tOqtrrrnmetJ+xr+l2N1Zmy6CBbV45FrMuqB2Kd012nx20vYP2tscnlIvwKTGn7a2NyIvLfmJUYucDz8v99Hin6zoS+qJvqCW4W/5lfl1jzJOfrK9vaHpvlmbRE/Sbzl+9evUvFHLCUHqCb+gJt5RxovJn+o8iIxf36HtZid1Zvkk5OUpuqD2DHub/XPu3Ln31Oayktoea21vYF6jzRWV7s+yrT/b2fZpeWOkxXUAAADAhTFRJtdl+3cncmNBLS95eM3xKx+L/t082cav7m5zQl4oD7OfoE1noefkL+xsZ3RSf9761re+kTZfBAtq8ci1WGBBbfvDDV+tm8hGar2Xta2xkfZ+QpvOSvZdLnd7myPyXGnvY7TpYmQbHyb9cfCrbt964cK5j9L/5Codo0N9MSolF9TyHOvuh7S5rKTvHm9vb2hYUBtK+v6c3Zf1IjXcW8sJQWpqYUFN6pz+d+sOp9C98JusbU1P0QW1oYtAR7K/v/8e2lw2UtetrG2NyD9qk8WkT63LdiZ8Ap6/hwkAAICFksnw19uT5GFZrbqfkYe8L48SeaDJ+JOW64/Q7sqGBbW85Hjn+ITa27S5IuQ8uqWxzSl5vbTZafOTbDabD5X2fmen/UmRY1L8bzaxoBaPHPciC2op0vb9dTOTSVsPtbYxJfv7ezfR5rOT9p++u70JeY3sf5FfdZVI27dKi06Htyn/32vkOruhfokbqSP6gtqtrW0Oiexj9l/5KMfurLWtcWFBbQw5715i92edyLn5PlpKCFJTIwtq687Y7qRsNvnuhVLeD1nbyJNyC2rS/uS/TSzn9HltLhu5Tn/D2tbQSDuv1SaLkH3/RNnOa3a3OzTSzhdqkwAAAMByyGT4TbuT43FZf442GYY8JL7YrnVYVqvVY7XJbFhQy0uOUY4Ftbdrc8XIA/IvGdudmO77L1y41QfqJgaTc+gu0s7fHW13fGQ//zX9bUbdRDEsqMUj12KxBbUUaf/Xp/wtMPn+W0km/6qoo+kep5soQmrO/gkVafMnuq77MN3EZPv75z9e+uGEX0/ZvVi+rOi94DRpn+3a+kfGt5ILaunXb5nbHZC3nTlz5t20ySykzd/c2caEsKA2hszH/j+7P8tHzvmf0TLCkLqaWFBLpP+eY2x7UtJ9bMqCkHy/6H7bajtfSn5CrZt8H5f+u6c2l4XUlPMHdV6nzRYh4/AvG9scHNnn/5ueabVZAAAAYP7kQeKCNTkeGnkie4E2GYrUdTer3jHRJrNhQS0vOdY5fuXjf2pzxUidn2dte2qk9rdJ29+92Zz/bN3UiS5ePPsh8vV3ku994W5bedLdRzdVFAtq8ch5VXRB7bp0j0vj05kzZ95ZN32sK6644vpS1758X7ZfabobuZ/eVDdXTK4XYIejY8cPSz5PNzOY7PtnSVs/sNu2FdnO7+m3uZDtR19Q+zBrm0Mj+5nlE8Lpb+5JW5kXoFlQG8vuz/LpO7eoSepqaEFtdUdj25nS/bKMG1dfvHjxvXVzx0p/M0zum7eVep5it5U7RT+h9pij2xsWGcv/IdffFZV9zbrgLbX9kzad3Wazd9Ha5visv0WbBgAAAOZPJsGTf/98ijzIfbk2Gcpd7nKX61v1jok8fH6fNpsFC2p5yfHJ8Qm1/9Lmilqvu4cb286W9IJA/vmodM7K+fEN6UWO/POrZbvXyL8/Qv7783e/J2+6P9FdLY4FtXjkHKu0oHYpcj7/u/zzqbLdh8i5d0/5553kn3eWf95L/7+0CPW2w9+TO7Kdn9XdL2pvb+8m1vZzRfryzbIvP5ru6Rcu7H2SbO+D0wvYtG35/941LfakGjabvb00psjXPkG+57VWW6ekyktsi9QcekEtkW28anebYzJ1bibH+pOkv/7UantaWFAbS47HD9t9WjS/r5sPJdW1U+eYVBuLZFs56j0xcn48Q66vh8s/v0Pm718l4/RdLv379tc65vy1wT1TckGt+2Z7m8Mi/fOUPj+YcxKp5XuttqdE7jNv0Oazk31+lLXNsZFa/1CbBgAAAOat67pPtSbFI/JWbTIkqS/bQ4M2mQULannJw2GOBbXsn0S0XHPNNdeTbWVZzI6Z87fUXS2OBbV45FqsuqDmHdnf1124cGH0r1wdarXau7tVR+G83fj/JmW16h6vu1SVHK8GFtS6p1nbHRPZ3wfJ+Pah2nQvMj/8GKnhu2Q/X2e1OT0sqI21t7f3cXaflsz6i3XzoUhtjS2orf+Xsf2Zp9yC2mazl/HvOq5+M31qS5vuTcbXz885Xu/kjbqZ7GRsf5mxvUmRvrixNg8AAADMl0x8f8WaEA9P92BtMqT0otyue0zWX6XNTsaCWl5yPmd5ia/NFSf13srafuuR/fpO3cUqWFCLJ9e12E7WX6a7Xo1s96lH62gvcq78qO5SNbLN8Atq6VMl1nanRPb7YTLOfZr1683SpxDlv3+K5HbytRXOLRbUppDz7zfsfi2St+hmw5HamlpQS+Qa+z6jhhmn3IJaksZie7vjIsfnOfLcc4e9vb2PtP4umIyfH9513RkZw9In0l65+/2Z88+62ayk/nc1tjU56ZPrugkAAABgnjabzQ2tyfCYSFsfrc2GJQ8+f2DVPjTyoJXtD0SzoJZXrheQ2lwV0rffbtXQauT6eIruWjUsqMUj58FiFtRkXx+ru11Vetkn23/pbj1tpnuA7lYVcszCL6jd/vZn3ku28R/WtjPlTZK/lG08R/Lqnf9WISyoTSFzh9va/Voi3ffoZsOR+ppbUEtkmy/YqWHGKb2gln6ts7XdPJHx8ZWS9GvS03iZfr20+XUlItv7F93NrLpMf6fzaGJ+khUAAADIRh5AHmFPhodF2vl1bTI0qfNOVv3jsu602UlYUMtLjvFdre0OjTZXjdR9f6uO1iIP/r+mu1QVC2rxyDm9iAU1Oeefk359q+52dV3XfaL09d9btbUW2Y976W4VJ9sKv6CWSJ0PtLY9j7CgNpX0Y5a/s3da9vb2Plg3GY7U1+iC2voTZAwp9OtUo6XsgtqFC+c/1t7uLPKvuptZlVtQ675INwEAAADMkz0RHp7VarWvTYYnD69ZfrJQ2vkjbXKSVhbU0jG2tjs00lTRBTV5QPxqa7tDo81VJQ+hD7dqaSjPvOKKK66vu1MVC2rxyJixhAW1V6RPiekuu1mv158u9ySHTxjljZwzz9ZdKk621cSCmswR0qfUXmttv/2woDaVnMf3svs2Z7on6uZCkhqbXFBL0q/HM2qZYcouqCVynn6Pve3m8ybdxazk3vIuxrYmh1/5CAAAgFlbr/e+xZoIj8jLtckmrDL+WpD9/fMfr82O1sqCWtd1F6ztDo00VfgTantfa213aLS56nKen5Xz1PT3d3Q3qmNBLR45l2e9oLZadW+QcfGM7q67/f29m6zX3Z9YtbYQ6c9f0V2popUFtUTma19mbb/9sKA21f7+/nvYfZsvm83eLXRzIUmNzS6oJbl+VXnslF9QS58Ul2298Oi2fSP3ibdZ/3/fyPf/m+5idtL+3+1ub2rSfFybBwAAAOZHJr1v350Ej0t3T22yCZvN2Swv3i+le7I2O1o7v/JxfaW13aGRpkr/ysevs7Y7NNqci1z7UC/dw7V0NyyoxTPnBbXVqvuLzeb8p+muhpFerku/P8GqOXKkP39Jd6GalhbUEhlnf9CqwS/dg+3/f0hYUMtB+vGn7f7Nkj/TzYQlNTa9oJZ0XXe11JDpuSxvZJz7Nev/H5byC2rJpR8sWf3X0e37ZbXa+z7r/+8buVe9WXcvuxz3wcvT/YE2DQAAAMxPWnyxJ8LDk/5ovjbbDKn7mbv7MTZnzpx5N212lIZ+5eNV1naHRpoquqAmD3Nfb213aLQ5N9LfyWus2iKl62IsqLOgFo+cv5kW1NZfYP//Plmtut84d+7cB+huhiTj4HdZtUeMnCf307Krku02taCWSM0/b9VRP91Ppnrs/zYkLKjlIPfhz7L7d3rknLurbiYsqbP5BbVE+vrzpI6X79TlGqnpKsl3Wv9tWOosqCVS7+3sGupHrs1PzXA/fovuWnbSV1l+nf9BpL1v0qYBAACA+ZFJ70t3J8Fjslp1P6NNNkUe7G5r7c+4dD+ozY7SzifU9rL0mTRV+hNqd7O2OzTanCt5EH8f2Z+HWfUFyNPTSzwt1R0LavHIuZtlQS21Jcfls+XfX7X73+qnu2a7cw3Y29v7XLlHP8PeD/9IbS+Te/EdtNzq5PxsbkEtkbqdF9W6Z2kpLKgFIufF79l9PC3afGhS5ywW1BIZtz9YrouSnzgckL1NqknOraYW1BKpOcCi2t5tUy1yPKcuqL11u1OFSF89xdjmmLxKmiv6jAcAAAC42d/P+ZOs68/RZpsj9f/j0f0ZF21ylIY+oZbl4VSaKvqwJf3wDdZ2h0abC6HruptJTb+5W6NH0gvk9bq7s5YWBgtq8ciYkW1BLbnqqqtuJP/76bv/vU66p0X8FY99yH06/f2taJ96eMjUT3dPJTU0uaCWSO3fZNVTOrLdn71w4cIHahksqAUi1/kX2308JdN+YKwWqXU2C2oHZN53G6npr3ZqrJW/ku2f11Kkf7trjK8ZmLoLaonsw2fImPXbdj1F83J5FvnfWkbqv/sYX9M7cp95mzZVhBybT5DtvH53u0Mj/f2F2iQAAAAwPzLpzfLrDuUh5QXaZJOk/vta+zUm8hDxDdrsYK0sqMk+pr/vYG57SKSp0p9Qu7u13aHR5kKRY3Ahvdi36q2QP5e+/br0R9+1nFBYUItHzpesC2oH0kub1ar7U+trc0f24blp7NNNN03248ul355v7WetSH8+Oso1JrU0u6CWSP2fKTU8dbemEpH9/FvrOpD/NvFvFbGglpP06T8f7ePxkWP+Mdp0aFLr7BbU1DvKdX43uf7+xqi3RN4o2zvyK/vk/7uX8bUDU39B7UCqX/rwzXZdudP90NVXX/3uuuktuY7uaX9t77xdmypG+mhlbHdAum/TpgAAAID5SX/3xZ4ID096OafNNilnX0hG/377dn7l4/oO1naHRpoqvaCW5Sf3tbmQ5Fh8juzno1er7p+s2nNGtvOM9XrP7dey9cWCWjxy7hRZUDuwXndfI/+91CevZrOQtkuOy61k/x4r48cbdva5VP5KjtX3bzZn/4eWEIL0Q9MLagfkPL2N7Muzrfoy5C3S9g9cccUV19fNXSb9952vHxgW1HKS/vweu5+HR87tX9Nmw5N657qgdi05tneWGl+4U3O2yHX+oLNnz95AN3cZ+W8ZflDNb0EtSZ+slT58uNTyxqO1ZckLZP54Vjd3Gem/Sb+KXq7F/9Cmitps9vZke4MX5WX/vlabAAAAAOZJJr2TXyBpiv4+91pkP35xZ79GR/r2Km12kIZ+5ePnW9sdGmmq6ILaer33LdZ2h0abC2+9Xt9SHrYfuF53f2Ltx9BIW6+WY/1T6Xh3Xfc+upnwWFCLR86hogtqB2Q7onuofO1f7n5v38j3p59e/1W5jr5GrqmP0KZnb7PZu7l03nfK/j9H9v/th/tkbKSt10k/Pk1yHxlDPkM3FY7s9ywW1A7s7e19kvT598p+vcCqdUDSr8N+lLRz1ZkzZ95ZmzfJ1018Oc2CWk6X/v6W1c9jcunvZ7VA6p39gtoBGVM/Ua7N9ImrSZ82lu9/tVx/P5meHS5evPje2rxJtve1VhvD4rugdsj1ZL+/SPJk6YOpP1Tym2kMk+vu47Rtk/TfXY3v7R2p8z+1qeL2989/vOzTj1l1HE33y7Jvn6ffCgAAAABAe9LfJNrf37uJvixIL1YfK/98mvzzufLwm35l4yvlwfwl8v/9gfz7M+WfT5T//4fl378uLcylT21qU8Bkcl5VWVA7TM7jT+i69HcUt+d/WjBJvxLveZKXSv5W8oJ07kueIHnQZtN94WZz7pP12xcvvUyTPkmfeLq3jBU/I/kl+fdnS9IizV/LP18pffviS/3Y/Zb876dIHiq5+3q9d9v0/doUHMk18P7pRbkcl3vI8Xq45Jclvyv5EzluL0vHMv1v+e9Pkn8+Uv55X/mer5bcWptAo/b3998jR7Q5BJYWwuSel35jwZ0kD5Jr++clvyZ5vlzXMk53L5Z/f44kjeM/Ifk+yTfJ9/xPbWLxZMy7qfTJXaWvvlfyc5JnSX/9oUTmyqtXyT//SP77r8v//9PyzwduNtv+++K0eK1NzJKMAf9d9leeDVZPT30g/5Tnh9WfSdJ84L7pWUO/FAAAAAAAADmsHBbUAAAAAAAAAAAAgGawoAYAAAAAAAAAAACcgAU1AAAAAAAAAAAA4AQsqAEAAAAAAAAAAAAnYEENAAAAAAAAAAAAOAELagAAAAAAAAAAAMAJWFADAAAAAAAAAAAATsCCGgAAAAAAAAAAAHACFtQAAAAAAAAAAACAE7CgBgAAAAAAAAAAAJyABTUAAAAAAAAAAADgBCyoAQAAAAAAAAAAACdgQQ0AAAAAAAAAAAA4AQtqAAAAAAAAAAAAwAlYUAMAAAAAAAAAAABOwIIaAAAAAAAAAAAAcAIW1AAAAAAAAAAAAIATsKAGAAAAAAAAAAAAnIAFNQAAAAAAAAAAAOAELKgBAAAAAAAAAAAAJ1iv11euVqtHT402BwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGCyd3iH/x/8oGgsWGTb/AAAAABJRU5ErkJggg==" alt="Vitamedic"></div></div>
+
+<header class="mast">
+  <div class="kicker">
+    <span>Vitamedic</span><span class="sep">/</span>
+    <span>Gerência de Contas</span><span class="sep">/</span>
+    <span>Análise de Distribuidor</span>
+  </div>
+  <h1>EMEFARMA</h1>
+  <p class="dek">
+    O distribuidor <strong>ganhou share nos dois estados onde atua</strong> — 4,1 pontos no Rio
+    e 4,9 no Espírito Santo. A queda de 3,6% no total da conta vem inteiramente de
+    <strong>um recuo em São Paulo</strong>. Excluindo SP, o EMEFARMA cresceu 6,2%
+    num mercado que caiu 20,2%.
+  </p>
+  <div class="meta">
+    <span><b>Fontes</b> Sell-out Vitamedic (14/08/2026) · IQVIA Mercado Relevante</span>
+    <span><b>Período</b> jan/2025 – jul/2026 (19 meses fechados)</span>
+    <span><b>Comparação</b> jan–jul/25 vs jan–jul/26</span>
+    <span><b>CNPJs</b> RJ 32.130.304/0001-60 · ES 32.130.304/0003-21</span>
+  </div>
+</header>
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="lbl">Sell-out 7M/26</div>
+    <div class="val">R$ 3,17 M</div>
+    <div class="sub"><span class="down">−3,6%</span> vs 7M/25</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Excluindo SP</div>
+    <div class="val up">+6,2%</div>
+    <div class="sub">mercado Vitamedic caiu 20,2%</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Share no RJ</div>
+    <div class="val">24,4%</div>
+    <div class="sub"><span class="up">+4,09 pp</span> · 2º de 67 distribuidores</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">Share no ES</div>
+    <div class="val">10,4%</div>
+    <div class="sub"><span class="up">+4,91 pp</span> · subiu de 5º para 3º</div>
+  </div>
+  <div class="kpi">
+    <div class="lbl">PDVs ativos</div>
+    <div class="val">4.688</div>
+    <div class="sub"><span class="up">+2,9%</span> · mix de 6,1 SKUs</div>
+  </div>
+</div>
+
+<!-- ============ 1 ============ -->
+<section id="resumo">
+  <div class="shead"><span class="snum">01</span><h2>Resumo executivo</h2></div>
+
+  <ol class="insights">
+    <li>
+      <span class="n">01</span>
+      <div class="txt">
+        <strong>O EMEFARMA está ganhando participação enquanto encolhe.</strong>
+        Caiu 3,6% em valor e 15,2% em unidades — mas o mercado Vitamedic caiu 20,2% e 26,2%.
+        São <strong>+16,6 pontos</strong> de vantagem em valor. A leitura correta não é
+        "o cliente está caindo", é "o cliente está resistindo melhor que a média e merece investimento".
+      </div>
+    </li>
+    <li>
+      <span class="n">02</span>
+      <div class="txt">
+        <strong>Toda a queda é São Paulo.</strong> A conta perdeu R$ 119 mil no ano —
+        mas só SP tirou R$ 302 mil. Nos dois estados de casa o distribuidor cresceu:
+        RJ segurou (−2,4% contra estado em −18,8%) e ES <em>subiu 89,7%</em> com o estado parado.
+        <strong>Excluindo SP, a conta cresceu 6,2%.</strong>
+      </div>
+    </li>
+    <li>
+      <span class="n">03</span>
+      <div class="txt">
+        <strong>Ganhou share nos dois estados.</strong> No RJ passou de 20,3% para 24,4%
+        e é o 2º maior distribuidor Vitamedic do estado. No ES saltou de 5,5% para 10,4%
+        e subiu da 5ª para a 3ª posição. Em ambos, a penetração na base de PDVs Vitamedic
+        do estado subiu — 42,7% para 47,0% no RJ, 39,7% para 45,7% no ES.
+      </div>
+    </li>
+    <li>
+      <span class="n">04</span>
+      <div class="txt">
+        <strong>Cobertura é a maior alavanca — e a mais barata.</strong>
+        O produto mais distribuído chega a 39,9% dos PDVs. A Dipirona 1g, campeã de faturamento,
+        chega a 20,2%. Metade da base compra 3 SKUs ou menos. Não falta cliente: falta produto
+        dentro do cliente que já compra.
+      </div>
+    </li>
+    <li>
+      <span class="n">05</span>
+      <div class="txt">
+        <strong>Preço está descartado como causa — nas duas frentes.</strong>
+        Contra os outros distribuidores, o EMEFARMA pratica preço idêntico em 32 de 32 SKUs.
+        Contra as indústrias concorrentes, a Vitamedic é <em>mais barata</em> que o líder de
+        volume em 13 das 18 moléculas que o EMEFARMA vende. A correlação entre preço e share
+        é de +0,12 — estatisticamente nula. Apenas <strong>4% do faturamento</strong> da conta
+        está em molécula onde o preço realmente pesa.
+      </div>
+    </li>
+  </ol>
+
+  <div class="note">
+    <b>Correção de leitura.</b> Uma versão anterior deste dossiê apontava o Espírito Santo
+    como o problema da conta, com base na queda de 41,7% em unidades do CNPJ "EMEFARMA ES".
+    Ao cruzar CNPJ com a UF do PDV, ficou claro que aquele CNPJ atendia São Paulo:
+    era o SP dentro dele que caía. Medido por <b>estado de destino</b> — que é o recorte
+    correto para avaliar praça — o ES é a operação que mais cresce na conta.
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="veredito">
+  <div class="shead"><span class="snum">02</span><h2>O veredito: queda relativa é ganho de share</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Recorte</th><th class="n">Un. 7M/25</th><th class="n">Un. 7M/26</th><th class="n">Δ Un.</th>
+          <th class="n">R$ 7M/25</th><th class="n">R$ 7M/26</th><th class="n">Δ R$</th><th class="n">PDVs</th><th class="n">Δ PDV</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>EMEFARMA total</b></td>
+          <td class="n">917.155</td><td class="n">777.406</td><td class="n down">−15,2%</td>
+          <td class="n">3.286.300</td><td class="n">3.167.160</td><td class="n down">−3,6%</td>
+          <td class="n">4.688</td><td class="n up">+2,9%</td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;EMEFARMA RJ</td>
+          <td class="n">695.392</td><td class="n">648.018</td><td class="n down">−6,8%</td>
+          <td class="n">2.672.058</td><td class="n">2.607.934</td><td class="n down">−2,4%</td>
+          <td class="n">3.467</td><td class="n up">+8,1%</td>
+        </tr>
+        <tr>
+          <td>&nbsp;&nbsp;EMEFARMA ES</td>
+          <td class="n">221.763</td><td class="n">129.388</td><td class="n down">−41,7%</td>
+          <td class="n">614.242</td><td class="n">559.226</td><td class="n down">−9,0%</td>
+          <td class="n">1.221</td><td class="n down">−9,4%</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Mercado Vitamedic (547 distr.)</td>
+          <td class="n">49,67 M</td><td class="n">36,66 M</td><td class="n down">−26,2%</td>
+          <td class="n">217,20 M</td><td class="n">173,41 M</td><td class="n down">−20,2%</td>
+          <td class="n">—</td><td class="n">—</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">+16,6 pontos percentuais</div>
+    <div class="cx">
+      É a vantagem do EMEFARMA sobre o mercado Vitamedic em valor no acumulado do ano.
+      Em unidades, a vantagem é de +11,0 pp. O distribuidor não está perdendo a corrida —
+      está correndo mais rápido que o pelotão num ano de retração.
+    </div>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    A unidade RJ ocupa a <b>10ª posição entre 547 distribuidores</b> do sell-out Vitamedic,
+    com 1,83% do volume nacional. A unidade ES está em 70º.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A tabela acima mede CNPJ, não praça.</b> O CNPJ "EMEFARMA ES" vendia R$ 339 mil
+    para PDVs de São Paulo em 2025. Por isso ele aparece em queda mesmo tendo crescido
+    no próprio estado. A seção seguinte refaz a conta por estado de destino.</p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="estado">
+  <div class="shead"><span class="snum">03</span><h2>Crescimento contra o próprio estado</h2></div>
+
+  <p>Aqui o recorte é o <strong>estado onde está o PDV</strong>, não o CNPJ que faturou.
+  "Estado" significa todo o sell-out Vitamedic para farmácias daquela UF, por qualquer
+  um dos 547 distribuidores. É a comparação que mostra se o EMEFARMA ganha ou perde praça.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>Praça</th><th class="n">7M/25</th><th class="n">7M/26</th><th class="n">Variação</th><th class="n">Vantagem</th></tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5" style="background:var(--surface-2); font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--wine)">Rio de Janeiro</td></tr>
+        <tr><td>Estado RJ — valor</td><td class="n">13.168.937</td><td class="n">10.697.908</td><td class="n down">−18,8%</td><td class="n">—</td></tr>
+        <tr><td><b>EMEFARMA no RJ</b></td><td class="n">2.672.041</td><td class="n">2.607.934</td><td class="n down">−2,4%</td><td class="n up"><b>+16,4 pp</b></td></tr>
+        <tr><td>Share em valor</td><td class="n">20,29%</td><td class="n">24,38%</td><td class="n up">+4,09 pp</td><td class="n">—</td></tr>
+        <tr><td>Penetração nos PDVs do estado</td><td class="n">42,7%</td><td class="n">47,0%</td><td class="n up">+4,3 pp</td><td class="n">—</td></tr>
+
+        <tr><td colspan="5" style="background:var(--surface-2); font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--wine)">Espírito Santo</td></tr>
+        <tr><td>Estado ES — valor</td><td class="n">5.023.101</td><td class="n">5.022.994</td><td class="n">0,0%</td><td class="n">—</td></tr>
+        <tr><td><b>EMEFARMA no ES</b></td><td class="n">275.092</td><td class="n">521.885</td><td class="n up">+89,7%</td><td class="n up"><b>+89,7 pp</b></td></tr>
+        <tr><td>Share em valor</td><td class="n">5,48%</td><td class="n">10,39%</td><td class="n up">+4,91 pp</td><td class="n">—</td></tr>
+        <tr><td>Penetração nos PDVs do estado</td><td class="n">39,7%</td><td class="n">45,7%</td><td class="n up">+6,0 pp</td><td class="n">—</td></tr>
+
+        <tr><td colspan="5" style="background:var(--surface-2); font-weight:700; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--neg)">São Paulo</td></tr>
+        <tr><td>Estado SP — valor</td><td class="n">35.190.781</td><td class="n">20.604.340</td><td class="n down">−41,4%</td><td class="n">—</td></tr>
+        <tr><td><b>EMEFARMA no SP</b></td><td class="n">339.167</td><td class="n">37.331</td><td class="n down">−89,0%</td><td class="n down"><b>−47,5 pp</b></td></tr>
+        <tr><td>Share em valor</td><td class="n">0,96%</td><td class="n">0,18%</td><td class="n down">−0,78 pp</td><td class="n">—</td></tr>
+        <tr><td>PDVs atendidos</td><td class="n">423</td><td class="n">175</td><td class="n down">−58,6%</td><td class="n">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">+4,09 pp no RJ &nbsp;·&nbsp; +4,91 pp no ES</div>
+    <div class="cx">
+      Ganho de participação nos dois estados de casa, simultaneamente, num ano em que o
+      mercado Vitamedic recuou 20,2% no país. O EMEFARMA não está perdendo praça —
+      está consolidando as duas que domina e saindo de uma terceira.
+    </div>
+  </div>
+
+  <h3>Posição competitiva dentro de cada estado</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th class="n">#</th><th>Distribuidor Vitamedic — Rio de Janeiro</th><th class="n">Valor 7M/26</th><th class="n">Share</th><th class="n">YoY</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>MILLENIUM RJ</td><td class="n">2.994.760</td><td class="n">28,0%</td><td class="n down">−26%</td></tr>
+        <tr style="background:var(--wine-soft)"><td class="n">2</td><td><b>EMEFARMA RJ</b></td><td class="n"><b>2.607.934</b></td><td class="n"><b>24,4%</b></td><td class="n"><b>−2%</b></td></tr>
+        <tr><td class="n">3</td><td>NAVARRO RJ</td><td class="n">1.092.550</td><td class="n">10,2%</td><td class="n up">+35%</td></tr>
+        <tr><td class="n">4</td><td>MEDICAMENTAL 3</td><td class="n">884.881</td><td class="n">8,3%</td><td class="n down">−49%</td></tr>
+        <tr><td class="n">5</td><td>DROG. PACHECO REDE</td><td class="n">583.944</td><td class="n">5,5%</td><td class="n down">−31%</td></tr>
+        <tr><td class="n">6</td><td>MAXCENTER</td><td class="n">313.317</td><td class="n">2,9%</td><td class="n down">−11%</td></tr>
+        <tr><td class="n">8</td><td>VENANCIO DROGARIA</td><td class="n">221.479</td><td class="n">2,1%</td><td class="n down">−40%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th class="n">#</th><th>Distribuidor Vitamedic — Espírito Santo</th><th class="n">Valor 7M/26</th><th class="n">Share</th><th class="n">YoY</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>MILLENIUM</td><td class="n">2.036.097</td><td class="n">40,5%</td><td class="n up">+69%</td></tr>
+        <tr><td class="n">2</td><td>DISTRIBUIDORA LABORSIL</td><td class="n">900.252</td><td class="n">17,9%</td><td class="n up">+33%</td></tr>
+        <tr style="background:var(--wine-soft)"><td class="n">3</td><td><b>EMEFARMA ES</b></td><td class="n"><b>521.885</b></td><td class="n"><b>10,4%</b></td><td class="n up"><b>+90%</b></td></tr>
+        <tr><td class="n">4</td><td>BARATELA</td><td class="n">292.520</td><td class="n">5,8%</td><td class="n down">−81%</td></tr>
+        <tr><td class="n">5</td><td>FARMACIA INDIANA</td><td class="n">216.237</td><td class="n">4,3%</td><td class="n down">−27%</td></tr>
+        <tr><td class="n">6</td><td>NAVARRO ES 2</td><td class="n">196.688</td><td class="n">3,9%</td><td class="n up">+15%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>No RJ, o EMEFARMA é o único do topo que não desabou.</b> O líder MILLENIUM caiu 26%,
+    o 4º caiu 49%, o 5º caiu 31%, a Venâncio caiu 40%. O EMEFARMA caiu 2%.
+    A distância para a liderança encurtou de R$ 1,36 milhão para R$ 387 mil.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>No ES o mercado se reorganizou.</b> A BARATELA desabou 81% (de R$ 1,51 M para R$ 293 mil),
+    liberando cerca de R$ 1,2 milhão. Quem capturou: MILLENIUM (+R$ 828 mil),
+    LABORSIL (+R$ 221 mil) e EMEFARMA (+R$ 247 mil). O EMEFARMA pegou aproximadamente
+    20% do espólio.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>A liderança do RJ está ao alcance.</b> Mantido o ritmo dos dois lados
+    (MILLENIUM −26%, EMEFARMA −2%), a ultrapassagem aconteceria dentro de 12 meses.
+    Precisa validar se a queda da MILLENIUM é conjuntural ou estrutural antes de
+    transformar isso em meta.</p>
+  </div>
+
+  <h3>O share mês a mês</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Mês</th><th class="n">Share RJ</th><th class="n">Share ES</th></tr></thead>
+      <tbody>
+        <tr><td>jan/2025</td><td class="n">16,2%</td><td class="n">8,2%</td></tr>
+        <tr><td>abr/2025</td><td class="n">15,7%</td><td class="n">3,8%</td></tr>
+        <tr><td>jul/2025</td><td class="n">18,6%</td><td class="n">5,3%</td></tr>
+        <tr><td>out/2025</td><td class="n">32,1%</td><td class="n">3,4%</td></tr>
+        <tr><td>jan/2026</td><td class="n">16,4%</td><td class="n">2,8%</td></tr>
+        <tr><td>abr/2026</td><td class="n up">38,0%</td><td class="n">7,5%</td></tr>
+        <tr><td>mai/2026</td><td class="n">21,7%</td><td class="n up">19,5%</td></tr>
+        <tr><td>jun/2026</td><td class="n">25,7%</td><td class="n">14,9%</td></tr>
+        <tr><td>jul/2026</td><td class="n">21,2%</td><td class="n">8,1%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Share do EMEFARMA sobre o sell-out Vitamedic total de cada estado, em valor.</p>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>O share oscila muito — de 16,4% a 38,0% no RJ em quatro meses.</b> Amplitude dessa
+    ordem em base mensal costuma indicar compra por campanha, e não fluxo constante.
+    Abril/26 (38,0%) e maio/26 no ES (19,5%) são picos isolados que não se sustentaram.</p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="sp">
+  <div class="shead"><span class="snum">04</span><h2>O recuo de São Paulo</h2></div>
+
+  <p>O cruzamento entre CNPJ e UF do PDV isola de onde vem a queda da conta.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>CNPJ faturador</th><th>UF do PDV</th><th class="n">Valor 7M/25</th><th class="n">Valor 7M/26</th><th class="n">Δ R$</th><th class="n">PDVs 26</th></tr></thead>
+      <tbody>
+        <tr><td>EMEFARMA RJ</td><td>RJ</td><td class="n">2.672.041</td><td class="n">2.607.934</td><td class="n down">−64.107</td><td class="n">3.467</td></tr>
+        <tr><td>EMEFARMA ES</td><td>ES</td><td class="n">275.075</td><td class="n">521.885</td><td class="n up">+246.810</td><td class="n">1.045</td></tr>
+        <tr style="background:var(--neg-bg)"><td><b>EMEFARMA ES</b></td><td><b>SP</b></td><td class="n">339.167</td><td class="n">37.331</td><td class="n down"><b>−301.836</b></td><td class="n">175</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2"><b>Total da conta</b></td><td class="n">3.286.300</td><td class="n">3.167.160</td><td class="n down"><b>−119.140</b></td><td class="n">4.688</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">SP responde por 253% da queda</div>
+    <div class="cx">
+      A conta perdeu R$ 119 mil no ano. São Paulo sozinho tirou R$ 302 mil — mais do que
+      a queda inteira, porque RJ e ES juntos compensaram parte. <b>Excluindo São Paulo,
+      o EMEFARMA cresceu 6,2%</b> enquanto o mercado Vitamedic caiu 20,2%.
+    </div>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Foi um recuo, não uma derrota.</b> O EMEFARMA saiu de 423 para 175 PDVs paulistas
+    (−58,6%) e o share no estado caiu de 0,96% para 0,18%. Mas SP nunca foi praça
+    do distribuidor: mesmo no pico, ele era o 28º colocado com menos de 1% do estado.
+    O mercado paulista inteiro caiu 41,4% no período.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>Concentração deliberada nas praças de casa.</b> O recuo de SP (−R$ 302 mil) coincide
+    com o avanço no ES (+R$ 247 mil) e com o ganho de 4 pontos de share no RJ.
+    O padrão é consistente com redirecionamento de esforço comercial para onde o
+    distribuidor tem densidade — mas isso precisa ser confirmado, porque a alternativa
+    (perda de competitividade em SP) levaria a outro plano.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Se a saída de SP foi decisão, <b>tirar São Paulo da base de comparação</b> e passar a
+    medir a conta por RJ+ES. Os R$ 247 mil recuperáveis da lista de PDVs perdidos em SP
+    saem do plano e a meta do ano é recalculada sobre uma base que cresceu 6,2%.</p>
+  </div>
+
+  <h3>Composição do mix no Espírito Santo</h3>
+
+  <p>O CNPJ ES trocou de perfil: cortou genéricos baratos de altíssimo giro e ampliou
+  o portfólio de 92 para 133 apresentações. O preço médio do CNPJ subiu 56%.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">Un. 7M/25</th><th class="n">Un. 7M/26</th><th class="n">Δ unidades</th><th class="n">Δ valor</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Nimesulida 100mg × 12</td><td class="n">46.915</td><td class="n">11.999</td><td class="n down">−34.916</td><td class="n down">−51.795</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">50.321</td><td class="n">17.855</td><td class="n down">−32.466</td><td class="n down">−49.456</td></tr>
+        <tr><td class="name">Fluconazol 150mg × 2</td><td class="n">29.341</td><td class="n">5.457</td><td class="n down">−23.884</td><td class="n down">−42.567</td></tr>
+        <tr><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">25.298</td><td class="n">11.270</td><td class="n down">−14.028</td><td class="n down">−24.573</td></tr>
+        <tr><td class="name">Maleato de Enalapril 10mg × 30</td><td class="n">7.474</td><td class="n">2.866</td><td class="n down">−4.608</td><td class="n down">−10.446</td></tr>
+        <tr><td class="name">Algy-Flanderil 600mg × 20</td><td class="n">5.158</td><td class="n">1.464</td><td class="n down">−3.694</td><td class="n down">−17.920</td></tr>
+        <tr style="border-top:2px solid var(--border-strong)"><td class="name">Loratadina 10mg × 12</td><td class="n">47</td><td class="n">14.693</td><td class="n up">+14.646</td><td class="n up">+25.144</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">0</td><td class="n">2.966</td><td class="n up">+2.966</td><td class="n up">+31.245</td></tr>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">16.246</td><td class="n">19.249</td><td class="n up">+3.003</td><td class="n up">+14.668</td></tr>
+        <tr><td class="name">Ivecte 6mg × 4</td><td class="n">0</td><td class="n">2.025</td><td class="n up">+2.025</td><td class="n up">+8.194</td></tr>
+        <tr><td class="name">Maleato de Enalapril 5mg × 30</td><td class="n">0</td><td class="n">1.967</td><td class="n up">+1.967</td><td class="n up">+6.930</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>O preço médio do CNPJ ES subiu 56%</b> — de R$ 2,77 para R$ 4,32 — enquanto o do RJ
+    subiu 4,7%. Saíram genéricos baratos de altíssimo giro (Nimesulida, Lorasliv, Fluconazol)
+    e entraram itens de maior valor unitário (Ivermectina × 8, Loratadina).</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>Os genéricos que caíram no CNPJ ES eram o que abastecia São Paulo.</b>
+    Nimesulida, Lorasliv e Fluconazol — os três maiores tombos — são exatamente o perfil
+    de item de altíssimo giro e baixo valor unitário. A saída de SP explicaria
+    simultaneamente a queda de volume e a alta de 56% no preço médio do CNPJ.
+    É verificável cruzando a base por SKU e UF.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Dentro do Espírito Santo, o movimento foi de crescimento.</b> O CNPJ ES vendeu
+    R$ 275 mil para PDVs capixabas em 2025 e R$ 522 mil em 2026 (+89,7%), com a base de
+    PDVs no estado subindo de 925 para 1.045 (+13,0%). Ampliou de 92 para 133 apresentações.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Reconhecer o ES como o case da conta, não como problema.</b> É a operação que mais
+    cresce, ganhou 4,9 pontos de share e subiu duas posições no ranking estadual num
+    mercado parado. O que funcionou ali — mix ampliado e base de PDVs em expansão —
+    é o que deve ser replicado no Rio.</p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="abc">
+  <div class="shead"><span class="snum">05</span><h2>Curva ABC — onde está o faturamento</h2></div>
+
+  <p>Classificação por valor de sell-out no acumulado jan–jul/26. Das <strong>240 apresentações</strong>
+  do portfólio Vitamedic, o EMEFARMA vendeu <strong>133</strong>. Trinta e uma apresentações concentram 80% do faturamento.</p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th class="n">#</th><th>Apresentação</th><th class="n">Valor 26</th><th class="n">% ac.</th>
+          <th class="n">Unidades</th><th class="n">YoY</th><th class="n">PDVs</th><th class="n">Cobertura</th><th class="n">Curva</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">419.188</td><td class="n">13,2</td><td class="n">96.562</td><td class="n up">+100%</td><td class="n">948</td><td class="n">20,2%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">2</td><td class="name">Lorasliv 10mg × 12</td><td class="n">261.398</td><td class="n">21,5</td><td class="n">134.527</td><td class="n down">−15%</td><td class="n">1.200</td><td class="n">25,6%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">3</td><td class="name">Cloridrato de Fexofenadina susp. 60ml</td><td class="n">256.306</td><td class="n">29,6</td><td class="n">20.813</td><td class="n up">+8%</td><td class="n">1.870</td><td class="n">39,9%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">4</td><td class="name">Ivermectina 6mg × 4</td><td class="n">144.135</td><td class="n">34,1</td><td class="n">35.514</td><td class="n down">−43%</td><td class="n">914</td><td class="n">19,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">5</td><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">118.808</td><td class="n">37,9</td><td class="n">64.675</td><td class="n down">−43%</td><td class="n">671</td><td class="n">14,3%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">6</td><td class="name">Fluconazol 150mg × 2</td><td class="n">117.600</td><td class="n">41,6</td><td class="n">61.085</td><td class="n down">−7%</td><td class="n">1.506</td><td class="n">32,1%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">7</td><td class="name">Fosfato Sódico Prednisolona sol. 3mg</td><td class="n">98.750</td><td class="n">44,7</td><td class="n">13.290</td><td class="n up">+43%</td><td class="n">953</td><td class="n">20,3%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">8</td><td class="name">Loratadina 10mg × 12</td><td class="n">84.137</td><td class="n">47,4</td><td class="n">49.475</td><td class="n up">+83%</td><td class="n">1.064</td><td class="n">22,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">9</td><td class="name">Ibuprofeno 600mg × 20</td><td class="n">80.068</td><td class="n">49,9</td><td class="n">18.083</td><td class="n up">+135%</td><td class="n">549</td><td class="n">11,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">10</td><td class="name">Maleato de Enalapril 10mg × 30</td><td class="n">78.392</td><td class="n">52,4</td><td class="n">26.378</td><td class="n up">+4%</td><td class="n">367</td><td class="n">7,8%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">11</td><td class="name">Nimesulida 100mg × 12</td><td class="n">76.937</td><td class="n">54,8</td><td class="n">46.714</td><td class="n down">−58%</td><td class="n">363</td><td class="n">7,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">12</td><td class="name">Ivermectina 6mg × 8</td><td class="n">61.712</td><td class="n">56,8</td><td class="n">5.665</td><td class="n up">+1.678%</td><td class="n">314</td><td class="n">6,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">13</td><td class="name">Besilato de Anlodipino 10mg × 30</td><td class="n">59.053</td><td class="n">58,6</td><td class="n">17.890</td><td class="n up">+80%</td><td class="n">989</td><td class="n">21,1%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">14</td><td class="name">Hepatovit Flaconete Abacaxi × 60</td><td class="n">58.965</td><td class="n">60,5</td><td class="n">1.514</td><td class="n up">+3%</td><td class="n">680</td><td class="n">14,5%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">15</td><td class="name">Vertizan 10mg × 50</td><td class="n">55.537</td><td class="n">62,2</td><td class="n">7.529</td><td class="n up">+21%</td><td class="n">1.129</td><td class="n">24,1%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">16</td><td class="name">Dipirona 500mg 20×10</td><td class="n">52.988</td><td class="n">63,9</td><td class="n">1.154</td><td class="n up">+117%</td><td class="n">140</td><td class="n">3,0%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">17</td><td class="name">Maleato de Enalapril 5mg × 30</td><td class="n">48.982</td><td class="n">65,5</td><td class="n">14.031</td><td class="n up">novo</td><td class="n">1.144</td><td class="n">24,4%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">18</td><td class="name">Algy-Flanderil 600mg × 20</td><td class="n">44.698</td><td class="n">66,9</td><td class="n">8.744</td><td class="n up">+16%</td><td class="n">270</td><td class="n">5,8%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">19</td><td class="name">Energrip C efervescente × 10</td><td class="n">44.056</td><td class="n">68,3</td><td class="n">9.389</td><td class="n down">−52%</td><td class="n">174</td><td class="n">3,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">20</td><td class="name">Hemodase pomada + 6 apl. 25g</td><td class="n">42.008</td><td class="n">69,6</td><td class="n">2.911</td><td class="n up">+16%</td><td class="n">606</td><td class="n">12,9%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">26</td><td class="name">Cloridrato de Ciclobenzaprina rev.</td><td class="n">28.771</td><td class="n">76,3</td><td class="n">7.910</td><td class="n up">+203%</td><td class="n">845</td><td class="n">18,0%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">31</td><td class="name">Doralex 1g × 10</td><td class="n">21.679</td><td class="n">79,9</td><td class="n">4.310</td><td class="n down">−83%</td><td class="n">126</td><td class="n">2,7%</td><td class="n"><span class="curve cA">A</span></td></tr>
+        <tr><td class="n">44</td><td class="name">Butacid rev. 200mg × 20</td><td class="n">14.119</td><td class="n">87,1</td><td class="n">1.342</td><td class="n up">+946%</td><td class="n">348</td><td class="n">7,4%</td><td class="n"><span class="curve cB">B</span></td></tr>
+        <tr><td class="n">45</td><td class="name">Clortalidona 50mg × 30</td><td class="n">13.838</td><td class="n">87,5</td><td class="n">2.101</td><td class="n up">+622%</td><td class="n">432</td><td class="n">9,2%</td><td class="n"><span class="curve cB">B</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Recorte das 24 linhas mais relevantes das 133 apresentações com venda. Valores em R$. Curva completa: 31 apresentações A · 40 B · 62 C.</p>
+
+  <h3>O que salta da curva</h3>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Concentração alta e crescendo.</b> Os 5 primeiros SKUs respondem por 37,9% do faturamento;
+    os 10 primeiros, por 52,4%. Já os PDVs são pulverizados: os 100 maiores fazem apenas 24,9% do valor.
+    O risco está no portfólio, não na carteira.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Quatro produtos A em queda forte:</b> Ivermectina 6mg×4 (−43%), Anlodipino 5mg (−43%),
+    Nimesulida 100mg (−58%) e Doralex 1g (−83%). Juntos representam R$ 361 mil no ano.
+    Nimesulida e Doralex têm cobertura muito baixa (7,7% e 2,7%) — a queda vem de poucos PDVs.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Cinco produtos em aceleração real:</b> Butacid (+946%), Clortalidona (+622%),
+    Ciclobenzaprina (+203%), Ibuprofeno 600 (+135%) e Dipirona 1g (+100%).
+    Dipirona 1g virou o item nº 1 do distribuidor com apenas 20,2% de cobertura.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Tratar Dipirona 1g como produto-âncora da conta. É o maior faturamento, dobrou de tamanho,
+    tem o segundo maior valor por PDV (R$ 442) e está em 1 de cada 5 PDVs.
+    Cada 10 pontos de cobertura valem <b>R$ 207 mil em 7 meses</b>.</p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="cobertura">
+  <div class="shead"><span class="snum">06</span><h2>Cobertura e mix — a oportunidade principal</h2></div>
+
+  <p>Esta é a alavanca mais barata da conta: não exige prospecção, não exige desconto,
+  não exige cliente novo. É colocar um produto que o distribuidor já vende dentro de um PDV
+  que ele já atende.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Faixa de mix</th><th class="n">PDVs</th><th class="n">% da base</th><th class="n">Valor 7M/26</th><th class="n">% do valor</th><th class="n">R$ por PDV</th></tr></thead>
+      <tbody>
+        <tr><td>Apenas 1 SKU</td><td class="n">786</td><td class="n">16,8%</td><td class="n">82.178</td><td class="n">2,6%</td><td class="n">105</td></tr>
+        <tr><td>2 a 3 SKUs</td><td class="n">1.176</td><td class="n">25,1%</td><td class="n">232.727</td><td class="n">7,3%</td><td class="n">198</td></tr>
+        <tr><td>4 a 9 SKUs</td><td class="n">1.777</td><td class="n">37,9%</td><td class="n">1.025.322</td><td class="n">32,4%</td><td class="n">577</td></tr>
+        <tr><td><b>10 ou mais SKUs</b></td><td class="n">949</td><td class="n">20,2%</td><td class="n">1.826.933</td><td class="n">57,7%</td><td class="n"><b>1.925</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    <div class="big">18× mais faturamento</div>
+    <div class="cx">
+      Um PDV com 10+ SKUs gera R$ 1.925 contra R$ 105 de um PDV monoproduto.
+      Os 20,2% de PDVs com mix alto fazem 57,7% do faturamento. Mix não é consequência
+      do tamanho do PDV — é a variável que mais explica o valor da conta.
+    </div>
+  </div>
+
+  <h3>Potencial de ampliar cobertura</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">PDVs hoje</th><th class="n">Cobertura</th><th class="n">R$ / PDV</th><th class="n">Ganho a +10 pp</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">948</td><td class="n">20,2%</td><td class="n">442</td><td class="n">207.295</td></tr>
+        <tr><td class="name">Dipirona 500mg 20×10</td><td class="n">140</td><td class="n">3,0%</td><td class="n">378</td><td class="n">177.435</td></tr>
+        <tr><td class="name">Energrip C efervescente × 10</td><td class="n">174</td><td class="n">3,7%</td><td class="n">253</td><td class="n">118.699</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">1.200</td><td class="n">25,6%</td><td class="n">218</td><td class="n">102.120</td></tr>
+        <tr><td class="name">Maleato de Enalapril 10mg × 30</td><td class="n">367</td><td class="n">7,8%</td><td class="n">214</td><td class="n">100.137</td></tr>
+        <tr><td class="name">Nimesulida 100mg × 12</td><td class="n">363</td><td class="n">7,7%</td><td class="n">212</td><td class="n">99.361</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">314</td><td class="n">6,7%</td><td class="n">197</td><td class="n">92.136</td></tr>
+        <tr><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">671</td><td class="n">14,3%</td><td class="n">177</td><td class="n">83.006</td></tr>
+        <tr><td class="name">Algy-Flanderil 600mg × 20</td><td class="n">270</td><td class="n">5,8%</td><td class="n">166</td><td class="n">77.609</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">914</td><td class="n">19,5%</td><td class="n">158</td><td class="n">73.928</td></tr>
+      </tbody>
+      <tfoot><tr><td><b>22 principais SKUs</b></td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n"><b>1.622.739</b></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="cap">Ganho projetado = receita média por PDV comprador × 469 PDVs (10% da base de 4.688). Premissa: o PDV novo compra como a média atual do SKU. Valores em R$ para 7 meses.</p>
+
+  <h3>Cross-selling: onde há âncora sem acompanhamento</h3>
+
+  <p>A Fexofenadina suspensão é o produto mais capilarizado (1.870 PDVs). Dentro dessa própria base:</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Produto ausente</th><th class="n">Falta em</th><th class="n">% da base âncora</th><th class="n">Potencial</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Dipirona 500mg 20×10</td><td class="n">1.806</td><td class="n">97%</td><td class="n">683.548</td></tr>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">1.410</td><td class="n">75%</td><td class="n">623.476</td></tr>
+        <tr><td class="name">Energrip C efervescente × 10</td><td class="n">1.775</td><td class="n">95%</td><td class="n">449.425</td></tr>
+        <tr><td class="name">Maleato de Enalapril 10mg × 30</td><td class="n">1.677</td><td class="n">90%</td><td class="n">358.210</td></tr>
+        <tr><td class="name">Nimesulida 100mg × 12</td><td class="n">1.673</td><td class="n">89%</td><td class="n">354.587</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Potencial teórico de saturação total da base âncora. Serve para ordenar prioridade, não como meta.</p>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    O par <b>Fexofenadina + Dipirona 1g</b> é o combo mais óbvio da conta: 1.410 PDVs compram um
+    e não o outro, e a Dipirona é o item de maior faturamento. É a campanha de menor esforço
+    e maior retorno imediato.</p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="churn">
+  <div class="shead"><span class="snum">07</span><h2>Movimentação de PDVs — o vazamento</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Status</th><th class="n">PDVs</th><th class="n">% base 25</th><th class="n">Valor 2025</th><th class="n">Valor 2026</th><th class="n">Ticket médio</th></tr></thead>
+      <tbody>
+        <tr><td><b>Retidos</b></td><td class="n">3.301</td><td class="n">72,5%</td><td class="n">2.501.819</td><td class="n">2.576.218</td><td class="n up">+3,0%</td></tr>
+        <tr><td><b>Perdidos</b></td><td class="n">1.254</td><td class="n">27,5%</td><td class="n">784.481</td><td class="n">0</td><td class="n">626</td></tr>
+        <tr><td><b>Novos</b></td><td class="n">1.387</td><td class="n">—</td><td class="n">0</td><td class="n">590.942</td><td class="n">426</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A base retida cresceu 3,0%.</b> Isolando quem comprou nos dois períodos, o EMEFARMA
+    <em>cresceu</em>. Toda a queda de 3,6% vem da diferença entre o que saiu (R$ 784 mil)
+    e o que entrou (R$ 591 mil) — um vazamento líquido de <b>R$ 193 mil</b>.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Os PDVs novos valem 32% menos</b> que os perdidos (R$ 426 contra R$ 626).
+    A operação está trocando cliente bom por cliente pequeno e mantendo o número da base positivo.
+    O indicador "PDVs ativos +2,9%" está mascarando o problema.</p>
+  </div>
+
+  <h3>Onde o vazamento acontece</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>UF</th><th class="n">PDVs perdidos</th><th class="n">Valor perdido</th><th class="n">Ticket médio</th></tr></thead>
+      <tbody>
+        <tr><td>Rio de Janeiro</td><td class="n">733</td><td class="n">469.435</td><td class="n">640</td></tr>
+        <tr><td>São Paulo</td><td class="n">285</td><td class="n">246.784</td><td class="n">866</td></tr>
+        <tr><td>Espírito Santo</td><td class="n">236</td><td class="n">68.262</td><td class="n">289</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>São Paulo é o vazamento mais caro por PDV.</b> 285 PDVs paulistas saíram levando
+    R$ 247 mil — ticket de R$ 866, 38% acima do PDV perdido do RJ. Os dois maiores PDVs
+    perdidos da conta inteira são de SP (R$ 53,8 mil e R$ 30,6 mil em 2025).
+    Precisa validar: houve mudança de política de atendimento fora do eixo RJ/ES,
+    corte de rota, ou entrada de concorrente?</p>
+  </div>
+
+  <h3>Alvos prioritários de recuperação</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>PDV</th><th>UF</th><th>Cidade</th><th class="n">Valor 2025</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Bigatão &amp; Gramulha Drogaria</td><td>SP</td><td>S. J. do Rio Preto</td><td class="n">53.778</td></tr>
+        <tr><td class="name">B A Pereira Drogaria</td><td>SP</td><td>Bauru</td><td class="n">30.626</td></tr>
+        <tr><td class="name">A Mais Brasileiras (2 lojas)</td><td>RJ</td><td>Teresópolis</td><td class="n">23.975</td></tr>
+        <tr><td class="name">Drogaria LLA Queiroz</td><td>RJ</td><td>São João da Barra</td><td class="n">10.799</td></tr>
+        <tr><td class="name">Drogaria de M C 2</td><td>RJ</td><td>Nova Iguaçu</td><td class="n">9.906</td></tr>
+        <tr><td class="name">Drogaria MARR</td><td>SP</td><td>Guarulhos</td><td class="n">9.204</td></tr>
+        <tr><td class="name">Drogaria Futura da Central</td><td>RJ</td><td>Rio de Janeiro</td><td class="n">8.936</td></tr>
+        <tr><td class="name">Seu Deo Drogaria</td><td>RJ</td><td>Araruama</td><td class="n">8.813</td></tr>
+        <tr><td class="name">R. Mix Drogaria</td><td>RJ</td><td>Rio de Janeiro</td><td class="n">7.805</td></tr>
+        <tr><td class="name">Drogaria Obelisco da Ilha</td><td>RJ</td><td>Rio de Janeiro</td><td class="n">7.371</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="3"><b>Top 25 perdidos</b></td><td class="n"><b>247.794</b></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="cap">Nova Iguaçu aparece 3 vezes no top 25 — possível perda de rota ou de vendedor na região.</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="whitespot">
+  <div class="shead"><span class="snum">08</span><h2>White spot — o que a concorrência vende e o EMEFARMA não</h2></div>
+
+  <p>Comparação dentro da mesma praça: todos os distribuidores que venderam Vitamedic para
+  PDVs do RJ e do ES em jan–jul/26. O EMEFARMA detém <strong>19,9%</strong> desse mercado
+  (R$ 3,13 M de R$ 15,72 M). O gap abaixo é o que falta para cada SKU atingir o próprio share médio do distribuidor.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">Mercado RJ/ES</th><th class="n">EMEFARMA</th><th class="n">Share</th><th class="n">Gap</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Cloridrato de Metformina 500mg</td><td class="n">508.924</td><td class="n">3.442</td><td class="n down">0,7%</td><td class="n">97.878</td></tr>
+        <tr><td class="name">Algy-Flanderil 300mg × 500</td><td class="n">343.476</td><td class="n">0</td><td class="n down">0,0%</td><td class="n">68.381</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">1.036.735</td><td class="n">143.653</td><td class="n">13,9%</td><td class="n">62.747</td></tr>
+        <tr><td class="name">Biovarixon rev. 450mg × 60</td><td class="n">259.660</td><td class="n">4.677</td><td class="n down">1,8%</td><td class="n">47.018</td></tr>
+        <tr><td class="name">Limp. Lentes KS 350 + gel 120</td><td class="n">400.638</td><td class="n">34.992</td><td class="n down">8,7%</td><td class="n">44.769</td></tr>
+        <tr><td class="name">Atenolol 50mg × 30</td><td class="n">240.528</td><td class="n">19.290</td><td class="n down">8,0%</td><td class="n">28.596</td></tr>
+        <tr><td class="name">Algy-Flanderil 600mg × 500</td><td class="n">128.130</td><td class="n">0</td><td class="n down">0,0%</td><td class="n">25.509</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">429.931</td><td class="n">61.712</td><td class="n">14,4%</td><td class="n">23.881</td></tr>
+        <tr><td class="name">Cloridrato de Fexofenadina susp.</td><td class="n">322.567</td><td class="n">41.442</td><td class="n">12,8%</td><td class="n">22.777</td></tr>
+        <tr><td class="name">Loratadina 10mg × 12</td><td class="n">525.175</td><td class="n">83.072</td><td class="n">15,8%</td><td class="n">21.483</td></tr>
+        <tr><td class="name">Sulfametoxazol + Trimetoprima</td><td class="n">114.573</td><td class="n">3.955</td><td class="n down">3,5%</td><td class="n">18.855</td></tr>
+        <tr><td class="name">Algy-Flanderil 300mg × 20</td><td class="n">158.123</td><td class="n">14.295</td><td class="n down">9,0%</td><td class="n">17.185</td></tr>
+      </tbody>
+      <tfoot><tr><td><b>Soma das 25 maiores lacunas</b></td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n"><b>609.063</b></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="cap">Valores em R$ para 7 meses. Projetado para 12 meses: ~R$ 1,04 M apenas para igualar o próprio share médio.</p>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Metformina 500mg é o maior buraco isolado da conta.</b> Mercado de R$ 509 mil em RJ/ES,
+    e o EMEFARMA fez R$ 3,4 mil — 0,7% de share num mercado onde ele vale 19,9%.
+    Metformina é antidiabético de uso contínuo, giro previsível, receita recorrente.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Duas embalagens hospitalares/fracionadas com share zero:</b> Algy-Flanderil 300mg × 500
+    (mercado R$ 343 mil) e 600mg × 500 (R$ 128 mil). O EMEFARMA vende as versões × 20
+    do mesmo produto, mas nenhuma unidade das × 500.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    O share zero nas apresentações × 500 sugere que <b>o EMEFARMA não atua no canal
+    que consome esse formato</b> (clínicas, hospitais, farmácias de manipulação, fracionamento),
+    ou simplesmente não tem o item cadastrado. São duas causas com soluções muito diferentes —
+    é a primeira coisa a checar na reunião.</p>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="preco">
+  <div class="shead"><span class="snum">09</span><h2>Preço contra os outros distribuidores</h2></div>
+
+  <p>Comparação do preço médio praticado pelo EMEFARMA contra os demais distribuidores
+  Vitamedic no RJ/ES, SKU a SKU, no acumulado jan–jul/26.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Apresentação</th><th class="n">Un. EMEFARMA</th><th class="n">Preço EMEFARMA</th><th class="n">Preço mercado</th><th class="n">Diferença</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">96.126</td><td class="n">4,34</td><td class="n">4,31</td><td class="n">+0,6%</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">133.297</td><td class="n">1,94</td><td class="n">1,91</td><td class="n">+1,7%</td></tr>
+        <tr><td class="name">Cloridrato de Fexofenadina susp.</td><td class="n">20.665</td><td class="n">12,31</td><td class="n">12,33</td><td class="n">−0,1%</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">35.388</td><td class="n">4,06</td><td class="n">4,05</td><td class="n">+0,3%</td></tr>
+        <tr><td class="name">Besilato de Anlodipino 5mg × 30</td><td class="n">64.601</td><td class="n">1,84</td><td class="n">1,81</td><td class="n">+1,4%</td></tr>
+        <tr><td class="name">Fluconazol 150mg × 2</td><td class="n">59.781</td><td class="n">1,93</td><td class="n">1,93</td><td class="n">0,0%</td></tr>
+        <tr><td class="name">Loratadina 10mg × 12</td><td class="n">48.851</td><td class="n">1,70</td><td class="n">1,70</td><td class="n">+0,1%</td></tr>
+        <tr><td class="name">Ibuprofeno 600mg × 20</td><td class="n">17.378</td><td class="n">4,43</td><td class="n">4,46</td><td class="n">−0,7%</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 8</td><td class="n">5.665</td><td class="n">10,89</td><td class="n">11,16</td><td class="n up">−2,4%</td></tr>
+        <tr><td class="name">Hemodase pomada 25g</td><td class="n">2.988</td><td class="n">12,56</td><td class="n">12,70</td><td class="n up">−1,2%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Amostra de 10 das 32 apresentações analisadas. Preço = valor de sell-out ÷ unidades, em R$.</p>
+
+  <div class="pull">
+    <div class="big">0 de 32 SKUs fora da faixa</div>
+    <div class="cx">
+      Nenhuma apresentação do EMEFARMA está mais de 2,5% acima ou abaixo do preço praticado
+      pelos concorrentes na mesma praça. O preço médio geral aparece 10,7% abaixo do mercado,
+      mas isso é <b>efeito de mix</b> — o EMEFARMA vende proporcionalmente mais genéricos
+      baratos de alto giro. Não é política de preço.
+    </div>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Não levar proposta de desconto para esta reunião.</b> Preço está alinhado e não explica
+    nenhuma das quedas. Verba disponível rende muito mais em campanha de cobertura e mix
+    do que em redução de preço — que aqui só destruiria margem sem alterar o problema real.</p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="industrias">
+  <div class="shead"><span class="snum">10</span><h2>Preço contra as indústrias concorrentes</h2></div>
+
+  <p>A seção anterior comparou o EMEFARMA com outros <em>distribuidores</em> de Vitamedic.
+  Esta compara a <strong>Vitamedic com as indústrias concorrentes na mesma molécula</strong> —
+  a pergunta é se a concorrência de EMS, Cimed, Neo Química, Prati e afins está tirando venda
+  do distribuidor por preço.</p>
+
+  <div class="note">
+    <b>Fonte e método.</b> IQVIA Mercado Relevante, recorte RJ + ES, acumulado jan–jun/26
+    contra jan–jun/25. Cada "mercado relevante" é o conjunto competitivo de uma
+    molécula em dosagem e apresentação equivalentes — comparação direta, sem distorção de
+    tamanho de embalagem. Foram analisados <b>104 mercados</b> em que a Vitamedic tem presença.
+    O share aqui é da <b>indústria Vitamedic no varejo</b>, não do EMEFARMA.
+  </div>
+
+  <h3>Os SKUs do EMEFARMA na sua molécula</h3>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>SKU no EMEFARMA</th><th class="n">R$ EMEFARMA</th><th class="n">Share Vitamedic</th>
+        <th class="n">Δ Share</th><th class="n">Preço Vita</th><th class="n">Preço líder</th>
+        <th class="n">vs líder</th><th class="n">+ baratos</th><th>Líder da molécula</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="name">Dipirona Monoidratada 1g × 10</td><td class="n">419.188</td><td class="n">6,4%</td><td class="n up">+1,8pp</td><td class="n">4,32</td><td class="n">5,33</td><td class="n up">−19%</td><td class="n">1 de 5</td><td>Neo Química</td></tr>
+        <tr><td class="name">Lorasliv 10mg × 12</td><td class="n">261.398</td><td class="n">21,6%</td><td class="n down">−10,4pp</td><td class="n">1,93</td><td class="n">3,07</td><td class="n up">−37%</td><td class="n">1 de 7</td><td>Cimed</td></tr>
+        <tr><td class="name">Fexofenadina susp. 60ml</td><td class="n">256.306</td><td class="n">23,1%</td><td class="n up">+3,0pp</td><td class="n">12,52</td><td class="n">29,77</td><td class="n up">−58%</td><td class="n">0 de 3</td><td>Opella</td></tr>
+        <tr><td class="name">Ivermectina 6mg × 4</td><td class="n">144.135</td><td class="n">29,2%</td><td class="n down">−15,8pp</td><td class="n">4,16</td><td class="n">4,65</td><td class="n up">−11%</td><td class="n">3 de 4</td><td>Germed Pharma</td></tr>
+        <tr><td class="name">Anlodipino 5mg × 30</td><td class="n">118.808</td><td class="n">7,7%</td><td class="n down">−2,5pp</td><td class="n">1,83</td><td class="n">2,68</td><td class="n up">−32%</td><td class="n">1 de 11</td><td>Cimed</td></tr>
+        <tr><td class="name">Fluconazol 150mg × 2</td><td class="n">117.600</td><td class="n">12,5%</td><td class="n down">−0,9pp</td><td class="n">1,93</td><td class="n">2,38</td><td class="n up">−19%</td><td class="n">0 de 9</td><td>Cimed</td></tr>
+        <tr><td class="name">Prednisolona sol. 3mg 60ml</td><td class="n">98.750</td><td class="n">10,6%</td><td class="n up">+3,0pp</td><td class="n">7,41</td><td class="n">10,43</td><td class="n up">−29%</td><td class="n">2 de 8</td><td>Aché</td></tr>
+        <tr><td class="name">Loratadina 10mg × 12</td><td class="n">84.137</td><td class="n">19,0%</td><td class="n up">+2,1pp</td><td class="n">1,69</td><td class="n">2,48</td><td class="n up">−32%</td><td class="n">0 de 5</td><td>Cimed</td></tr>
+        <tr><td class="name">Ibuprofeno 600mg × 20</td><td class="n">80.068</td><td class="n">11,2%</td><td class="n up">+1,9pp</td><td class="n">4,44</td><td class="n">6,36</td><td class="n up">−30%</td><td class="n">0 de 2</td><td>Prati Donaduzzi</td></tr>
+        <tr><td class="name">Enalapril 10mg × 30</td><td class="n">78.392</td><td class="n">2,1%</td><td class="n down">−3,2pp</td><td class="n">2,91</td><td class="n">5,54</td><td class="n up">−47%</td><td class="n down">7 de 10</td><td>Cimed</td></tr>
+        <tr style="background:var(--neg-bg)"><td class="name">Nimesulida 100mg × 12</td><td class="n">76.937</td><td class="n">2,6%</td><td class="n down">−2,8pp</td><td class="n">1,65</td><td class="n">1,47</td><td class="n down"><b>+12%</b></td><td class="n">2 de 9</td><td>Globo</td></tr>
+        <tr><td class="name">Anlodipino 10mg × 30</td><td class="n">59.053</td><td class="n">12,2%</td><td class="n">0,0pp</td><td class="n">3,31</td><td class="n">3,30</td><td class="n">0%</td><td class="n">1 de 10</td><td>Cimed</td></tr>
+        <tr><td class="name">Hepatovit Abacaxi × 60</td><td class="n">58.965</td><td class="n">35,6%</td><td class="n up">+6,6pp</td><td class="n">38,86</td><td class="n">32,14</td><td class="n down">+21%</td><td class="n">3 de 5</td><td>Arte Nativa</td></tr>
+        <tr><td class="name">Algy-Flanderil 600mg × 20</td><td class="n">44.698</td><td class="n">2,7%</td><td class="n up">+0,5pp</td><td class="n">5,11</td><td class="n">4,71</td><td class="n down">+8%</td><td class="n">1 de 6</td><td>Teuto Brasileiro</td></tr>
+        <tr><td class="name">Energrip C × 10</td><td class="n">44.056</td><td class="n">1,9%</td><td class="n down">−1,0pp</td><td class="n">4,64</td><td class="n">5,50</td><td class="n up">−16%</td><td class="n down">7 de 19</td><td>Cimed</td></tr>
+        <tr><td class="name">Atenolol 25mg × 30</td><td class="n">24.495</td><td class="n">2,7%</td><td class="n up">+0,2pp</td><td class="n">1,53</td><td class="n">1,38</td><td class="n down">+11%</td><td class="n">1 de 10</td><td>Sandoz</td></tr>
+        <tr><td class="name">Doralex 1g × 10</td><td class="n">21.679</td><td class="n">1,2%</td><td class="n down">−3,3pp</td><td class="n">5,04</td><td class="n">17,01</td><td class="n up">−70%</td><td class="n">1 de 9</td><td>Opella</td></tr>
+        <tr><td class="name">Metformina 500mg</td><td class="n">0</td><td class="n">4,0%</td><td class="n down">−1,2pp</td><td class="n">4,40</td><td class="n">5,26</td><td class="n up">−16%</td><td class="n">1 de 2</td><td>Prati Donaduzzi</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">"vs líder" compara o preço Vitamedic ao do concorrente líder em volume da molécula. "+ baratos" = quantos concorrentes praticam preço menor que a Vitamedic. Preços em R$ por unidade.</p>
+
+  <div class="pull">
+    <div class="big">Mais barata em 13 das 18 moléculas</div>
+    <div class="cx">
+      A Vitamedic pratica preço abaixo do líder de volume na maioria das moléculas que
+      o EMEFARMA vende — em alguns casos muito abaixo: Doralex 70% mais barato que a Opella,
+      Fexofenadina 58% abaixo, Enalapril 47% abaixo da Cimed. Preço baixo não está
+      convertendo em share.
+    </div>
+  </div>
+
+  <h3>O preço explica a performance?</h3>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Posição de preço vs concorrência</th><th class="n">Mercados</th><th class="n">Share médio</th><th class="n">Δ Share médio</th><th class="n">Faturamento Vitamedic</th></tr></thead>
+      <tbody>
+        <tr><td>Muito abaixo (menos de −20%)</td><td class="n">57</td><td class="n">9,6%</td><td class="n down">−1,9 pp</td><td class="n">6.988.965</td></tr>
+        <tr><td>Abaixo (−20% a −5%)</td><td class="n">20</td><td class="n">3,2%</td><td class="n up">+0,4 pp</td><td class="n">2.754.297</td></tr>
+        <tr style="background:var(--pos-bg)"><td><b>Na paridade (±5%)</b></td><td class="n">8</td><td class="n"><b>13,1%</b></td><td class="n up"><b>+9,2 pp</b></td><td class="n">674.946</td></tr>
+        <tr><td>Acima (+5% a +20%)</td><td class="n">7</td><td class="n">15,8%</td><td class="n down">−3,4 pp</td><td class="n">1.218.048</td></tr>
+        <tr><td>Muito acima (mais de +20%)</td><td class="n">12</td><td class="n">15,4%</td><td class="n up">+3,8 pp</td><td class="n">353.300</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Não existe relação entre preço e share nesta categoria.</b> A correlação de Pearson
+    entre o índice de preço e o share atual é de <b>+0,12</b>; entre índice de preço e
+    variação de share, <b>+0,17</b> (n = 104). Ambas são estatisticamente nulas — e o sinal
+    é <em>positivo</em>, ou seja, se há alguma tendência, é a de que preço mais alto
+    acompanha share maior, o contrário do que um mercado guiado por preço mostraria.</p>
+    <p><b>Teste de robustez:</b> refazendo tudo contra o preço do <em>líder de volume</em>
+    em vez da média ponderada, as correlações caem para <b>+0,075</b> e <b>+0,062</b> —
+    ainda mais próximas de zero. A conclusão não depende do critério escolhido.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Onde a Vitamedic mais desconta é onde ela mais perde.</b> Nos 57 mercados em que
+    está mais de 20% abaixo da concorrência, o share médio é de 9,6% e caindo 1,9 pp.
+    Nos 8 mercados em que está na paridade, o share médio é 13,1% e <em>subindo 9,2 pp</em>.
+    Desconto não está comprando participação.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>Uma única molécula tem problema real de preço.</b> A Nimesulida 100mg é o único
+    item relevante do EMEFARMA em que a Vitamedic está acima do líder (+12% contra a Globo)
+    e perdendo share (−2,8 pp). Representa R$ 76.937 — <b>4% do faturamento</b> coberto
+    por esta análise.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Veredito</th><th class="n">Faturamento EMEFARMA</th><th class="n">% do total</th></tr></thead>
+      <tbody>
+        <tr><td>Saudável — competitiva e estável ou ganhando</td><td class="n">1.243.260</td><td class="n">63%</td></tr>
+        <tr><td>Não é preço — competitiva e perdendo share</td><td class="n">668.468</td><td class="n">34%</td></tr>
+        <tr style="background:var(--neg-bg)"><td><b>Preço pesa — cara vs líder e perdendo share</b></td><td class="n"><b>76.937</b></td><td class="n"><b>4%</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Base: R$ 1.988.665 de faturamento do EMEFARMA em jan–jul/26 nas 18 moléculas mapeadas.</p>
+
+  <h3>Onde o preço é competitivo e a Vitamedic quase não existe</h3>
+
+  <p>Mercados grandes em RJ/ES onde a Vitamedic pratica preço bem abaixo da concorrência
+  e mesmo assim tem menos de 5% de participação. É espaço aberto — e é exatamente o tipo
+  de oportunidade que um distribuidor forte na praça pode capturar.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Mercado relevante (RJ+ES)</th><th class="n">Tamanho 6M</th><th class="n">Share Vitamedic</th><th class="n">vs média</th><th class="n">vs líder</th><th>Líder de volume</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Fluidsoro sol. nasal 0,5mg/ml 30ml</td><td class="n">33.768.990</td><td class="n down">0,0%</td><td class="n up">−35%</td><td class="n up">−22%</td><td>Neo Química</td></tr>
+        <tr style="background:var(--warn-bg)"><td class="name">Biovarixon 900+100mg × 3×10</td><td class="n">29.014.500</td><td class="n down">0,8%</td><td class="n up">−48%</td><td class="n down"><b>+24%</b></td><td>Teuto Brasileiro</td></tr>
+        <tr><td class="name">Biovarixon 450+50mg × 60</td><td class="n">20.293.901</td><td class="n down">1,5%</td><td class="n up">−18%</td><td class="n up">−6%</td><td>Neo Química</td></tr>
+        <tr><td class="name">Vit Pantenol pomada 30g</td><td class="n">19.317.186</td><td class="n down">0,1%</td><td class="n up">−64%</td><td class="n up">−71%</td><td>Bayer CC</td></tr>
+        <tr><td class="name">Doralex 1g × 10</td><td class="n">18.616.173</td><td class="n down">1,2%</td><td class="n up">−54%</td><td class="n up">−70%</td><td>Opella</td></tr>
+        <tr><td class="name">Enalapril 10mg × 3×10</td><td class="n">16.027.843</td><td class="n down">2,1%</td><td class="n up">−37%</td><td class="n up">−47%</td><td>Cimed</td></tr>
+        <tr><td class="name">Forday Energy × 16</td><td class="n">13.093.481</td><td class="n down">0,5%</td><td class="n up">−46%</td><td class="n up">−54%</td><td>Opella</td></tr>
+        <tr><td class="name">Vitamina D3 50.000 UI × 4</td><td class="n">11.312.157</td><td class="n down">0,4%</td><td class="n up">−64%</td><td class="n up">−73%</td><td>Myralis</td></tr>
+        <tr><td class="name">Energrip C 1g eferv. × 10</td><td class="n">10.719.643</td><td class="n down">1,9%</td><td class="n up">−19%</td><td class="n up">−16%</td><td>Cimed</td></tr>
+        <tr style="background:var(--warn-bg)"><td class="name">Nimesulida 100mg × 1×12</td><td class="n">8.896.538</td><td class="n down">2,6%</td><td class="n up">−26%</td><td class="n down"><b>+12%</b></td><td>Globo</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Tamanho = faturamento do mercado relevante inteiro em RJ+ES, acumulado jan–jun/26, todas as indústrias. "vs média" compara com a média ponderada de todos os concorrentes; "vs líder", com o concorrente que mais vende unidades. Valores em R$.</p>
+
+  <div class="note">
+    <b>Por que duas colunas de preço.</b> A média ponderada engana quando há concorrentes
+    caros de baixo volume puxando-a para cima. Nas duas linhas destacadas isso acontece e
+    <b>o sinal inverte</b>: no Biovarixon × 3×10 a Vitamedic parece 48% mais barata contra a média,
+    mas está <b>24% acima da Teuto</b>, que domina o volume; na Nimesulida, 26% abaixo da média
+    e <b>12% acima da Globo</b>.
+    <br><br>
+    E isso não é exceção: <b>em 25 dos 104 mercados analisados (24%) o sinal inverte</b>.
+    O caso mais extremo é o Biovarixon 450+50mg × 30 — 11% abaixo da média e
+    <b>49% acima do líder</b>. Para decidir preço, a referência útil é sempre o líder de
+    volume: é contra ele que o PDV compara na gôndola. A média serve de contexto, não de base
+    para decisão.
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>O gargalo é presença no ponto de venda, não competitividade.</b> Preço competitivo
+    somado a share mínimo em mercados grandes é o padrão clássico de produto que não está
+    na gôndola — falta cadastro, falta estoque no distribuidor, falta argumento de venda
+    ou falta visita. Nenhuma dessas causas se resolve com desconto.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    <b>Levar Biovarixon como pauta de abertura — com uma ressalva de preço.</b>
+    São dois mercados somando R$ 49 milhões em RJ/ES no semestre, com a Vitamedic entre
+    0,8% e 1,5%. Contra a <em>média</em> dos concorrentes a Vitamedic é 18% a 48% mais barata,
+    mas contra o <b>líder de volume</b> a leitura muda: na apresentação × 3×10 a Vitamedic
+    está <b>24% acima da Teuto</b>, que domina a molécula. Na × 60 está 6% abaixo da Neo Química.
+    Ou seja: há espaço enorme de mercado, mas na apresentação maior o preço precisa entrar
+    na conversa. O Biovarixon já aparece como lacuna no sell-out do EMEFARMA
+    (R$ 47 mil de gap na × 60).</p>
+  </div>
+
+  <div class="note">
+    <b>Cuidado de leitura.</b> O share Vitamedic destas tabelas é da indústria no varejo
+    total do estado — inclui o que outros distribuidores e a venda direta entregam.
+    Um share baixo aqui não é falha do EMEFARMA; é espaço de mercado. E o preço IQVIA é
+    preço de varejo ao consumidor, enquanto o da seção anterior é preço do distribuidor
+    ao PDV: as duas tabelas medem elos diferentes da cadeia e não devem ser comparadas
+    entre si.
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="perfil">
+  <div class="shead"><span class="snum">11</span><h2>Perfil da carteira</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Tipo de PDV</th><th class="n">PDVs</th><th class="n">Valor 7M/26</th><th class="n">% do valor</th><th class="n">R$ por PDV</th></tr></thead>
+      <tbody>
+        <tr><td>Independente</td><td class="n">2.566</td><td class="n">1.268.827</td><td class="n">40,1%</td><td class="n">494</td></tr>
+        <tr><td>Rede Associativista</td><td class="n">832</td><td class="n">746.600</td><td class="n">23,6%</td><td class="n">897</td></tr>
+        <tr><td>Franquia</td><td class="n">1.058</td><td class="n">732.211</td><td class="n">23,1%</td><td class="n">692</td></tr>
+        <tr><td>Outras Redes</td><td class="n">197</td><td class="n">405.349</td><td class="n">12,8%</td><td class="n"><b>2.058</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>"Outras Redes" rende 4,2× mais por PDV que o independente</b> (R$ 2.058 contra R$ 494)
+    e representa só 197 PDVs. É o segmento de maior densidade da carteira e o menos explorado
+    em número absoluto.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>97,7% do faturamento vem de PDVs sem grupo identificado.</b> A carteira é essencialmente
+    pulverizada. O único grupo com peso é a PULSAFARMA: 17 PDVs, R$ 35,7 mil, R$ 2.097 por PDV
+    — mais que o triplo da média da conta.</p>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Pedir ao distribuidor o de-para de rede/grupo dos PDVs. Com 97,7% da base sem classificação,
+    é impossível desenhar campanha por rede — e redes são exatamente onde o valor por PDV é maior.</p>
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="estoque">
+  <div class="shead"><span class="snum">12</span><h2>Gestão de estoque: capital parado no distribuidor</h2></div>
+
+  <p>Posição de estoque do EMEFARMA em 20/08/2026, cruzada com a venda média dos últimos 4 meses.
+  A base cobre <b>223 SKUs no RJ</b> — o ES não veio com posição de estoque neste export
+  (ver nota ao final da seção).</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Faixa de cobertura</th><th class="n">SKUs</th><th class="n">Valor a custo</th><th class="n">% do estoque RJ</th></tr></thead>
+      <tbody>
+        <tr><td>Saudável (&lt; 60 dias)</td><td class="n">21</td><td class="n">74.034</td><td class="n">7,3%</td></tr>
+        <tr><td>Atenção (60–120 dias)</td><td class="n">36</td><td class="n">480.210</td><td class="n">47,2%</td></tr>
+        <tr><td>Alto (120–180 dias)</td><td class="n">17</td><td class="n">140.464</td><td class="n">13,8%</td></tr>
+        <tr><td>Crítico (180–365 dias)</td><td class="n">21</td><td class="n">160.255</td><td class="n">15,7%</td></tr>
+        <tr><td>Zumbi (&gt; 365 dias)</td><td class="n">33</td><td class="n"><b>159.236</b></td><td class="n"><b>15,6%</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>R$ 318.879 (31,3% do estoque do RJ) estão parados em 53 SKUs com mais de 180 dias
+    de cobertura</b> — metade disso, R$ 159.236, já é zumbi puro: mais de um ano de estoque
+    para o ritmo de venda atual.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A linha VMS/suplemento (FORDAY, Energrip C, Suavebaby) concentra o problema.</b>
+    É 16,7% do estoque do RJ mas só 5,0% da venda — desproporção de 3,3×. Do estoque parado
+    dessa linha, <b>89% já é zumbi</b> (R$ 106.506 de R$ 119.466), contra 26% na linha
+    Rx/OTC genérico. É a linha onde o capital está preso há mais tempo, não só a mais parada.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>O Biovarixon já está no estoque do RJ — e revisa o diagnóstico da ação A6 do plano
+    anterior.</b> As duas apresentações somam R$ 31.451 parados com 309 e 315 dias de
+    cobertura. A hipótese de "produto que não chegou à gôndola" não se sustenta mais:
+    o produto chegou e não girou em 10 meses. O problema provável não é disponibilização —
+    é execução no PDV ou o preço 24% acima do líder na apresentação × 3×10, já identificado
+    na seção de preço vs indústrias.</p>
+  </div>
+
+  <div class="note">
+    <p><b>Correção: Energrip C Pop Kd não é zumbi — é lançamento.</b> As duas apresentações
+    (R$ 27.847, 3.195–7.920 dias de cobertura) entram na leitura acima como parte da linha
+    VMS por classificação de produto, mas a cobertura extrema é artefato de dividir estoque
+    de arranque por giro quase nulo — o produto ainda não tem histórico de venda consolidado,
+    diferente do Forday e do Suavebaby, que são linha madura em queda. Tratar como estoque
+    morto seria a leitura errada: o gargalo aqui é ativação em PDV, não excesso de estoque.
+    A recomendação de "suspender pedido" abaixo <b>não se aplica a este SKU</b> — plano de
+    ativação dedicado na seção 18.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>SKU</th><th>Linha</th><th class="n">Estoque a custo</th><th class="n">Cobertura</th><th class="n">Venda/mês</th></tr></thead>
+      <tbody>
+        <tr><td>Enalapril 10mg × 30</td><td>Rx/OTC genérico</td><td class="n">72.775</td><td class="n">218 d</td><td class="n">8.944</td></tr>
+        <tr><td>Paracetamol 750mg × 20</td><td>Rx/OTC genérico</td><td class="n">20.392</td><td class="n">891 d</td><td class="n">891</td></tr>
+        <tr><td>Energrip C Pop Kd Laranja disp 500mg</td><td>VMS/suplemento</td><td class="n">19.842</td><td class="n">7.920 d</td><td class="n">136</td></tr>
+        <tr><td>Biovarixon 900+100mg × 60</td><td>Rx/OTC genérico</td><td class="n">17.740</td><td class="n">309 d</td><td class="n">1.953</td></tr>
+        <tr><td>Forday Colágeno Tipo II × 60</td><td>VMS/suplemento</td><td class="n">15.251</td><td class="n">457 d</td><td class="n">1.379</td></tr>
+        <tr><td>Biovarixon 900+100mg × 30</td><td>Rx/OTC genérico</td><td class="n">13.711</td><td class="n">315 d</td><td class="n">1.698</td></tr>
+        <tr><td>Forday Q10 100mg × 60</td><td>VMS/suplemento</td><td class="n">12.029</td><td class="n">1.920 d</td><td class="n">305</td></tr>
+        <tr><td>Algy-Flanderil 600mg × 20</td><td>Rx/OTC genérico</td><td class="n">11.320</td><td class="n">202 d</td><td class="n">2.010</td></tr>
+        <tr><td>Forday Magnésio Plus × 60</td><td>VMS/suplemento</td><td class="n">9.185</td><td class="n">1.402 d</td><td class="n">276</td></tr>
+        <tr><td>Forday Cúrcuma Plus × 60</td><td>VMS/suplemento</td><td class="n">8.780</td><td class="n">1.091 d</td><td class="n">354</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Duas frentes com prazos diferentes. <b>Curto prazo (30 dias):</b> ação de giro na linha
+    VMS — desconto, kit promocional ou troca/devolução negociada com a indústria para os
+    16 SKUs zumbis (R$ 106,5 mil) — e suspender pedido futuro desses itens até normalizar.
+    <b>Exceção: Energrip C Pop Kd (2 SKUs, R$ 27.847) fica fora dessa frente</b> — é
+    lançamento, não zumbi maduro; ver plano de ativação na seção 18. <b>Médio prazo:</b>
+    revisar a execução do Biovarixon no PDV (exposição, argumentação de venda) antes de
+    investir em mais cadastro — o gargalo não é mais estoque.</p>
+  </div>
+
+  <div class="note">
+    <p><b>Sobre o capital de giro liberável.</b> Reduzindo os 53 SKUs acima de 180 dias para
+    um nível saudável de 60 dias de cobertura, o distribuidor libera <b>R$ 260.571</b> em
+    capital de giro — R$ 155.430 na linha Rx/OTC genérico e R$ 105.140 na linha VMS.
+    Premissa: reposição futura desses SKUs desacelera para 2 meses de venda média, sem
+    zerar o giro. <b>O ES não tem posição de estoque nesta base</b> — os dados de venda do
+    ES estão presentes (R$ 94,1 mil/mês em média), mas não a posição física, o que sugere
+    operação sem estoque próprio (cross-dock a partir do CD do RJ). Confirmar com o
+    distribuidor antes de estender esta análise ao ES.</p>
+  </div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="matriz">
+  <div class="shead"><span class="snum">13</span><h2>Matriz de oportunidades</h2></div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Oportunidade</th><th class="n">Potencial 12M</th><th>Facilidade</th><th>Impacto</th><th>Prioridade</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="name">Cobertura +10 pp nos 22 SKUs principais</td>
+          <td class="n">R$ 2,78 M</td><td>Alta</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Fechar gap de share em RJ/ES (25 SKUs)</td>
+          <td class="n">R$ 1,04 M</td><td>Média</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Recuperar 30% dos PDVs perdidos em RJ/ES</td>
+          <td class="n">R$ 277 mil</td><td>Alta</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Entrar em Metformina 500mg</td>
+          <td class="n">R$ 168 mil</td><td>Média</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Cadastrar Algy-Flanderil × 500</td>
+          <td class="n">R$ 161 mil</td><td>Alta</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Migrar PDVs de 1 SKU para 3 SKUs</td>
+          <td class="n">R$ 125 mil</td><td>Média</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Resolver causa da queda no ES</td>
+          <td class="n">R$ 197 mil</td><td>Baixa</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-media"></span>Média</span></td>
+        </tr>
+        <tr>
+          <td class="name">Entrar em Biovarixon (mercado de R$ 49 M em RJ/ES)</td>
+          <td class="n">a definir</td><td>Média</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+        <tr>
+          <td class="name">Corrigir preço da Nimesulida 100mg <span style="color:var(--muted)">(indústria)</span></td>
+          <td class="n">a definir</td><td>Baixa</td><td>Baixo</td>
+          <td><span class="pri"><span class="dot d-baixa"></span>Baixa</span></td>
+        </tr>
+        <tr>
+          <td class="name">Desenvolver segmento "Outras Redes"</td>
+          <td class="n">a definir</td><td>Baixa</td><td>Alto</td>
+          <td><span class="pri"><span class="dot d-baixa"></span>Baixa</span></td>
+        </tr>
+        <tr>
+          <td class="name">Liberar capital de giro em estoque parado (RJ)</td>
+          <td class="n">R$ 260,6 mil</td><td>Alta</td><td>Médio</td>
+          <td><span class="pri"><span class="dot d-alta"></span>Alta</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <b>Sobre a soma dos potenciais.</b> As três primeiras linhas se sobrepõem parcialmente —
+    ampliar cobertura e fechar gap de share atacam o mesmo movimento por ângulos diferentes,
+    e parte dos PDVs recuperados aparece nas duas contas. <b>Não somar as colunas.</b>
+    Cenário consolidado conservador, considerando 35% de captura e descontando a sobreposição:
+    <b>R$ 1,2 a 1,6 milhão incrementais em 12 meses</b>. Todas as projeções assumem que o
+    PDV incremental compra como a média atual do SKU — premissa otimista para PDVs pequenos.
+    A linha de capital de giro é <b>independente das demais</b>: não é faturamento incremental,
+    é redução de posição parada no estoque do distribuidor — soma-se sem sobreposição.
+  </div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="plano">
+  <div class="shead"><span class="snum">14</span><h2>Plano de ação</h2></div>
+
+  <div class="plan">
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A1</span><span class="act-t">Dipirona em Todo Lugar</span>
+        <span class="pri"><span class="dot d-alta"></span>30 dias</span></div>
+      <dl>
+        <dt>Produto</dt><dd>Dipirona Monoidratada 1g × 10 — item nº 1 da conta, cobertura de apenas 20,2%</dd>
+        <dt>Alvo</dt><dd><b>1.410 PDVs</b> que compram Fexofenadina suspensão e não compram Dipirona</dd>
+        <dt>Execução</dt><dd>Lista nominal por vendedor. Meta de 12 ativações por vendedor no mês. Bonificação escalonada por faixa de ativação, não por volume.</dd>
+        <dt>Por que</dt><dd>Maior faturamento da conta, dobrou de tamanho no ano, R$ 442 por PDV comprador — o segundo maior da carteira. A base âncora já é atendida: custo de visita zero.</dd>
+        <dt>Meta</dt><dd>+469 PDVs compradores (10 pp de cobertura) = <b>+R$ 207 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>PDVs compradores de Dipirona 1g · ativações por vendedor · cobertura %</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A2</span><span class="act-t">Volta pra Casa</span>
+        <span class="pri"><span class="dot d-alta"></span>45 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd><b>1.254 PDVs</b> que compraram em 2025 e zeraram em 2026 — R$ 784 mil de sell-out perdido</dd>
+        <dt>Priorização</dt><dd>Onda 1: os 733 PDVs do RJ (R$ 469 mil) e os 236 do ES (R$ 68 mil) — praças de casa, rota existente. Onda 2: os 25 maiores da lista (R$ 248 mil) com visita presencial do gerente. <b>Os 285 de SP ficam fora até a resposta da pergunta 01</b> — se a saída foi decisão, esses R$ 247 mil não entram na meta.</dd>
+        <dt>Execução</dt><dd>Antes de ofertar, <b>descobrir o motivo da saída</b> — checklist de 3 perguntas na abordagem. Oferta de retorno com o SKU que o PDV mais comprava em 2025.</dd>
+        <dt>Por que</dt><dd>A base retida cresceu 3,0%. Toda a queda da conta é churn líquido. Recuperar é mais barato que prospectar: o cadastro existe, o histórico existe, a rota existe.</dd>
+        <dt>Meta</dt><dd>Reativar 30% dos 969 PDVs de RJ/ES = <b>+R$ 161 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>PDVs reativados · valor recuperado · motivo de saída mapeado (%)</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A3</span><span class="act-t">Desafio Mix 5</span>
+        <span class="pri"><span class="dot d-alta"></span>60 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd><b>1.962 PDVs</b> que compram 3 SKUs ou menos (42% da base, apenas 9,9% do faturamento)</dd>
+        <dt>Execução</dt><dd>Ranking semanal de vendedores por número de PDVs que subiram de faixa de mix. Kit sugerido de 5 SKUs montado por perfil de PDV. Premiação para os 10 primeiros do ranking mensal.</dd>
+        <dt>Por que</dt><dd>PDV com 10+ SKUs fatura R$ 1.925; com 1 SKU, R$ 105. Mix é a variável que mais explica o valor da conta — 20,2% dos PDVs fazem 57,7% do faturamento.</dd>
+        <dt>Meta</dt><dd>Mix médio de 6,1 para 7,0 SKUs por PDV</dd>
+        <dt>KPI</dt><dd>Mix médio · PDVs que mudaram de faixa · SKUs por pedido</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A4</span><span class="act-t">Caça à Metformina</span>
+        <span class="pri"><span class="dot d-media"></span>60 dias</span></div>
+      <dl>
+        <dt>Produto</dt><dd>Cloridrato de Metformina 500mg — 0,7% de share num mercado de R$ 509 mil em RJ/ES</dd>
+        <dt>Execução</dt><dd>Primeiro validar: o item está cadastrado e disponível? Se sim, campanha focada em PDVs que já compram Anlodipino e Enalapril — mesmo perfil de paciente crônico.</dd>
+        <dt>Por que</dt><dd>Maior lacuna isolada da conta. Antidiabético de uso contínuo: giro previsível e recompra mensal. O EMEFARMA vale 19,9% nessa praça e entrega 0,7% aqui.</dd>
+        <dt>Meta</dt><dd>Share de 0,7% para 10% = <b>+R$ 47 mil em 7 meses</b></dd>
+        <dt>KPI</dt><dd>Share do SKU em RJ/ES · PDVs compradores · unidades</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A5</span><span class="act-t">Combo Alergia</span>
+        <span class="pri"><span class="dot d-media"></span>30 dias</span></div>
+      <dl>
+        <dt>Produtos</dt><dd>Fexofenadina suspensão (âncora, 1.870 PDVs) + Loratadina 10mg + Lorasliv 10mg</dd>
+        <dt>Execução</dt><dd>Combo de venda casada com argumentação de sortimento por faixa etária: suspensão pediátrica, comprimido adulto, marca e genérico lado a lado na gôndola.</dd>
+        <dt>Por que</dt><dd>Loratadina cresceu 83% e cobre só 22,7%. Lorasliv caiu 15% e cobre 25,6%. A âncora já está em 40% da base — o maior alcance da carteira.</dd>
+        <dt>Meta</dt><dd>Cobertura de Loratadina de 22,7% para 32%</dd>
+        <dt>KPI</dt><dd>PDVs com 2+ itens da linha alergia · cobertura por SKU</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A6</span><span class="act-t">Abrir o Biovarixon</span>
+        <span class="pri"><span class="dot d-alta"></span>90 dias</span></div>
+      <dl>
+        <dt>Produto</dt><dd>Biovarixon 900+100mg × 3×10 e 450+50mg × 60 — venotônico (diosmina + hesperidina)</dd>
+        <dt>Situação</dt><dd>Mercado de <b>R$ 49 milhões</b> em RJ/ES no semestre, com a Vitamedic em 0,8% e 1,5%. Atenção ao preço: na × 3×10 a Vitamedic está <b>24% acima</b> do líder Teuto; na × 60 está 6% abaixo da Neo Química.</dd>
+        <dt>Atualização (estoque 20/08)</dt><dd><b>O produto já está no CD do RJ — R$ 31.451 parados entre as duas apresentações, 309 e 315 dias de cobertura.</b> Isso derruba a hipótese original de "não chegou à gôndola". Redirecionar a execução: antes de mais cadastro, verificar exposição no PDV e revisar a apresentação × 3×10, onde o preço 24% acima do líder é o suspeito mais provável.</dd>
+        <dt>Execução</dt><dd>Visita presencial aos PDVs que já compram os crônicos da conta (Anlodipino, Enalapril, Clortalidona) — mesmo perfil de paciente — com checagem de gôndola e argumentação de venda. Reavaliar preço da × 3×10 junto ao distribuidor antes de investir em mais campanha.</dd>
+        <dt>Por que</dt><dd>Maior desproporção entre competitividade e presença de todo o portfólio. Com estoque parado há 10 meses, o gargalo não é mais disponibilidade — é execução no PDV ou preço.</dd>
+        <dt>Meta</dt><dd>Share Vitamedic de 0,8% para 3% na apresentação × 3×10 em RJ/ES</dd>
+        <dt>KPI</dt><dd>Share IQVIA da molécula · PDVs compradores · unidades no sell-out</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A7</span><span class="act-t">Operação Nova Iguaçu</span>
+        <span class="pri"><span class="dot d-media"></span>30 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd>Rota de Nova Iguaçu (RJ) — 3 dos 25 maiores PDVs perdidos estão na cidade</dd>
+        <dt>Execução</dt><dd>Diagnóstico de rota com o gerente comercial do distribuidor: houve troca de vendedor, mudança de frequência de visita ou entrada de concorrente na região?</dd>
+        <dt>Por que</dt><dd>Concentração de perdas grandes numa mesma cidade raramente é coincidência de mercado — normalmente é execução.</dd>
+        <dt>Meta</dt><dd>Causa identificada e plano de rota redefinido</dd>
+        <dt>KPI</dt><dd>PDVs ativos na cidade · frequência de visita · valor da praça</dd>
+      </dl>
+    </div>
+
+    <div class="act">
+      <div class="act-h"><span class="act-n">A8</span><span class="act-t">Giro do Estoque Parado</span>
+        <span class="pri"><span class="dot d-alta"></span>30 dias</span></div>
+      <dl>
+        <dt>Alvo</dt><dd><b>53 SKUs do RJ</b> com mais de 180 dias de cobertura, R$ 318.879 a custo — 89% do excesso concentrado na linha VMS/suplemento (Forday, Energrip C, Suavebaby) já é zumbi puro (&gt; 365 dias)</dd>
+        <dt>Execução</dt><dd>Onda 1 (16 SKUs zumbis VMS, R$ 106,5 mil): ação de giro — desconto, kit promocional na linha ou troca/devolução negociada com a indústria. Onda 2 (Rx/OTC genérico, R$ 155,4 mil de capital liberável): reduzir pedido futuro desses SKUs para 2 meses de cobertura até normalizar. Suspender reposição automática da linha VMS até zerar o zumbi.</dd>
+        <dt>Por que</dt><dd>Capital parado é o oposto do que este plano busca nas outras frentes — enquanto A1-A7 buscam faturamento incremental, aqui o ganho é liberar caixa do distribuidor sem depender de venda nova. Fortalece a relação: EMEFARMA libera giro para investir nos SKUs que o plano recomenda expandir.</dd>
+        <dt>Meta</dt><dd>Reduzir os 53 SKUs para cobertura saudável de 60 dias = <b>R$ 260.571 de capital de giro liberado</b></dd>
+        <dt>KPI</dt><dd>Valor em estoque acima de 180 dias · nº de SKUs zumbis · giro médio da linha VMS</dd>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="perguntas">
+  <div class="shead"><span class="snum">15</span><h2>Perguntas para a reunião</h2></div>
+
+  <p>Apenas as que podem mudar a estratégia. Cada uma tem um valor associado.</p>
+
+  <ol class="qs">
+    <li><span class="q">01</span><div>
+      A saída de São Paulo foi decisão estratégica de concentrar em RJ/ES, ou perda de competitividade na praça?
+      <span class="why">É a pergunta que define o ano. SP tirou R$ 302 mil e responde por toda a queda da conta. Se foi decisão, a meta se recalcula sobre uma base que cresceu 6,2% e os R$ 247 mil de PDVs paulistas saem do plano de recuperação.</span>
+    </div></li>
+    <li><span class="q">02</span><div>
+      O Biovarixon está parado no CD do RJ há mais de 300 dias — é execução no PDV (exposição, argumentação) ou o preço 24% acima do líder na × 3×10?
+      <span class="why">A base de estoque de 20/08 já derrubou a hipótese de falta de cadastro: R$ 31,4 mil estão parados nas duas apresentações. Maior oportunidade isolada de portfólio, mas o investimento certo depende dessa resposta — visita de execução ou renegociação de preço são ações diferentes.</span>
+    </div></li>
+    <li><span class="q">03</span><div>
+      Metformina 500mg e Algy-Flanderil × 500 estão cadastrados e disponíveis para venda?
+      <span class="why">Share de 0,7% e 0,0% em mercados de R$ 509 mil e R$ 343 mil. Se é falta de cadastro, a solução é administrativa e imediata.</span>
+    </div></li>
+    <li><span class="q">04</span><div>
+      Quantos vendedores atendem a carteira, e é possível receber o sell-out com identificação de vendedor?
+      <span class="why">A base atual não traz vendedor. Sem isso não há ranking, campanha de incentivo nem benchmark interno — que é o motor de metade deste plano.</span>
+    </div></li>
+    <li><span class="q">05</span><div>
+      Vocês conseguem enviar a classificação de rede/grupo dos PDVs?
+      <span class="why">97,7% do faturamento está em PDVs sem grupo identificado, e é justamente em rede que o valor por PDV é maior.</span>
+    </div></li>
+    <li><span class="q">06</span><div>
+      Houve mudança de política comercial, de rota ou de equipe entre o 2º semestre de 2025 e 2026?
+      <span class="why">O ponto de inflexão está claro nos dados (pico em jun/25, queda a partir de nov/25). A causa não está.</span>
+    </div></li>
+    <li><span class="q">07</span><div>
+      O ES realmente opera sem estoque próprio, recebendo por transferência do CD do RJ?
+      <span class="why">A base de estoque de 20/08 não trouxe posição física para o ES — só o RJ. Se for cross-dock, a análise de giro se aplica à operação como um todo; se for lacuna do relatório, vale pedir o corte por filial na próxima extração.</span>
+    </div></li>
+  </ol>
+</section>
+
+<!-- ============ 16 ============ -->
+<section id="limites">
+  <div class="shead"><span class="snum">16</span><h2>O que esta base não permite afirmar</h2></div>
+
+  <div class="note">
+    <p style="margin:0 0 12px"><b>Ausente da base — e necessário para aprofundar:</b></p>
+    <ul style="margin:0; padding-left:20px; max-width:none">
+      <li><b>Vendedor.</b> Não há identificação de vendedor no sell-out. Toda a análise de performance individual, ranking e benchmark interno depende desse campo.</li>
+      <li><b>Estoque do ES.</b> A base de estoque de 20/08/2026 trouxe posição física apenas do RJ — resolve a lacuna para essa filial, mas o ES segue sem visibilidade de estoque, o que ainda impede separar problema de demanda de problema de ruptura por lá.</li>
+      <li><b>Margem.</b> Toda análise de rentabilidade está limitada. As recomendações de mix priorizam faturamento, não contribuição. O estoque também está a custo de reposição, não a preço de venda.</li>
+      <li><b>Vendedor do distribuidor na base IQVIA.</b> A base de mercado mostra a indústria no varejo, sem identificar qual distribuidor entregou. Não é possível medir a contribuição do EMEFARMA para o share Vitamedic de cada molécula — só inferir onde há espaço.</li>
+      <li><b>Elos diferentes da cadeia.</b> O preço do sell-out é do distribuidor para o PDV; o do IQVIA é do PDV para o consumidor. As duas análises de preço são válidas isoladamente e não devem ser comparadas entre si.</li>
+    </ul>
+    <p style="margin:14px 0 0">
+      As projeções de potencial assumem que o PDV incremental compra como a média atual do SKU.
+      É premissa otimista para PDVs pequenos e conservadora para os grandes.
+      Nenhum número deste relatório foi estimado: vêm da base de sell-out de 14/08/2026
+      (6.802.108 registros), da base IQVIA Mercado Relevante (134.611 registros,
+      24 meses até jun/2026) e da posição de estoque do EMEFARMA de 20/08/2026 (371 linhas,
+      223 SKUs com posição física no RJ).
+    </p>
+  </div>
+</section>
+
+<section id="jbp">
+  <div class="shead"><span class="snum">17</span><h2>Adendo — o plano de ações já em execução faz sentido?</h2></div>
+
+  <p>O EMEFARMA está executando um plano de trade marketing aprovado (JBP 2026, Vitamedic
+  Trade Marketing), com <b>R$ 41.073</b> de investimento previsto em quatro frentes.
+  Cruzamos as 22 SKUs do plano com a posição de estoque de 20/08 (seção 12) para checar
+  se o desenho bate com o comportamento real do distribuidor.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Ação</th><th class="n">Investimento</th><th>Mecânica</th></tr></thead>
+      <tbody>
+        <tr><td>Aniversário (banner/carrossel)</td><td class="n">10.000</td><td>Sazonal, sem SKU associado</td></tr>
+        <tr><td>Produtos estratégicos — rebaixa</td><td class="n">18.817</td><td>12 SKUs, 40% do estoque disponível, DDE médio 110 dias</td></tr>
+        <tr><td>Forday — 40% estoque</td><td class="n">8.756</td><td>10 SKUs, "leve 8 pague 6", DDE crítico de 818 dias</td></tr>
+        <tr><td>Campanha time de vendas</td><td class="n">3.500</td><td>Volume — mínimo 10 SKUs/PDV positivado</td></tr>
+        <tr><td><b>Total</b></td><td class="n"><b>41.073</b></td><td>Meta: R$ 233 mil → R$ 655 mil (ROI 9%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>As duas ações de giro estão funcionando.</b> Comparando o baseline do plano com a
+    posição de 20/08: os 12 SKUs da rebaixa caíram de 110,3 para <b>102,9 dias</b> de
+    cobertura (R$ 456.846 → R$ 451.043 em estoque); os 10 SKUs do Forday caíram de 818
+    para <b>765 dias</b>. Direção correta nos dois casos — o Forday segue crítico, mas
+    a tendência é de queda, não de acúmulo.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>A segmentação em dois níveis é a escolha certa e não contradiz o achado sobre preço
+    (seções 09-10).</b> A rebaixa mira SKUs de giro rápido com excesso moderado — mecânica
+    preventiva. O Forday mira uma linha crônica — mecânica de limpeza. Nos dois casos a
+    alavanca é <i>giro de estoque do distribuidor</i>, não posicionamento competitivo:
+    não há conflito com a conclusão de que preço explica pouco da performance do EMEFARMA.</p>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>O plano foi desenhado com um corte de estoque anterior a 20/08.</b> Os valores batem
+    com folga de 1 a 7% na maioria dos SKUs, mas alguns (Anlodipino, Loratadina, Ivermectina)
+    mostram variação de 10 a 20 pontos percentuais — esperado para um documento de
+    planejamento que não é atualizado em tempo real. Não invalida o plano, mas justifica
+    revisar o universo de SKUs antes de fechar o próximo ciclo.</p>
+  </div>
+
+  <p>Três posições relevantes de estoque (já cobertas na seção 12) ficaram fora das quatro
+  frentes do plano:</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>SKU</th><th class="n">Estoque</th><th class="n">Cobertura</th><th>Por que importa</th></tr></thead>
+      <tbody>
+        <tr><td>Enalapril 10mg × 30</td><td class="n">72.775</td><td class="n">218 d</td><td>maior posição parada de toda a base — quase o dobro do maior SKU já coberto pela rebaixa</td></tr>
+        <tr><td>Paracetamol 750mg × 20</td><td class="n">20.392</td><td class="n">891 d</td><td>ainda vende (891/mês) — perfil ideal para rebaixa, não para bonificação</td></tr>
+        <tr><td>Energrip C Pop Kd (2 SKUs)</td><td class="n">27.847</td><td class="n">3.195–7.920 d</td><td>lançamento sem histórico — cobertura extrema é ausência de giro inicial, não estoque morto; ver seção 18</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Propor uma <b>quinta frente</b> ou expandir a rebaixa atual incluindo Enalapril 10mg e
+    Paracetamol 750mg — os dois têm giro comprovado, diferente do Forday, e a mesma mecânica
+    de 40% sobre o estoque disponível já negociada resolveria R$ 93 mil adicionais em estoque
+    parado sem abrir uma nova frente de negociação. O Enalapril 10mg pede atenção maior:
+    vendeu R$ 12,2 mil e R$ 10,7 mil nos dois meses anteriores e caiu a R$ 0 no último mês
+    fechado — vale confirmar com o distribuidor se é sazonalidade ou ruptura de pedido antes
+    de tratar só como excesso de estoque. <b>Correção:</b> Energrip C Pop Kd não é candidato
+    a devolução ou baixa — é lançamento sem histórico de venda, e a cobertura de 3 a 8 mil
+    dias reflete giro ainda não ativado, não declínio. Ver plano de ativação e proposta de
+    abastecimento da linha na seção 18.</p>
+  </div>
+
+  <div class="note">
+    <p><b>Fonte:</b> Consolidado — Campanhas Emefarma (JBP 2026), Vitamedic Trade Marketing.
+    Cruzamento contra a posição de estoque de 20/08/2026 (seção 12). Valores de venda mensal
+    por SKU são médias móveis de 4 meses fechados, salvo indicação contrária.</p>
+  </div>
+</section>
+
+<section id="abastecimento">
+  <div class="shead"><span class="snum">18</span><h2>Proposta de abastecimento — R$ 450 mil e ativação do Energrip C Pop Kd</h2></div>
+
+  <p>Modelo de compra para a linha Vitamedic cadastrada no EMEFARMA (RJ), detalhado
+  SKU a SKU na planilha <b>Proposta_Abastecimento_EMEFARMA.xlsx</b> (130 SKUs, fórmulas
+  vivas, premissas editáveis). Resumo do racional abaixo.</p>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>O aporte não pode ser alocado inteiro no giro atual sem criar excesso novo.</b>
+    A necessidade natural de repor os SKUs saudáveis/atenção até um DDE-alvo de 120 dias
+    é de apenas R$ 290 mil. Por isso o modelo usa um universo mais largo — todo SKU com
+    cobertura abaixo de 180 dias — e um teto de 20% de concentração por SKU, para os
+    R$ 450 mil renderem reposição real em 57 SKUs sem empurrar nenhum para a faixa
+    Crítico. Nenhum SKU em Crítico ou Zumbi recebe compra nesta proposta.</p>
+  </div>
+
+  <div class="claim fato">
+    <p><span class="tag t-fato">Fato</span>
+    <b>DIPIRONA 1G 10CPD está a 0,02 dia de cobertura</b> — 59 unidades em estoque para
+    um giro de ~16.800 un/mês, o maior sell-out da carteira. É a prioridade de reposição
+    de urgência da proposta: R$ 90 mil (teto de 20%), suficiente para reconstruir ~49 dias
+    de cobertura. Sem essa reposição, é o SKU com maior risco de ruptura de toda a base.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Bloco</th><th class="n">Valor</th><th>O que é</th></tr></thead>
+      <tbody>
+        <tr><td>Reposição de giro (57 SKUs)</td><td class="n">450.000</td><td>DDE-alvo 120 dias, teto de 20% por SKU — detalhe na aba Proposta_SKU</td></tr>
+        <tr><td>Energrip C Pop Kd</td><td class="n">0</td><td>sem compra adicional — 741 un (R$ 27.847) já em estoque são suficientes para lançar; ver abaixo</td></tr>
+        <tr><td><b>Total do aporte</b></td><td class="n"><b>450.000</b></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim hip">
+    <p><span class="tag t-hip">Hipótese</span>
+    <b>O Energrip C Pop Kd não precisa de mais estoque — precisa de ativação.</b> Com
+    741 unidades já compradas e giro de apenas 3–7 un/mês, o distribuidor tem estoque
+    para meses mesmo num cenário de rampa de vendas. Comprar mais agora, sem venda
+    provada, repetiria o erro que gerou o excesso de outros SKUs da linha VMS (seção 12).
+    O investimento certo aqui é demanda, não mercadoria.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Ação de ativação — Pop Kd</th><th class="n">Investimento</th><th>Base de cálculo</th></tr></thead>
+      <tbody>
+        <tr><td>Degustação/amostragem em PDVs prioritários</td><td class="n">9.175</td><td>367 PDVs (20% dos 1.834 ativos no RJ) × R$ 25</td></tr>
+        <tr><td>Material de exposição (display/wobbler)</td><td class="n">6.606</td><td>367 PDVs × R$ 18</td></tr>
+        <tr><td>Incentivo à força de vendas (90 dias)</td><td class="n">5.000</td><td>estimativa fixa</td></tr>
+        <tr><td>Treinamento/briefing da equipe do distribuidor</td><td class="n">2.000</td><td>estimativa fixa</td></tr>
+        <tr><td><b>Total ativação Pop Kd</b></td><td class="n"><b>22.781</b></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="claim rec">
+    <p><span class="tag t-rec">Recomendação</span>
+    Checkpoint em 90 dias: se a linha não atingir ao menos 60 un/mês combinadas (~4× o
+    giro atual), reavaliar sortimento por PDV antes de qualquer nova compra — não repetir
+    o aporte automaticamente. Se atingir, entra no próximo ciclo pelo mesmo modelo de
+    DDE-alvo usado no restante da linha.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Investimento complementar (deixa o cliente confortável com o aporte)</th><th class="n">Valor</th><th>Tipo</th></tr></thead>
+      <tbody>
+        <tr><td>Campanha de giro pós-reforço (protege os R$ 450 mil comprados)</td><td class="n">22.500</td><td>ativo — 5% do aporte</td></tr>
+        <tr><td>Ativação Energrip C Pop Kd</td><td class="n">22.781</td><td>ativo — detalhe acima</td></tr>
+        <tr><td>Reserva de contingência (giro garantido)</td><td class="n">22.500</td><td>provisão — 5%, não é desembolso garantido</td></tr>
+        <tr><td><b>Total provisionado</b></td><td class="n"><b>67.781</b></td><td>15,1% do aporte de R$ 450 mil</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <p><b>Fonte:</b> base de estoque EMEFARMA de 20/08/2026 (Custo Rep, Estoque Total Un,
+    Cobertura, Média Venda Un — mesma metodologia da seção 12) e contagem de PDVs ativos
+    do sell-out Vitamedic (14/08/2026, últimos 12 meses fechados). Planilha completa com
+    fórmulas editáveis: <b>Proposta_Abastecimento_EMEFARMA.xlsx</b>, abas Resumo,
+    Proposta_SKU, Energrip_PopKd e Acoes_Investimento.</p>
+  </div>
+</section>
+
+<footer>
+  Dossiê gerado a partir de três bases: sell-out Vitamedic (14/08/2026), recorte EMEFARMA
+  RJ + ES, período jan/2025 a jul/2026 — comparações YoY em janela fechada de janeiro a julho,
+  valores do distribuidor para o PDV; IQVIA Mercado Relevante (24 meses até jun/2026),
+  recorte RJ + ES, comparações YTD de janeiro a junho, valores de varejo ao consumidor;
+  e posição de estoque do EMEFARMA em 20/08/2026, valores a custo de reposição, filial RJ.
+</footer>
+
+</div>
