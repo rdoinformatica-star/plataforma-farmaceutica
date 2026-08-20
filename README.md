@@ -262,7 +262,9 @@ salva no navegador. O botão some na impressão e no PDF.
 - [x] Dossiês EMEFARMA e MILLENIUM
 - [x] **Etapa 1 — Pharma Intelligence:** arquitetura, banco, importação das 3
       fontes com detecção automática, perfil do dado, cadastro de clientes
-- [ ] Etapa 2 — vendas, produtos, PDVs, indicadores, gráficos
+- [x] **Etapa 2 — Motor de performance comercial:** dashboard por cliente e
+      período (resumo, YoY/MoM, evolução mensal, ranking e variação de
+      produto, UF, PDV, concentração, alertas), tudo calculado localmente
 - [ ] Etapa 3 — curva ABC, cobertura, mix, estoque, DDE, capital parado
 - [ ] Etapa 4 — mercado, IQVIA, share, preço, regiões
 - [ ] Etapa 5 — anomalias, oportunidades, simulador, matriz
