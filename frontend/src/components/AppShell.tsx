@@ -6,6 +6,7 @@ import {
   History,
   LayoutDashboard,
   Link2,
+  LineChart,
   Monitor,
   Moon,
   PanelLeft,
@@ -16,13 +17,16 @@ import {
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
-import { api, type Estatisticas } from '../lib/api'
+import { api, type Cliente, type Estatisticas } from '../lib/api'
 import { useEstado } from '../lib/estado'
 
 const NAV = [
   {
     grupo: 'Painel',
-    itens: [{ para: '/', rotulo: 'Visão geral', Icone: LayoutDashboard, fim: true }],
+    itens: [
+      { para: '/', rotulo: 'Visão geral', Icone: LayoutDashboard, fim: true },
+      { para: '/dashboard', rotulo: 'Desempenho', Icone: LineChart },
+    ],
   },
   {
     grupo: 'Dados',
@@ -49,6 +53,7 @@ const NAV = [
 
 const TITULOS: Record<string, string> = {
   '/': 'Visão geral',
+  '/dashboard': 'Desempenho',
   '/importar': 'Importar dados',
   '/importacoes': 'Importações',
   '/campos': 'Campos novos',
@@ -76,6 +81,28 @@ function BotaoTema() {
   )
 }
 
+function SeletorClienteTopbar() {
+  const { clienteAtual, setClienteAtual } = useEstado()
+  const { data: clientes } = useQuery({
+    queryKey: ['clientes', 'ativos'],
+    queryFn: () => api.get<Cliente[]>('/clientes?ativo=true'),
+  })
+  if (!clientes?.length) return null
+  return (
+    <select
+      value={clienteAtual ?? ''}
+      onChange={(e) => setClienteAtual(e.target.value ? Number(e.target.value) : null)}
+      style={{ width: 180 }}
+      aria-label="Cliente selecionado"
+    >
+      <option value="">Selecionar cliente...</option>
+      {clientes.map((c) => (
+        <option key={c.id} value={c.id}>{c.nome}</option>
+      ))}
+    </select>
+  )
+}
+
 export function AppShell() {
   const { sidebarRecolhida, alternarSidebar } = useEstado()
   const local = useLocation()
@@ -99,7 +126,7 @@ export function AppShell() {
               Pharma
               <br />
               Intelligence
-              <small>Etapa 1</small>
+              <small>Etapa 2</small>
             </div>
           )}
         </div>
@@ -146,6 +173,7 @@ export function AppShell() {
           </button>
           <span className="titulo">{titulo}</span>
           <span className="espaco" />
+          <SeletorClienteTopbar />
           <BotaoTema />
         </header>
         <main className="conteudo">

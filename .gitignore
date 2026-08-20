@@ -6,6 +6,7 @@ node_modules/
 .env.local
 dist/
 build/
+*.tsbuildinfo
 
 # ambiente e artefatos gerados
 backend/.venv/

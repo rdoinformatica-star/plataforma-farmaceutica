@@ -75,6 +75,10 @@ def criar(dados: ClienteEntrada):
         cid = cur.lastrowid
         audit.registrar(con, "CLIENTE_CRIADO", f"Cliente '{dados.nome}' cadastrado.",
                         "clients", cid)
+        # Se o sell-out ja foi importado antes deste cliente existir, liga
+        # agora aos distribuidores da base cujo nome corresponde.
+        from analytics.vinculo import resolver_vinculos
+        resolver_vinculos(con, client_id=cid)
         return db.uma(con, _SELECT + " WHERE c.id = ?", (cid,))
 
 
@@ -124,6 +128,11 @@ def atualizar(cid: int, dados: ClienteAtualizacao):
         audit.registrar(con, "CLIENTE_ATUALIZADO",
                         f"Cliente '{atual['nome']}' atualizado.", "clients", cid,
                         {"campos": list(campos)})
+        if "nome" in campos:
+            # O nome mudou: pode passar a corresponder a distribuidores que
+            # antes nao casavam. Nunca desfaz um vinculo ja feito.
+            from analytics.vinculo import resolver_vinculos
+            resolver_vinculos(con, client_id=cid)
         return db.uma(con, _SELECT + " WHERE c.id = ?", (cid,))
 
 

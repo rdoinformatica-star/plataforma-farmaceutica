@@ -150,12 +150,17 @@ def abrir(path: Path, params: dict, prog) -> Lote:
         p.etapa("Gravando o estoque", 0.75)
         con.execute("BEGIN")
         ids = upsert_produtos_texto(con, nomes, eans, import_id)
-        campos = ["import_id", "filial", "produto_id", "data_ref", "extras_json"] \
-            + list(numericos)
+        # Ao contrario do sell-out (arquivo nacional), o export de estoque ja
+        # e de um distribuidor especifico: o cliente escolhido no wizard para
+        # esta importacao e o dono direto das linhas.
+        client_id = con.execute(
+            "SELECT client_id FROM imports WHERE id = ?", (import_id,)).fetchone()[0]
+        campos = ["import_id", "client_id", "filial", "produto_id", "data_ref",
+                  "extras_json"] + list(numericos)
         sql = (f"INSERT INTO fact_inventory({', '.join(campos)}) "
                f"VALUES ({', '.join('?' * len(campos))})")
         linhas = [
-            [import_id, filiais[i], ids[i], data_ref,
+            [import_id, client_id, filiais[i], ids[i], data_ref,
              json.dumps(extras[i], ensure_ascii=False) if extras[i] else None]
             + [numericos[c][i] for c in numericos]
             for i in range(len(limpo))

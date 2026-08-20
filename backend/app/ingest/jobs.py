@@ -215,6 +215,18 @@ def _rodar(import_id: int, prog: Progresso) -> None:
                 from .loader import materializar_resumo_mensal
                 materializar_resumo_mensal(con, import_id, prog)
 
+                # So o sell-out traz distribuidores novos (arquivo nacional);
+                # depois de carregar, liga os que correspondem a algum cliente
+                # ja cadastrado. Idempotente — nunca desfaz um vinculo existente.
+                from analytics.vinculo import resolver_vinculos
+                prog.etapa("Ligando clientes aos distribuidores da base", 0.985)
+                resultado = resolver_vinculos(con)
+                if resultado["n_total"]:
+                    prog.log(
+                        f"{resultado['n_total']} distribuidor(es) ligado(s) a "
+                        f"cliente(s) cadastrado(s): "
+                        f"{', '.join(resultado['vinculados'])}.")
+
             db.encerrar_carga(con)
         finally:
             con.close()

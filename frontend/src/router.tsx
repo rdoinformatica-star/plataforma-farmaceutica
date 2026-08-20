@@ -5,6 +5,7 @@ import { Auditoria } from './pages/Auditoria'
 import { CamposNovos } from './pages/CamposNovos'
 import { Clientes } from './pages/Clientes'
 import { Config } from './pages/Config'
+import { Dashboard } from './pages/Dashboard'
 import { Dimensoes } from './pages/Dimensoes'
 import { Importacoes } from './pages/Importacoes'
 import { Importar } from './pages/Importar'
@@ -19,6 +20,7 @@ export const rotas = createBrowserRouter([
     element: <AppShell />,
     children: [
       { index: true, element: <VisaoGeral /> },
+      { path: 'dashboard', element: <Dashboard /> },
       { path: 'importar', element: <Importar /> },
       { path: 'importacoes', element: <Importacoes /> },
       { path: 'importacoes/:id', element: <ProgressoImport /> },

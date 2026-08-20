@@ -68,10 +68,10 @@ async def _erro_inesperado(request: Request, exc: Exception):
 
 
 from .routers import (  # noqa: E402
-    arquivos, auditoria, clientes, colunas, dimensoes, fontes,
+    analytics, arquivos, auditoria, clientes, colunas, dimensoes, fontes,
     health, importacoes, mapeamentos,
 )
 
 for _r in (health, clientes, fontes, arquivos, importacoes, colunas,
-           mapeamentos, dimensoes, auditoria):
+           mapeamentos, dimensoes, auditoria, analytics):
     app.include_router(_r.router, prefix="/api")
