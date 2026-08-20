@@ -1,16 +1,72 @@
-# Agente Farmacêutico
+# Pharma Intelligence
 
-Análise comercial estratégica de distribuidores farmacêuticos, na ótica de um
-Gerente de Contas — não de um dashboard de BI.
+Motor de inteligência comercial farmacêutica: BI local para análise de
+distribuidores, produtos, PDVs, vendas, estoque e mercado — na ótica de um
+Gerente de Contas, não de um dashboard genérico.
 
 O objetivo não é descrever números. É responder: **onde estamos perdendo venda,
 o que priorizar, quem mobilizar e o que executar amanhã com o distribuidor.**
+
+Cópia isolada do motor original em `Agente Farmacêutico` (que continua rodando
+sem alteração, na Desktop). Aqui ele vira aplicação web: banco, importação de
+múltiplas fontes com detecção automática, perfil do dado e (nas próximas
+etapas) as análises comerciais completas. Todo cálculo quantitativo é local —
+sem custo obrigatório de API de IA.
 
 Contexto: indústria **VITAMEDIC**. Primeiro cliente analisado: **EMEFARMA (RJ + ES)**.
 
 ---
 
-## Como rodar
+## Como rodar a plataforma web
+
+Windows, um usuário, tudo local — sem custo de nuvem.
+
+```bash
+instalar.bat   REM uma vez: cria o ambiente Python e instala o frontend
+iniciar.bat    REM dia a dia: sobe a API (8000), a interface (3000) e abre o navegador
+parar.bat      REM desliga os dois
+```
+
+`dev.bat` sobe a API com `--reload`, só para desenvolvimento — nunca use durante
+uma importação longa, porque qualquer alteração de código derruba o processo no
+meio.
+
+Verificação de ponta a ponta (backend + banco + os 3 arquivos reais):
+
+```bash
+backend\.venv\Scripts\python.exe backend\testar_etapa1.py --completo
+```
+
+### Estrutura da aplicação
+
+```
+backend/       FastAPI — routers/, ingest/ (adaptadores + perfilador), core/
+frontend/      React + TypeScript + Vite
+database/      schema.sql, seed.sql, pharma.db (gerado, fora do git)
+imports/       arquivos importados, organizados por sha256 (fora do git)
+analytics/     reservado para as análises comerciais (Etapa 2+)
+reports/       reservado para relatório executivo (Etapa 6+)
+prompts/       reservado para o gerador de prompt / respostas do Claude (Etapa 5+)
+```
+
+---
+
+## O motor original (`engine/`)
+
+Os scripts abaixo continuam funcionando exatamente como antes — a plataforma
+web reusa `vmd.py` e `iqvia.py` sem alterar uma linha, e `analise.py` serve de
+oráculo de conferência para a importação (os totais têm que bater ao centavo).
+
+### Estrutura
+
+```
+dados/       exports originais dos dashboards (entrada)
+engine/      motor de leitura + scripts de análise
+cache/       derivados descompactados (regenerável, fora do git)
+relatorios/  dossiês entregues
+```
+
+### Como rodar pelo terminal
 
 Requisitos: Python 3.12 e `numpy`.
 
@@ -25,18 +81,8 @@ cd engine && "C:\Users\Home\AppData\Local\Programs\Python\Python312\python.exe" 
 ```
 
 Na primeira execução o motor descompacta as bases para `cache/` (leva ~1 min e
-gera ~122 MB). As execuções seguintes leem do cache.
-
----
-
-## Estrutura
-
-```
-dados/       exports originais dos dashboards (entrada)
-engine/      motor de leitura + scripts de análise
-cache/       derivados descompactados (regenerável, fora do git)
-relatorios/  dossiês entregues
-```
+gera ~122 MB). As execuções seguintes leem do cache — inclusive as da
+plataforma web, que compartilha o mesmo `cache/pack.bin`.
 
 ### Motor
 
@@ -211,7 +257,14 @@ salva no navegador. O botão some na impressão e no PDF.
 
 ## Estado atual
 
-- [x] Motor de leitura das duas bases
+- [x] Motor de leitura das duas bases (`engine/`, terminal)
 - [x] Análise parametrizada por distribuidor (`analise.py NOME`)
 - [x] Dossiês EMEFARMA e MILLENIUM
-- [ ] Aplicação web com upload de Excel e HTML
+- [x] **Etapa 1 — Pharma Intelligence:** arquitetura, banco, importação das 3
+      fontes com detecção automática, perfil do dado, cadastro de clientes
+- [ ] Etapa 2 — vendas, produtos, PDVs, indicadores, gráficos
+- [ ] Etapa 3 — curva ABC, cobertura, mix, estoque, DDE, capital parado
+- [ ] Etapa 4 — mercado, IQVIA, share, preço, regiões
+- [ ] Etapa 5 — anomalias, oportunidades, simulador, matriz
+- [ ] Etapa 6 — agente, FATO/HIPÓTESE/RECOMENDAÇÃO, limitações, gerador de prompt
+- [ ] Etapa 7 — relatório executivo, histórico, refinamento visual
