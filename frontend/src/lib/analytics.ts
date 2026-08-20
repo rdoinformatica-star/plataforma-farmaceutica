@@ -165,6 +165,199 @@ export interface Alerta {
 
 export type Alertas = Indisponivel | { disponivel: true; itens: Alerta[]; n_total: number; calculo: Calculo }
 
+/* ─────────────────────────── Etapa 3 ─────────────────────────── */
+
+export interface ItemABC extends ItemProduto {
+  classe_abc: 'A' | 'B' | 'C'
+  participacao_acumulada_pct: number
+  pdvs_compradores?: number
+  cobertura_pct?: number | null
+}
+
+export interface FaixaResumoABC {
+  n_produtos: number
+  pct_produtos: number
+  faturamento: number
+  pct_faturamento: number
+}
+
+export type CurvaABC =
+  | Indisponivel
+  | {
+      disponivel: true
+      n_total_produtos: number
+      faturamento_total: number
+      limite_a: number
+      limite_b: number
+      uf: string | null
+      resumo: { A: FaixaResumoABC; B: FaixaResumoABC; C: FaixaResumoABC }
+      itens: ItemABC[]
+      calculo: Calculo
+    }
+
+export interface ItemMatrizABC {
+  produto_id: number
+  produto: string
+  faturamento_atual: number
+  variacao_pct: number | null
+}
+
+export type FaixaCrescimento = 'CRESCENDO' | 'ESTAVEL' | 'CAINDO' | 'NOVO' | 'SEM_HISTORICO'
+
+export type ABCCrescimento =
+  | Indisponivel
+  | {
+      disponivel: true
+      comparacao_valida: boolean
+      contagem: Record<'A' | 'B' | 'C', Record<FaixaCrescimento, number>>
+      matriz: Record<'A' | 'B' | 'C', Record<FaixaCrescimento, ItemMatrizABC[]>>
+      calculo: Calculo
+    }
+
+export interface ItemCobertura extends ItemProduto {
+  pdvs_compradores: number
+  pdvs_base: number
+  cobertura_pct: number
+}
+
+export type Cobertura =
+  | Indisponivel
+  | {
+      disponivel: true
+      pdvs_base: number
+      uf: string | null
+      total: number
+      itens: ItemCobertura[]
+      calculo: Calculo
+    }
+
+export interface ItemMatrizCobertura extends ItemCobertura {
+  quadrante: 'PRIORITARIO' | 'CONSOLIDADO' | 'INVESTIGAR_PRODUTIVIDADE' | 'BAIXA_PRIORIDADE'
+}
+
+export type MatrizCobertura =
+  | Indisponivel
+  | {
+      disponivel: true
+      itens: ItemMatrizCobertura[]
+      resumo: Record<string, number>
+      mediana_faturamento: number
+      mediana_cobertura_pct: number
+      calculo: Calculo
+    }
+
+export interface ItemPotencial {
+  produto_id: number
+  produto: string
+  faturamento_atual: number
+  pdvs_compradores: number
+  cobertura_pct: number
+  rs_por_pdv: number
+  potencial_estimado: number
+}
+
+export type PotencialCobertura =
+  | Indisponivel
+  | {
+      disponivel: true
+      incremento_pp: number
+      top_n: number
+      pdvs_base: number
+      pdvs_incremento: number
+      potencial_estimado_total: number
+      potencial_estimado_anual: number
+      itens: ItemPotencial[]
+      sem_dado_suficiente: { produto_id: number; produto: string; pdvs_compradores: number }[]
+      calculo: Calculo
+    }
+
+export interface FaixaMix {
+  faixa: string
+  sku_min: number
+  sku_max: number | null
+  n_pdvs: number
+  pct_pdvs: number
+  faturamento: number
+  pct_faturamento: number
+  rs_por_pdv: number | null
+}
+
+export type Mix =
+  | Indisponivel
+  | {
+      disponivel: true
+      total_pdvs: number
+      mix_medio: number
+      mix_mediano: number
+      uf: string | null
+      resumo: FaixaMix[]
+      calculo: Calculo
+    }
+
+export type Monoproduto =
+  | Indisponivel
+  | {
+      disponivel: true
+      n_pdvs: number
+      faturamento: number
+      rs_por_pdv: number | null
+      top_produtos: { produto_id: number; produto: string; n_pdvs: number }[]
+      itens: { pdv_id: number; pdv: string; faturamento: number; produto_id: number | null; produto: string }[]
+      calculo: Calculo
+    }
+
+export type AltoMix =
+  | Indisponivel
+  | {
+      disponivel: true
+      n_pdvs: number
+      faturamento: number
+      participacao_pct: number
+      rs_por_pdv: number | null
+      itens: { pdv_id: number; pdv: string; faturamento: number; n_skus: number }[]
+      calculo: Calculo
+    }
+
+export interface ItemExpansaoMix {
+  pdv_id: number
+  pdv: string
+  n_skus_atual: number
+  faixa_atual: string
+  faixa_referencia: string
+  faturamento_atual: number
+  rs_por_pdv_faixa_referencia: number
+}
+
+export type ExpansaoMix =
+  | Indisponivel
+  | { disponivel: true; total: number; itens: ItemExpansaoMix[]; calculo: Calculo }
+
+export interface ItemOportunidade {
+  tipo: 'ABC_QUEDA' | 'COBERTURA' | 'MIX' | 'CONCENTRACAO'
+  oportunidade: string
+  fonte: string
+  potencial_estimado: number
+  impacto_pct: number
+  facilidade: number
+  score: number
+  prioridade: 'Alta' | 'Média' | 'Baixa'
+  premissa: string
+  rotulo: 'FATO'
+  referencia_id: number | null
+}
+
+export type MatrizOportunidades =
+  | Indisponivel
+  | {
+      disponivel: true
+      total: number
+      itens: ItemOportunidade[]
+      pesos?: { potencial: number; impacto: number; facilidade: number }
+      calculo: Calculo
+    }
+
+export type AlertasExpandidos = Indisponivel | { disponivel: true; itens: Alerta[]; n_total: number; calculo: Calculo }
+
 const q = (params: Record<string, string | number | undefined>) =>
   '?' +
   Object.entries(params)
@@ -208,4 +401,71 @@ export const analytics = {
 
   alertas: (cid: number, ini: number, fim: number) =>
     api.get<Alertas>(`/analytics/${cid}/alertas${q({ periodo_ini: ini, periodo_fim: fim })}`),
+
+  // Etapa 3
+  abc: (cid: number, ini: number, fim: number, limiteA = 80, limiteB = 95, uf?: string) =>
+    api.get<CurvaABC>(
+      `/analytics/${cid}/abc${q({ periodo_ini: ini, periodo_fim: fim, limite_a: limiteA, limite_b: limiteB, uf })}`,
+    ),
+
+  abcCrescimento: (cid: number, ini: number, fim: number, uf?: string) =>
+    api.get<ABCCrescimento>(
+      `/analytics/${cid}/abc/crescimento${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
+    ),
+
+  cobertura: (cid: number, ini: number, fim: number, uf?: string, limite = 100) =>
+    api.get<Cobertura>(
+      `/analytics/${cid}/cobertura${q({ periodo_ini: ini, periodo_fim: fim, uf, limite })}`,
+    ),
+
+  coberturaMatriz: (cid: number, ini: number, fim: number, uf?: string) =>
+    api.get<MatrizCobertura>(
+      `/analytics/${cid}/cobertura/matriz${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
+    ),
+
+  coberturaPotencial: (cid: number, ini: number, fim: number, incrementoPp = 10, uf?: string) =>
+    api.get<PotencialCobertura>(
+      `/analytics/${cid}/cobertura/potencial${q({ periodo_ini: ini, periodo_fim: fim, incremento_pp: incrementoPp, uf })}`,
+    ),
+
+  mix: (cid: number, ini: number, fim: number, uf?: string) =>
+    api.get<Mix>(`/analytics/${cid}/mix${q({ periodo_ini: ini, periodo_fim: fim, uf })}`),
+
+  mixMonoproduto: (cid: number, ini: number, fim: number, uf?: string) =>
+    api.get<Monoproduto>(
+      `/analytics/${cid}/mix/monoproduto${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
+    ),
+
+  mixAlto: (cid: number, ini: number, fim: number, minimoSkus = 10, uf?: string) =>
+    api.get<AltoMix>(
+      `/analytics/${cid}/mix/alto${q({ periodo_ini: ini, periodo_fim: fim, minimo_skus: minimoSkus, uf })}`,
+    ),
+
+  mixOportunidades: (cid: number, ini: number, fim: number, uf?: string) =>
+    api.get<ExpansaoMix>(
+      `/analytics/${cid}/mix/oportunidades${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
+    ),
+
+  oportunidades: (
+    cid: number,
+    ini: number,
+    fim: number,
+    pesoPotencial = 40,
+    pesoImpacto = 35,
+    pesoFacilidade = 25,
+  ) =>
+    api.get<MatrizOportunidades>(
+      `/analytics/${cid}/oportunidades${q({
+        periodo_ini: ini,
+        periodo_fim: fim,
+        peso_potencial: pesoPotencial,
+        peso_impacto: pesoImpacto,
+        peso_facilidade: pesoFacilidade,
+      })}`,
+    ),
+
+  alertasExpandidos: (cid: number, ini: number, fim: number) =>
+    api.get<AlertasExpandidos>(
+      `/analytics/${cid}/alertas-expandidos${q({ periodo_ini: ini, periodo_fim: fim })}`,
+    ),
 }

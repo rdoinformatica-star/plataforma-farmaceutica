@@ -33,13 +33,17 @@ def _nome_produto(con: sqlite3.Connection, produto_id: int) -> str:
 
 
 def contar_pdvs_distintos(con: sqlite3.Connection, distribuidor_ids: list[int],
-                          ini: int, fim: int) -> int:
+                          ini: int, fim: int, *, uf: str | None = None) -> int:
     if not distribuidor_ids:
         return 0
-    sql = (f"SELECT count(DISTINCT pdv_id) FROM v_vendas"
-           f" WHERE distribuidor_id IN ({_marca(len(distribuidor_ids))})"
-           f"   AND periodo BETWEEN ? AND ?")
-    return con.execute(sql, list(distribuidor_ids) + [ini, fim]).fetchone()[0]
+    sql = (f"SELECT count(DISTINCT s.pdv_id) FROM v_vendas s"
+           f" WHERE s.distribuidor_id IN ({_marca(len(distribuidor_ids))})"
+           f"   AND s.periodo BETWEEN ? AND ?")
+    params = list(distribuidor_ids) + [ini, fim]
+    if uf is not None:
+        sql += " AND s.pdv_id IN (SELECT id FROM dim_pdv WHERE uf = ?)"
+        params.append(uf)
+    return con.execute(sql, params).fetchone()[0]
 
 
 def _comparacao(con, dist_ids, ini, fim, janela_cmp: pe.Janela, rotulo: str,
@@ -181,10 +185,13 @@ _ORDENACOES = {
 
 def ranking_produtos(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
                      *, ordenar: str = "faturamento", limite: int = 20,
-                     offset: int = 0) -> dict:
+                     offset: int = 0, uf: str | None = None) -> dict:
     disp = carregar(con, client_id)
     if not disp.tem_sellout:
         return {"disponivel": False, "motivo": disp.motivo_indisponivel}
+    if uf is not None and not disp.tem_uf:
+        return {"disponivel": False,
+               "motivo": "Este cliente não tem UF de PDV resolvida nos dados importados."}
     dist_ids = disp.distribuidor_ids
     marca = _marca(len(dist_ids))
     janela_ant = pe.janela_anterior(ini, fim)
@@ -193,15 +200,18 @@ def ranking_produtos(con: sqlite3.Connection, client_id: int, ini: int, fim: int
     # de cada produto artificialmente. Nesse caso a variacao fica None para
     # todo mundo, em vez de um numero enganoso.
     comparacao_valida = disp.periodo_min is None or janela_ant.ini >= disp.periodo_min
+    filtro_uf = " AND uf = ?" if uf is not None else ""
+    params_uf = [uf] if uf is not None else []
 
     atuais = con.execute(
         f"SELECT produto_id, sum(valor) v, sum(unidades) u FROM v_vendas_mensal"
-        f" WHERE distribuidor_id IN ({marca}) AND periodo BETWEEN ? AND ?"
-        f" GROUP BY produto_id", dist_ids + [ini, fim]).fetchall()
+        f" WHERE distribuidor_id IN ({marca}) AND periodo BETWEEN ? AND ?{filtro_uf}"
+        f" GROUP BY produto_id", dist_ids + [ini, fim] + params_uf).fetchall()
     anteriores = dict(con.execute(
         f"SELECT produto_id, sum(valor) FROM v_vendas_mensal"
-        f" WHERE distribuidor_id IN ({marca}) AND periodo BETWEEN ? AND ?"
-        f" GROUP BY produto_id", dist_ids + [janela_ant.ini, janela_ant.fim]).fetchall()
+        f" WHERE distribuidor_id IN ({marca}) AND periodo BETWEEN ? AND ?{filtro_uf}"
+        f" GROUP BY produto_id",
+        dist_ids + [janela_ant.ini, janela_ant.fim] + params_uf).fetchall()
     ) if comparacao_valida else {}
 
     total_periodo = sum(v for _, v, _ in atuais)
@@ -229,6 +239,8 @@ def ranking_produtos(con: sqlite3.Connection, client_id: int, ini: int, fim: int
     linhas.sort(key=chave.get(ordenar, chave["faturamento"]), reverse=reverso)
 
     premissas = [_ELO_SELLOUT]
+    if uf is not None:
+        premissas.append(f"Recorte: só PDVs do estado {uf}.")
     if not comparacao_valida:
         premissas.append(
             f"Variação NÃO calculada: o período de comparação ({janela_ant.rotulo}) "
@@ -237,7 +249,7 @@ def ranking_produtos(con: sqlite3.Connection, client_id: int, ini: int, fim: int
             f"porque tenha surgido agora, mas porque não há como comparar.")
 
     return {
-        "disponivel": True, "total": len(linhas), "ordenar": ordenar,
+        "disponivel": True, "total": len(linhas), "ordenar": ordenar, "uf": uf,
         "comparacao_valida": comparacao_valida,
         "itens": linhas[offset:offset + limite],
         "calculo": f.Calculo(

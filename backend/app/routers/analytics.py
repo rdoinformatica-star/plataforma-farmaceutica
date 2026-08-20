@@ -1,4 +1,5 @@
-"""Rotas do motor de performance comercial (Etapa 2).
+"""Rotas do motor de performance comercial (Etapa 2: vendas: | Etapa 3: abc/
+cobertura/mix/oportunidades).
 
 Toda rota exige client_id no caminho e sempre passa por
 analytics.contexto.carregar(), que resolve os distribuidores vinculados a
@@ -6,6 +7,10 @@ esse cliente — nunca consulta fact_sales sem esse filtro. Isso e o que
 garante o isolamento entre clientes (nenhuma rota le dados de outro cliente
 por engano).
 """
+import analytics.abc as abc_mod
+import analytics.cobertura as cobertura_mod
+import analytics.mix as mix_mod
+import analytics.oportunidades as oportunidades_mod
 import analytics.vendas as vendas
 from analytics.contexto import carregar as carregar_disponibilidade
 from analytics.periodo import validar as validar_periodo
@@ -133,3 +138,121 @@ def alertas(client_id: int, periodo_ini: int, periodo_fim: int):
     with db.conexao() as con:
         _cliente_existe(con, client_id)
         return vendas.alertas(con, client_id, ini, fim)
+
+
+# ─────────────────────────────── Etapa 3 ────────────────────────────────
+
+@router.get("/{client_id}/abc")
+def abc(client_id: int, periodo_ini: int, periodo_fim: int,
+       limite_a: float = 80.0, limite_b: float = 95.0, uf: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return abc_mod.curva_abc(con, client_id, ini, fim,
+                                 limite_a=limite_a, limite_b=limite_b, uf=uf)
+
+
+@router.get("/{client_id}/abc/crescimento")
+def abc_crescimento(client_id: int, periodo_ini: int, periodo_fim: int,
+                    limite_a: float = 80.0, limite_b: float = 95.0,
+                    limite_crescimento_pct: float = 10.0,
+                    limite_queda_pct: float = -10.0, uf: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return abc_mod.abc_crescimento(
+            con, client_id, ini, fim, limite_a=limite_a, limite_b=limite_b,
+            limite_crescimento_pct=limite_crescimento_pct,
+            limite_queda_pct=limite_queda_pct, uf=uf)
+
+
+@router.get("/{client_id}/cobertura")
+def cobertura(client_id: int, periodo_ini: int, periodo_fim: int,
+             uf: str | None = None, limite: int = Query(100, le=500), offset: int = 0):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return cobertura_mod.cobertura_produtos(con, client_id, ini, fim,
+                                                uf=uf, limite=limite, offset=offset)
+
+
+@router.get("/{client_id}/cobertura/matriz")
+def cobertura_matriz(client_id: int, periodo_ini: int, periodo_fim: int,
+                     uf: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return cobertura_mod.matriz_cobertura_faturamento(con, client_id, ini, fim, uf=uf)
+
+
+@router.get("/{client_id}/cobertura/potencial")
+def cobertura_potencial(client_id: int, periodo_ini: int, periodo_fim: int,
+                        incremento_pp: float = Query(10.0, gt=0, le=100),
+                        top_n: int = Query(20, le=200),
+                        minimo_pdvs_compradores: int = 5, uf: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return cobertura_mod.potencial_cobertura(
+            con, client_id, ini, fim, incremento_pp=incremento_pp, top_n=top_n,
+            minimo_pdvs_compradores=minimo_pdvs_compradores, uf=uf)
+
+
+@router.get("/{client_id}/mix")
+def mix(client_id: int, periodo_ini: int, periodo_fim: int, uf: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mix_mod.mix_por_pdv(con, client_id, ini, fim, uf=uf)
+
+
+@router.get("/{client_id}/mix/monoproduto")
+def mix_monoproduto(client_id: int, periodo_ini: int, periodo_fim: int,
+                    uf: str | None = None, limite: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mix_mod.monoproduto(con, client_id, ini, fim, uf=uf, limite=limite)
+
+
+@router.get("/{client_id}/mix/alto")
+def mix_alto(client_id: int, periodo_ini: int, periodo_fim: int,
+            minimo_skus: int = Query(10, ge=2), uf: str | None = None,
+            limite: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mix_mod.alto_mix(con, client_id, ini, fim, minimo_skus=minimo_skus,
+                                uf=uf, limite=limite)
+
+
+@router.get("/{client_id}/mix/oportunidades")
+def mix_oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
+                      uf: str | None = None, limite: int = Query(30, le=200)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mix_mod.oportunidades_expansao(con, client_id, ini, fim, uf=uf, limite=limite)
+
+
+@router.get("/{client_id}/oportunidades")
+def oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
+                  peso_potencial: float = 40.0, peso_impacto: float = 35.0,
+                  peso_facilidade: float = 25.0,
+                  incremento_pp: float = Query(10.0, gt=0, le=100),
+                  top_n: int = Query(30, le=200)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return oportunidades_mod.matriz_oportunidades(
+            con, client_id, ini, fim, peso_potencial=peso_potencial,
+            peso_impacto=peso_impacto, peso_facilidade=peso_facilidade,
+            incremento_pp=incremento_pp, top_n=top_n)
+
+
+@router.get("/{client_id}/alertas-expandidos")
+def alertas_expandidos(client_id: int, periodo_ini: int, periodo_fim: int):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return oportunidades_mod.alertas_expandidos(con, client_id, ini, fim)

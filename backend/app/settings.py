@@ -21,8 +21,8 @@ DB_PATH = DATABASE / "pharma.db"
 SCHEMA_SQL = DATABASE / "schema.sql"
 SEED_SQL = DATABASE / "seed.sql"
 
-VERSAO = "2.0.0-etapa2"
-ETAPA = 2
+VERSAO = "3.0.0-etapa3"
+ETAPA = 3
 
 # Pastas que o seletor de disco pode navegar. Qualquer caminho fora daqui e
 # recusado, mesmo que o usuario digite na URL.
