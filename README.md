@@ -265,8 +265,14 @@ salva no navegador. O botão some na impressão e no PDF.
 - [x] **Etapa 2 — Motor de performance comercial:** dashboard por cliente e
       período (resumo, YoY/MoM, evolução mensal, ranking e variação de
       produto, UF, PDV, concentração, alertas), tudo calculado localmente
-- [ ] Etapa 3 — curva ABC, cobertura, mix, estoque, DDE, capital parado
+- [x] **Etapa 3 — Curva ABC, cobertura comercial, mix de PDV e matriz de
+      oportunidades:** classe ABC configurável (80/95) cruzada com
+      crescimento, cobertura por produto com matriz de quadrantes e
+      simulador de potencial (+5/10/15/20pp), mix de PDV por faixa de
+      SKUs (monoproduto, alto-mix, expansão), matriz de oportunidades com
+      score configurável (potencial/impacto/facilidade) — tudo validado
+      ao vivo contra `engine/analise.py`
 - [ ] Etapa 4 — mercado, IQVIA, share, preço, regiões
-- [ ] Etapa 5 — anomalias, oportunidades, simulador, matriz
+- [ ] Etapa 5 — estoque, DDE, capital parado, anomalias, simulador
 - [ ] Etapa 6 — agente, FATO/HIPÓTESE/RECOMENDAÇÃO, limitações, gerador de prompt
 - [ ] Etapa 7 — relatório executivo, histórico, refinamento visual
