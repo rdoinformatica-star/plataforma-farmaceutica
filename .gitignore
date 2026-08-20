@@ -6,3 +6,16 @@ node_modules/
 .env.local
 dist/
 build/
+
+# ambiente e artefatos gerados
+backend/.venv/
+database/*.db
+database/*.db-wal
+database/*.db-shm
+imports/*
+!imports/.gitkeep
+!imports/tmp/.gitkeep
+reports/*
+!reports/.gitkeep
+prompts/*
+!prompts/.gitkeep
