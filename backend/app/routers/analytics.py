@@ -1,5 +1,5 @@
-"""Rotas do motor de performance comercial (Etapa 2: vendas: | Etapa 3: abc/
-cobertura/mix/oportunidades).
+"""Rotas do motor de performance comercial (Etapa 2: vendas | Etapa 3: abc/
+cobertura/mix/oportunidades | Etapa 4: estoque/mercado/preco).
 
 Toda rota exige client_id no caminho e sempre passa por
 analytics.contexto.carregar(), que resolve os distribuidores vinculados a
@@ -9,8 +9,11 @@ por engano).
 """
 import analytics.abc as abc_mod
 import analytics.cobertura as cobertura_mod
+import analytics.estoque as estoque_mod
+import analytics.mercado as mercado_mod
 import analytics.mix as mix_mod
 import analytics.oportunidades as oportunidades_mod
+import analytics.preco as preco_mod
 import analytics.vendas as vendas
 from analytics.contexto import carregar as carregar_disponibilidade
 from analytics.periodo import validar as validar_periodo
@@ -256,3 +259,210 @@ def alertas_expandidos(client_id: int, periodo_ini: int, periodo_fim: int):
     with db.conexao() as con:
         _cliente_existe(con, client_id)
         return oportunidades_mod.alertas_expandidos(con, client_id, ini, fim)
+
+
+# --- Etapa 4: estoque, mercado/IQVIA e preco -------------------------------
+# Estoque e preco passam pelo cliente (dado dele). Mercado/IQVIA e base unica
+# e compartilhada — as rotas de mercado ficam sob o cliente mesmo assim,
+# porque o que muda por cliente e a PONTE com os produtos que ele distribui.
+
+
+@router.get("/{client_id}/estoque/perfil")
+def estoque_perfil(client_id: int):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.perfil(con, client_id)
+
+
+@router.get("/{client_id}/estoque")
+def estoque_posicao(client_id: int, periodo_ini: int, periodo_fim: int,
+                    base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                    filial: str | None = None, limite: int = Query(200, le=2000)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.posicao(con, client_id, ini, fim,
+                                   base_velocidade=base_velocidade,
+                                   filial=filial, limite=limite)
+
+
+@router.get("/{client_id}/estoque/resumo")
+def estoque_resumo(client_id: int, periodo_ini: int, periodo_fim: int,
+                   base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                   filial: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.resumo(con, client_id, ini, fim,
+                                  base_velocidade=base_velocidade, filial=filial)
+
+
+@router.get("/{client_id}/estoque/zumbi")
+def estoque_zumbi(client_id: int, periodo_ini: int, periodo_fim: int,
+                  limite_dias: float = Query(365, gt=0),
+                  base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                  filial: str | None = None, top_n: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.zumbi(con, client_id, ini, fim, limite_dias=limite_dias,
+                                 base_velocidade=base_velocidade, filial=filial,
+                                 top_n=top_n)
+
+
+@router.get("/{client_id}/estoque/capital-parado")
+def estoque_capital(client_id: int, periodo_ini: int, periodo_fim: int,
+                    base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                    filial: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.capital_parado(con, client_id, ini, fim,
+                                          base_velocidade=base_velocidade,
+                                          filial=filial)
+
+
+@router.get("/{client_id}/estoque/simulador")
+def estoque_simulador(client_id: int, periodo_ini: int, periodo_fim: int,
+                      objetivo_dias: float = Query(60, gt=0, le=3650),
+                      base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                      filial: str | None = None, top_n: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.simulador(con, client_id, ini, fim,
+                                     objetivo_dias=objetivo_dias,
+                                     base_velocidade=base_velocidade,
+                                     filial=filial, top_n=top_n)
+
+
+@router.get("/{client_id}/estoque/matriz")
+def estoque_matriz(client_id: int, periodo_ini: int, periodo_fim: int,
+                   base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                   filial: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return estoque_mod.matriz_estoque_vendas(con, client_id, ini, fim,
+                                                 base_velocidade=base_velocidade,
+                                                 filial=filial)
+
+
+@router.get("/{client_id}/mercado/perfil")
+def mercado_perfil(client_id: int):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mercado_mod.perfil(con)
+
+
+@router.get("/{client_id}/mercado")
+def mercado_resumo(client_id: int, uf: str | None = None, mercado: str | None = None,
+                   molecula: str | None = None, canal: str | None = None):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mercado_mod.resumo(con, uf=uf, mercado=mercado,
+                                  molecula=molecula, canal=canal)
+
+
+@router.get("/{client_id}/mercado/share")
+def mercado_share(client_id: int, uf: str | None = None, mercado: str | None = None,
+                  molecula: str | None = None, canal: str | None = None,
+                  base: str = Query("unidades", pattern="^(unidades|valor)$")):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mercado_mod.share_industria(con, uf=uf, mercado=mercado,
+                                           molecula=molecula, canal=canal, base=base)
+
+
+@router.get("/{client_id}/mercado/share-cliente")
+def mercado_share_cliente(client_id: int):
+    """Devolve indisponivel com o motivo — ver docstring de analytics.mercado."""
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mercado_mod.share_do_cliente(con, client_id)
+
+
+@router.get("/{client_id}/mercado/ranking")
+def mercado_ranking(client_id: int, uf: str | None = None, canal: str | None = None,
+                    top_n: int = Query(30, le=200),
+                    minimo_unidades: float = Query(0, ge=0)):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mercado_mod.ranking_mercados(con, uf=uf, canal=canal, top_n=top_n,
+                                            minimo_unidades=minimo_unidades)
+
+
+@router.get("/{client_id}/mercado/regional")
+def mercado_regional(client_id: int, mercado: str | None = None,
+                     molecula: str | None = None, canal: str | None = None,
+                     top_n: int = Query(30, le=200)):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return mercado_mod.regional(con, mercado=mercado, molecula=molecula,
+                                    canal=canal, top_n=top_n)
+
+
+@router.get("/{client_id}/mercado/vs-cliente")
+def mercado_vs_cliente(client_id: int, uf: str | None = None,
+                       mercado: str | None = None, molecula: str | None = None):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        d = carregar_disponibilidade(con, client_id)
+        return mercado_mod.cliente_vs_mercado(con, client_id, d.distribuidor_ids,
+                                              uf=uf, mercado=mercado, molecula=molecula)
+
+
+@router.get("/{client_id}/mercado/ponte")
+def mercado_ponte(client_id: int, periodo_ini: int, periodo_fim: int,
+                  uf: str | None = None, top_n: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        d = carregar_disponibilidade(con, client_id)
+        return mercado_mod.ponte_produtos(con, d.distribuidor_ids, ini, fim,
+                                          uf=uf, top_n=top_n)
+
+
+@router.get("/{client_id}/preco/comparabilidade")
+def preco_comparabilidade(client_id: int):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return preco_mod.comparabilidade(con)
+
+
+@router.get("/{client_id}/preco")
+def preco_vs_concorrentes(client_id: int, periodo_ini: int, periodo_fim: int,
+                          uf: str | None = None,
+                          minimo_unidades: float = Query(200, ge=0),
+                          limite_alerta_pct: float = Query(8.0, gt=0),
+                          top_n: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        d = carregar_disponibilidade(con, client_id)
+        return preco_mod.preco_vs_concorrentes(
+            con, d.distribuidor_ids, ini, fim, uf=uf,
+            minimo_unidades=minimo_unidades,
+            limite_alerta_pct=limite_alerta_pct, top_n=top_n)
+
+
+@router.get("/{client_id}/preco/evolucao")
+def preco_evolucao(client_id: int, periodo_ini: int, periodo_fim: int,
+                   produto_id: int | None = None, uf: str | None = None):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        d = carregar_disponibilidade(con, client_id)
+        return preco_mod.evolucao_preco(con, d.distribuidor_ids, ini, fim,
+                                        produto_id=produto_id, uf=uf)
+
+
+@router.get("/{client_id}/preco/varejo")
+def preco_varejo(client_id: int, uf: str | None = None, mercado: str | None = None,
+                 molecula: str | None = None, top_n: int = Query(30, le=200),
+                 minimo_unidades: float = Query(200, ge=0)):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return preco_mod.preco_varejo_iqvia(con, uf=uf, mercado=mercado,
+                                            molecula=molecula, top_n=top_n,
+                                            minimo_unidades=minimo_unidades)

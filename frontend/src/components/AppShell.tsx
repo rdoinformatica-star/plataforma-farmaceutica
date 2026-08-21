@@ -2,10 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import {
   BarChart3,
   Boxes,
+  Coins,
   ClipboardList,
   Database,
   History,
   Layers,
+  Globe,
   LayoutDashboard,
   Link2,
   LineChart,
@@ -16,6 +18,7 @@ import {
   Settings,
   Sun,
   Target,
+  Warehouse,
   Upload,
   Users,
 } from 'lucide-react'
@@ -34,6 +37,9 @@ const NAV = [
       { para: '/cobertura', rotulo: 'Cobertura', Icone: PackageSearch },
       { para: '/mix', rotulo: 'Mix de PDV', Icone: Layers },
       { para: '/oportunidades', rotulo: 'Oportunidades', Icone: Target },
+      { para: '/estoque', rotulo: 'Estoque', Icone: Warehouse },
+      { para: '/mercado', rotulo: 'Mercado', Icone: Globe },
+      { para: '/preco', rotulo: 'Preço', Icone: Coins },
     ],
   },
   {
@@ -66,6 +72,9 @@ const TITULOS: Record<string, string> = {
   '/cobertura': 'Cobertura',
   '/mix': 'Mix de PDV',
   '/oportunidades': 'Oportunidades',
+  '/estoque': 'Estoque',
+  '/mercado': 'Mercado',
+  '/preco': 'Preço',
   '/importar': 'Importar dados',
   '/importacoes': 'Importações',
   '/campos': 'Campos novos',
@@ -138,7 +147,7 @@ export function AppShell() {
               Pharma
               <br />
               Intelligence
-              <small>Etapa 3</small>
+              <small>Etapa 4</small>
             </div>
           )}
         </div>

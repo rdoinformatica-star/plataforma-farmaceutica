@@ -358,6 +358,396 @@ export type MatrizOportunidades =
 
 export type AlertasExpandidos = Indisponivel | { disponivel: true; itens: Alerta[]; n_total: number; calculo: Calculo }
 
+/* ── Etapa 4: estoque, mercado/IQVIA e preço ─────────────────────────────── */
+
+export interface FilialEstoque {
+  filial: string
+  linhas: number
+  com_posicao: number
+  com_valor: number
+  com_media_venda: number
+  tem_posicao_fisica: boolean
+}
+
+export type PerfilEstoque =
+  | Indisponivel
+  | {
+      disponivel: true
+      linhas: number
+      produtos: number
+      com_posicao: number
+      sem_posicao: number
+      com_valor: number
+      com_media_venda: number
+      data_ref: string
+      n_datas: number
+      eh_foto: boolean
+      por_filial: FilialEstoque[]
+      filiais_vinculadas: Record<string, number>
+      calculo: Calculo
+    }
+
+export interface ItemEstoque {
+  produto_id: number
+  produto: string
+  filial: string
+  estoque_total_un: number | null
+  estoque_disp_un: number
+  valor_estoque: number
+  custo_reposicao: number | null
+  media_venda_mes_fonte: number | null
+  venda_dia_fonte: number | null
+  venda_dia_periodo: number | null
+  dde_fonte: number | null
+  dde_periodo: number | null
+  dde: number | null
+  cobertura_dias_origem: number | null
+  classificacao: string
+  sem_venda: boolean
+  motivo_dde_indefinido: string | null
+  faturamento?: number
+  quadrante?: string
+  quadrante_descricao?: string
+}
+
+export interface FaixaCobertura {
+  de: number
+  ate: number | null
+  rotulo: string
+}
+
+export type PosicaoEstoque =
+  | Indisponivel
+  | {
+      disponivel: true
+      data_ref: string
+      base_velocidade: string
+      filial: string | null
+      itens: ItemEstoque[]
+      faixas: FaixaCobertura[]
+      calculo: Calculo
+    }
+
+export type ResumoEstoque =
+  | Indisponivel
+  | {
+      disponivel: true
+      data_ref: string
+      valor_total: number
+      skus_com_estoque: number
+      skus_sem_venda: number
+      skus_dde_indefinido: number
+      cobertura_media_dias: number | null
+      cobertura_ponderada_dias: number | null
+      skus_acima_180: number
+      valor_acima_180: number
+      skus_acima_365: number
+      valor_acima_365: number
+      por_classe: { classe: string; skus: number; valor: number }[]
+      calculo: Calculo
+    }
+
+export type EstoqueZumbi =
+  | Indisponivel
+  | {
+      disponivel: true
+      limite_dias: number
+      n_skus: number
+      valor_total: number
+      itens: ItemEstoque[]
+      calculo: Calculo
+    }
+
+export type CapitalParado =
+  | Indisponivel
+  | {
+      disponivel: true
+      valor_total_estoque: number
+      faixas: {
+        acima_de_dias: number
+        skus: number
+        valor: number
+        pct_do_estoque: number | null
+      }[]
+      calculo: Calculo
+    }
+
+export interface ItemSimulacao {
+  produto_id: number
+  produto: string
+  filial: string
+  estoque_atual_un: number
+  estoque_objetivo_un: number
+  excesso_un: number
+  valor_estoque: number
+  excesso_valor: number
+  dde: number | null
+  sem_giro: boolean
+}
+
+export type SimuladorEstoque =
+  | Indisponivel
+  | {
+      disponivel: true
+      objetivo_dias: number
+      valor_estoque_atual: number
+      capital_potencialmente_liberavel: number
+      pct_do_estoque: number | null
+      n_skus_com_excesso: number
+      itens: ItemSimulacao[]
+      calculo: Calculo
+    }
+
+export type MatrizEstoque =
+  | Indisponivel
+  | {
+      disponivel: true
+      mediana_dde: number
+      mediana_faturamento: number
+      quadrantes: {
+        quadrante: string
+        descricao: string
+        skus: number
+        valor_estoque: number
+        faturamento: number
+      }[]
+      itens: ItemEstoque[]
+      calculo: Calculo
+    }
+
+export type PerfilMercado =
+  | Indisponivel
+  | {
+      disponivel: true
+      linhas: number
+      abas: number
+      periodos: number
+      periodo_ref: number
+      eh_foto_unica: boolean
+      janela_ytd: { ini: number; fim: number; ini_ant: number; fim_ant: number }
+      dimensoes: Record<string, number>
+      linhas_vitamedic: number
+      produto_id_preenchido: number
+      tem_ligacao_com_dim_product: boolean
+      identifica_distribuidor: boolean
+      calculo: Calculo
+    }
+
+export type ResumoMercado =
+  | Indisponivel
+  | {
+      disponivel: true
+      recorte: Record<string, string | null>
+      linhas: number
+      unidades_ytd: number
+      valor_ytd: number
+      unidades_ytd_ant: number
+      valor_ytd_ant: number
+      cresc_unidades_pct: number | null
+      cresc_valor_pct: number | null
+      unidades_mes: number
+      valor_mes: number
+      cresc_mes_valor_pct: number | null
+      janela: { ini: number; fim: number; ini_ant: number; fim_ant: number }
+      calculo: Calculo
+    }
+
+export type ShareIndustria =
+  | Indisponivel
+  | {
+      disponivel: true
+      escopo: string
+      base: string
+      recorte: Record<string, string | null>
+      vitamedic: number
+      mercado_total: number
+      share_pct: number
+      share_ant_pct: number | null
+      delta_share_pp: number | null
+      calculo: Calculo
+    }
+
+export interface ShareCliente {
+  disponivel: false
+  motivo: string
+  alternativa?: string
+  ocorrencias_do_nome_no_mercado?: number
+}
+
+export interface ItemMercadoUf {
+  uf: string
+  mercado_un: number
+  mercado_valor: number
+  vitamedic_un: number
+  share_pct: number
+  share_ant_pct: number | null
+  delta_share_pp: number | null
+  cresc_mercado_pct: number | null
+}
+
+export type MercadoRegional =
+  | Indisponivel
+  | { disponivel: true; recorte: Record<string, string | null>; itens: ItemMercadoUf[]; calculo: Calculo }
+
+export interface ItemRankingMercado {
+  mercado: string
+  vitamedic_un: number
+  mercado_un: number
+  mercado_valor: number
+  share_pct: number
+  share_ant_pct: number | null
+  delta_share_pp: number | null
+  cresc_mercado_un_pct: number | null
+  cresc_vitamedic_un_pct: number | null
+}
+
+export type RankingMercados =
+  | Indisponivel
+  | { disponivel: true; n_mercados: number; itens: ItemRankingMercado[]; calculo: Calculo }
+
+export type ClienteVsMercado =
+  | Indisponivel
+  | {
+      disponivel: true
+      janela: { ini: number; fim: number; ini_ant: number; fim_ant: number }
+      recorte: Record<string, string | null>
+      cliente: {
+        valor: number
+        valor_ant: number
+        cresc_valor_pct: number | null
+        unidades: number
+        unidades_ant: number
+        cresc_unidades_pct: number | null
+      }
+      mercado: {
+        valor: number
+        valor_ant: number
+        cresc_valor_pct: number | null
+        unidades: number
+        unidades_ant: number
+        cresc_unidades_pct: number | null
+      }
+      diferenca_valor_pp: number | null
+      diferenca_unidades_pp: number | null
+      leitura_valor: string | null
+      leitura_unidades: string | null
+      calculo: Calculo
+    }
+
+export interface ItemPonte {
+  produto_id: number
+  produto: string
+  mercado: string
+  nivel_ligacao: 'apresentacao' | 'molecula'
+  referencia_mercado: string
+  faturamento_cliente: number
+  unidades_cliente: number
+  mercado_un: number
+  vitamedic_un: number
+  share_industria_pct: number
+  share_industria_ant_pct: number | null
+  delta_share_pp: number | null
+}
+
+export type PonteMercado =
+  | Indisponivel
+  | {
+      disponivel: true
+      n_ligados: number
+      n_sem_correspondencia: number
+      por_nivel: { nivel: string; skus: number; faturamento: number }[]
+      faturamento_ligado: number
+      faturamento_sem_correspondencia: number
+      cobertura_da_ponte_pct: number | null
+      itens: ItemPonte[]
+      sem_correspondencia: { produto_id: number; produto: string; faturamento: number }[]
+      calculo: Calculo
+    }
+
+export type Comparabilidade =
+  | Indisponivel
+  | {
+      disponivel: true
+      fontes: {
+        fonte: string
+        disponivel: boolean
+        elo: string
+        unidade: string
+        periodo: string
+        produto: string
+        observacao: string
+      }[]
+      pares: { de: string; para: string; comparavel: boolean; motivo: string }[]
+      calculo: Calculo
+    }
+
+export interface ItemPreco {
+  produto_id: number
+  produto: string
+  preco_cliente: number
+  preco_outros: number
+  diferenca_pct: number | null
+  unidades_cliente: number
+  unidades_outros: number
+  faturamento_cliente: number
+  posicao: 'ACIMA' | 'ABAIXO' | 'EM_LINHA' | null
+}
+
+export type PrecoVsConcorrentes =
+  | Indisponivel
+  | {
+      disponivel: true
+      uf: string | null
+      minimo_unidades: number
+      limite_alerta_pct: number
+      n_comparaveis: number
+      n_sem_volume: number
+      preco_medio_cliente: number | null
+      preco_medio_outros: number | null
+      itens: ItemPreco[]
+      sem_volume: {
+        produto_id: number
+        produto: string
+        unidades_cliente: number
+        unidades_outros: number
+        motivo: string
+      }[]
+      calculo: Calculo
+    }
+
+export type EvolucaoPreco =
+  | Indisponivel
+  | {
+      disponivel: true
+      produto_id: number | null
+      uf: string | null
+      serie: { periodo: number; unidades: number; valor: number; preco_medio: number | null }[]
+      preco_inicial: number | null
+      preco_final: number | null
+      variacao_pct: number | null
+      calculo: Calculo
+    }
+
+export type PrecoVarejo =
+  | Indisponivel
+  | {
+      disponivel: true
+      escopo: string
+      recorte: Record<string, string | null>
+      n_mercados: number
+      itens: {
+        mercado: string
+        preco_vitamedic: number
+        lider: string
+        preco_lider: number
+        indice_vs_lider_pct: number | null
+        concorrentes: number
+        concorrentes_mais_baratos: number
+        unidades_vitamedic: number
+      }[]
+      calculo: Calculo
+    }
+
 const q = (params: Record<string, string | number | undefined>) =>
   '?' +
   Object.entries(params)
@@ -468,4 +858,79 @@ export const analytics = {
     api.get<AlertasExpandidos>(
       `/analytics/${cid}/alertas-expandidos${q({ periodo_ini: ini, periodo_fim: fim })}`,
     ),
+
+  estoquePerfil: (cid: number) =>
+    api.get<PerfilEstoque>(`/analytics/${cid}/estoque/perfil`),
+
+  estoque: (cid: number, ini: number, fim: number, base = 'fonte', filial?: string, limite = 500) =>
+    api.get<PosicaoEstoque>(
+      `/analytics/${cid}/estoque${q({ periodo_ini: ini, periodo_fim: fim, base_velocidade: base, filial, limite })}`,
+    ),
+
+  estoqueResumo: (cid: number, ini: number, fim: number, base = 'fonte', filial?: string) =>
+    api.get<ResumoEstoque>(
+      `/analytics/${cid}/estoque/resumo${q({ periodo_ini: ini, periodo_fim: fim, base_velocidade: base, filial })}`,
+    ),
+
+  estoqueZumbi: (cid: number, ini: number, fim: number, limiteDias = 365, base = 'fonte', filial?: string) =>
+    api.get<EstoqueZumbi>(
+      `/analytics/${cid}/estoque/zumbi${q({ periodo_ini: ini, periodo_fim: fim, limite_dias: limiteDias, base_velocidade: base, filial })}`,
+    ),
+
+  estoqueCapital: (cid: number, ini: number, fim: number, base = 'fonte', filial?: string) =>
+    api.get<CapitalParado>(
+      `/analytics/${cid}/estoque/capital-parado${q({ periodo_ini: ini, periodo_fim: fim, base_velocidade: base, filial })}`,
+    ),
+
+  estoqueSimulador: (cid: number, ini: number, fim: number, objetivoDias = 60, base = 'fonte', filial?: string) =>
+    api.get<SimuladorEstoque>(
+      `/analytics/${cid}/estoque/simulador${q({ periodo_ini: ini, periodo_fim: fim, objetivo_dias: objetivoDias, base_velocidade: base, filial })}`,
+    ),
+
+  estoqueMatriz: (cid: number, ini: number, fim: number, base = 'fonte', filial?: string) =>
+    api.get<MatrizEstoque>(
+      `/analytics/${cid}/estoque/matriz${q({ periodo_ini: ini, periodo_fim: fim, base_velocidade: base, filial })}`,
+    ),
+
+  mercadoPerfil: (cid: number) =>
+    api.get<PerfilMercado>(`/analytics/${cid}/mercado/perfil`),
+
+  mercado: (cid: number, uf?: string, mercado?: string, molecula?: string) =>
+    api.get<ResumoMercado>(`/analytics/${cid}/mercado${q({ uf, mercado, molecula })}`),
+
+  mercadoShare: (cid: number, uf?: string, mercado?: string, molecula?: string, base = 'unidades') =>
+    api.get<ShareIndustria>(`/analytics/${cid}/mercado/share${q({ uf, mercado, molecula, base })}`),
+
+  mercadoShareCliente: (cid: number) =>
+    api.get<ShareCliente>(`/analytics/${cid}/mercado/share-cliente`),
+
+  mercadoRanking: (cid: number, uf?: string, topN = 30) =>
+    api.get<RankingMercados>(`/analytics/${cid}/mercado/ranking${q({ uf, top_n: topN })}`),
+
+  mercadoRegional: (cid: number, mercado?: string, molecula?: string, topN = 30) =>
+    api.get<MercadoRegional>(`/analytics/${cid}/mercado/regional${q({ mercado, molecula, top_n: topN })}`),
+
+  mercadoVsCliente: (cid: number, uf?: string, mercado?: string, molecula?: string) =>
+    api.get<ClienteVsMercado>(`/analytics/${cid}/mercado/vs-cliente${q({ uf, mercado, molecula })}`),
+
+  mercadoPonte: (cid: number, ini: number, fim: number, uf?: string, topN = 50) =>
+    api.get<PonteMercado>(
+      `/analytics/${cid}/mercado/ponte${q({ periodo_ini: ini, periodo_fim: fim, uf, top_n: topN })}`,
+    ),
+
+  precoComparabilidade: (cid: number) =>
+    api.get<Comparabilidade>(`/analytics/${cid}/preco/comparabilidade`),
+
+  preco: (cid: number, ini: number, fim: number, uf?: string, minimoUnidades = 200) =>
+    api.get<PrecoVsConcorrentes>(
+      `/analytics/${cid}/preco${q({ periodo_ini: ini, periodo_fim: fim, uf, minimo_unidades: minimoUnidades })}`,
+    ),
+
+  precoEvolucao: (cid: number, ini: number, fim: number, produtoId?: number, uf?: string) =>
+    api.get<EvolucaoPreco>(
+      `/analytics/${cid}/preco/evolucao${q({ periodo_ini: ini, periodo_fim: fim, produto_id: produtoId, uf })}`,
+    ),
+
+  precoVarejo: (cid: number, uf?: string, mercado?: string, molecula?: string, topN = 30) =>
+    api.get<PrecoVarejo>(`/analytics/${cid}/preco/varejo${q({ uf, mercado, molecula, top_n: topN })}`),
 }

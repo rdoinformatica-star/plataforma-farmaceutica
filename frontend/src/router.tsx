@@ -9,11 +9,14 @@ import { Cobertura } from './pages/Cobertura'
 import { Config } from './pages/Config'
 import { Dashboard } from './pages/Dashboard'
 import { Dimensoes } from './pages/Dimensoes'
+import { Estoque } from './pages/Estoque'
 import { Importacoes } from './pages/Importacoes'
 import { Importar } from './pages/Importar'
 import { Mapeamentos } from './pages/Mapeamentos'
+import { Mercado } from './pages/Mercado'
 import { Mix } from './pages/Mix'
 import { Oportunidades } from './pages/Oportunidades'
+import { Preco } from './pages/Preco'
 import { Perfil } from './pages/Perfil'
 import { ProgressoImport } from './pages/ProgressoImport'
 import { VisaoGeral } from './pages/VisaoGeral'
@@ -29,6 +32,9 @@ export const rotas = createBrowserRouter([
       { path: 'cobertura', element: <Cobertura /> },
       { path: 'mix', element: <Mix /> },
       { path: 'oportunidades', element: <Oportunidades /> },
+      { path: 'estoque', element: <Estoque /> },
+      { path: 'mercado', element: <Mercado /> },
+      { path: 'preco', element: <Preco /> },
       { path: 'importar', element: <Importar /> },
       { path: 'importacoes', element: <Importacoes /> },
       { path: 'importacoes/:id', element: <ProgressoImport /> },
