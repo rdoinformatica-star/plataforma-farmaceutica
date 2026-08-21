@@ -687,3 +687,74 @@ tbody tr:hover td {
     padding: var(--space-4);
   }
 }
+
+/* ── cabecalho de tabela ordenavel ────────────────────────────────── */
+
+thead th.ordenavel {
+  padding: 0;
+}
+thead th.ordenavel > button {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 9px 12px;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+thead th.ordenavel.num > button {
+  justify-content: flex-end;
+}
+thead th.ordenavel > button:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+thead th.ordenavel > button:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: -2px;
+}
+thead th.ordenavel > button > i {
+  font-style: normal;
+  font-size: 10px;
+  opacity: 0.35;
+  line-height: 1;
+}
+thead th.ordenavel.ativa > button {
+  color: var(--fg);
+}
+thead th.ordenavel.ativa > button > i {
+  opacity: 1;
+  color: var(--wine);
+}
+
+/* ── quadrantes clicaveis (matriz cobertura x faturamento) ──────────── */
+
+button.quadrante {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--surface);
+  transition: border-color 0.12s, background 0.12s;
+}
+button.quadrante:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+button.quadrante.ativo {
+  border-color: var(--wine);
+  background: var(--surface-2);
+}
+button.quadrante:disabled {
+  cursor: default;
+  opacity: 0.55;
+}

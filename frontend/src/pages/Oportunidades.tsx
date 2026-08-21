@@ -3,6 +3,7 @@ import { LineChart, Target, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Tag, Vazio } from '../components/ui'
 import { analytics, type ItemOportunidade } from '../lib/analytics'
@@ -83,6 +84,11 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
     enabled: habilitado,
   })
 
+  const { itens: itensMatriz, ordem: ordemMatriz, alternar: alternarMatriz } = useOrdenacao(
+    matriz?.disponivel ? matriz.itens : [],
+    { campo: 'score', direcao: 'desc' },
+  )
+
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
   return (
@@ -133,7 +139,75 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
             </div>
           </Card>
 
-          <Card titulo="Matriz de oportunidades">
+          <Card titulo="O que significa cada número">
+            <div className="grade c3">
+              <div>
+                <div className="rot">Potencial</div>
+                <p style={{ marginTop: 4, fontSize: 13 }}>
+                  Valor em <b>R$</b> que a oportunidade representa. Numa queda de produto
+                  A, é o quanto o faturamento caiu; numa cobertura baixa, é o ganho
+                  estimado de vender para mais PDVs no ritmo médio atual; numa
+                  concentração alta, é uma fatia de referência (5%) do faturamento do
+                  período.
+                </p>
+              </div>
+              <div>
+                <div className="rot">Impacto</div>
+                <p style={{ marginTop: 4, fontSize: 13 }}>
+                  <b>%</b> que aquele produto ou PDV já representa no faturamento total do
+                  cliente no período. Um impacto alto significa que a oportunidade está
+                  numa parte grande da carteira — mexer nela move o resultado como um
+                  todo, não é um detalhe.
+                </p>
+              </div>
+              <div>
+                <div className="rot">Facilidade</div>
+                <p style={{ marginTop: 4, fontSize: 13 }}>
+                  Nota fixa por <b>tipo</b> de oportunidade (não calculada por produto):
+                  cobertura 70, mix 55, queda de ABC 35, concentração 30. Reflete o quão
+                  direto costuma ser agir sobre aquele tipo de ação — vender mais numa
+                  praça já testada é mais simples do que reverter uma queda cuja causa
+                  não está nos dados.
+                </p>
+              </div>
+            </div>
+            <div className="mut" style={{ fontSize: 12, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+              <b>Como priorizar:</b> o score junta os três — comece pelas de{' '}
+              <Tag tipo="t-erro">Alta</Tag> prioridade e maior score. Dentro da mesma
+              prioridade, olhe o <b>potencial em R$</b> se o objetivo é receita, ou a{' '}
+              <b>facilidade</b> se você quer um resultado rápido para testar antes de ir
+              atrás das mais difíceis. Os pesos acima mudam quanto cada critério pesa no
+              score — suba "Facilidade" se quer priorizar o que é mais rápido de
+              executar, suba "Potencial" se quer priorizar o maior R$ possível.
+            </div>
+          </Card>
+
+          <Card
+            titulo="Matriz de oportunidades"
+            acoes={
+              matriz?.disponivel && matriz.itens.length > 0 ? (
+                <label style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span className="mut" style={{ fontSize: 12 }}>Ordenar por</span>
+                  <select
+                    value={ordemMatriz?.campo ?? 'score'}
+                    onChange={(e) =>
+                      alternarMatriz(
+                        e.target.value as keyof ItemOportunidade & string,
+                        e.target.value === 'oportunidade' || e.target.value === 'tipo' ? 'texto' : 'numero',
+                      )
+                    }
+                    style={{ width: 160 }}
+                  >
+                    <option value="score">Score</option>
+                    <option value="potencial_estimado">Potencial</option>
+                    <option value="impacto_pct">Impacto</option>
+                    <option value="facilidade">Facilidade</option>
+                    <option value="oportunidade">Oportunidade (A–Z)</option>
+                  </select>
+                </label>
+              ) : undefined
+            }
+          >
             {lMatriz || !matriz ? (
               <div className="mut">Carregando...</div>
             ) : !matriz.disponivel ? (
@@ -142,7 +216,7 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
               <Vazio icone={<Target size={36} />} titulo="Nenhuma oportunidade identificada neste período." />
             ) : (
               <div className="pilha" style={{ gap: 10 }}>
-                {matriz.itens.map((it: ItemOportunidade, i: number) => (
+                {itensMatriz.map((it: ItemOportunidade, i: number) => (
                   <div key={i} className="claim fato" style={{ margin: 0 }}>
                     <div className="linha entre">
                       <div className="linha" style={{ gap: 8 }}>

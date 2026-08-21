@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Tag, Vazio } from '../components/ui'
 import { analytics, type Calculo } from '../lib/analytics'
@@ -126,6 +127,14 @@ function MercadoCliente({ clienteId, clientes }: { clienteId: number; clientes: 
     queryFn: () => analytics.mercadoPonte(clienteId, periodo!.ini, periodo!.fim, uf),
     enabled: temIqvia && !!periodo,
   })
+
+  const { itens: itensRegional, ordem: ordemReg, alternar: alternarReg } = useOrdenacao(
+    regional?.disponivel ? regional.itens : [],
+    { campo: 'mercado_valor', direcao: 'desc' },
+  )
+  const { itens: itensPonte, ordem: ordemPonte, alternar: alternarPonte } = useOrdenacao(
+    ponte?.disponivel ? ponte.itens.slice(0, 25) : [],
+  )
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -310,17 +319,17 @@ function MercadoCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                 <table>
                   <thead>
                     <tr>
-                      <th>UF</th>
-                      <th className="num">Mercado (R$)</th>
-                      <th className="num">Mercado (un)</th>
-                      <th className="num">Indústria (un)</th>
-                      <th className="num">Share</th>
-                      <th className="num">Δ share</th>
-                      <th className="num">Cresc. mercado</th>
+                      <Th campo="uf" ordem={ordemReg} alternar={alternarReg}>UF</Th>
+                      <Th campo="mercado_valor" ordem={ordemReg} alternar={alternarReg} num>Mercado (R$)</Th>
+                      <Th campo="mercado_un" ordem={ordemReg} alternar={alternarReg} num>Mercado (un)</Th>
+                      <Th campo="vitamedic_un" ordem={ordemReg} alternar={alternarReg} num>Indústria (un)</Th>
+                      <Th campo="share_pct" ordem={ordemReg} alternar={alternarReg} num>Share</Th>
+                      <Th campo="delta_share_pp" ordem={ordemReg} alternar={alternarReg} num>Δ share</Th>
+                      <Th campo="cresc_mercado_pct" ordem={ordemReg} alternar={alternarReg} num>Cresc. mercado</Th>
                     </tr>
                   </thead>
                   <tbody>
-                    {regional.itens.map((i) => (
+                    {itensRegional.map((i) => (
                       <tr key={i.uf}>
                         <td style={{ fontWeight: 600 }}>{i.uf}</td>
                         <td className="num">{brl(i.mercado_valor)}</td>
@@ -368,16 +377,16 @@ function MercadoCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                   <table>
                     <thead>
                       <tr>
-                        <th>Produto</th>
-                        <th>Ligação</th>
-                        <th>Referência no mercado</th>
-                        <th className="num">Faturamento</th>
-                        <th className="num">Share da indústria</th>
-                        <th className="num">Δ share</th>
+                        <Th campo="produto" ordem={ordemPonte} alternar={alternarPonte}>Produto</Th>
+                        <Th campo="nivel_ligacao" ordem={ordemPonte} alternar={alternarPonte}>Ligação</Th>
+                        <Th campo="referencia_mercado" ordem={ordemPonte} alternar={alternarPonte}>Referência no mercado</Th>
+                        <Th campo="faturamento_cliente" ordem={ordemPonte} alternar={alternarPonte} num>Faturamento</Th>
+                        <Th campo="share_industria_pct" ordem={ordemPonte} alternar={alternarPonte} num>Share da indústria</Th>
+                        <Th campo="delta_share_pp" ordem={ordemPonte} alternar={alternarPonte} num>Δ share</Th>
                       </tr>
                     </thead>
                     <tbody>
-                      {ponte.itens.slice(0, 25).map((i) => (
+                      {itensPonte.map((i) => (
                         <tr key={i.produto_id}>
                           <td>{i.produto}</td>
                           <td>

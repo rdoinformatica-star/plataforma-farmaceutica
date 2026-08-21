@@ -1,8 +1,13 @@
+import { Th, useOrdenacao } from '../Tabela'
 import { Aviso, Card, Carregando, Vazio } from '../ui'
 import type { AnaliseUF as TipoUF } from '../../lib/analytics'
 import { brl, inteiro, pct } from '../../lib/format'
 
 export function AnaliseUF({ dados, carregando }: { dados: TipoUF | undefined; carregando: boolean }) {
+  const { itens, ordem, alternar } = useOrdenacao(
+    dados?.disponivel ? dados.itens : [],
+  )
+
   if (!carregando && dados && !dados.disponivel) return null // sem UF nos dados: nem mostra o modulo
 
   return (
@@ -22,15 +27,15 @@ export function AnaliseUF({ dados, carregando }: { dados: TipoUF | undefined; ca
           <table>
             <thead>
               <tr>
-                <th>UF</th>
-                <th className="num">Faturamento</th>
-                <th className="num">Unidades</th>
-                <th className="num">Participação</th>
-                <th className="num">Variação</th>
+                <Th campo="uf" ordem={ordem} alternar={alternar}>UF</Th>
+                <Th campo="faturamento" ordem={ordem} alternar={alternar} num>Faturamento</Th>
+                <Th campo="unidades" ordem={ordem} alternar={alternar} num>Unidades</Th>
+                <Th campo="participacao_pct" ordem={ordem} alternar={alternar} num>Participação</Th>
+                <Th campo="variacao_pct" ordem={ordem} alternar={alternar} num>Variação</Th>
               </tr>
             </thead>
             <tbody>
-              {dados.itens.map((it) => (
+              {itens.map((it) => (
                 <tr key={it.uf}>
                   <td style={{ fontWeight: 600 }}>{it.uf}</td>
                   <td className="num">{brl(it.faturamento)}</td>

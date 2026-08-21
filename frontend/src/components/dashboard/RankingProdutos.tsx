@@ -1,3 +1,4 @@
+import { Th, useOrdenacao } from '../Tabela'
 import { Aviso, Card, Carregando, Vazio } from '../ui'
 import type { RankingProdutos as TipoRanking } from '../../lib/analytics'
 import { brl, inteiro, pct } from '../../lib/format'
@@ -26,6 +27,10 @@ export function RankingProdutos({
   setLimite: (n: number) => void
   carregando: boolean
 }) {
+  const { itens, ordem, alternar } = useOrdenacao(
+    dados?.disponivel ? dados.itens : [],
+  )
+
   return (
     <Card
       titulo="Ranking de produtos"
@@ -61,15 +66,15 @@ export function RankingProdutos({
           <table>
             <thead>
               <tr>
-                <th>Produto</th>
-                <th className="num">Faturamento</th>
-                <th className="num">Unidades</th>
-                <th className="num">Participação</th>
-                <th className="num">Variação</th>
+                <Th campo="produto" ordem={ordem} alternar={alternar}>Produto</Th>
+                <Th campo="faturamento_atual" ordem={ordem} alternar={alternar} num>Faturamento</Th>
+                <Th campo="unidades_atual" ordem={ordem} alternar={alternar} num>Unidades</Th>
+                <Th campo="participacao_pct" ordem={ordem} alternar={alternar} num>Participação</Th>
+                <Th campo="variacao_pct" ordem={ordem} alternar={alternar} num>Variação</Th>
               </tr>
             </thead>
             <tbody>
-              {dados.itens.map((it) => (
+              {itens.map((it) => (
                 <tr key={it.produto_id}>
                   <td>{it.produto}</td>
                   <td className="num">{brl(it.faturamento_atual)}</td>

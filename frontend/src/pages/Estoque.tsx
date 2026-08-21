@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
 import { Grafico, useCoresGrafico } from '../components/Grafico'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Tag, Vazio } from '../components/ui'
 import { analytics } from '../lib/analytics'
@@ -136,6 +137,16 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
     queryFn: () => analytics.estoque(clienteId, p!.ini, p!.fim, base, filial, 300),
     enabled: habilitado,
   })
+
+  const { itens: itensSim, ordem: ordemSim, alternar: alternarSim } = useOrdenacao(
+    sim?.disponivel ? sim.itens.slice(0, 25) : [],
+  )
+  const { itens: itensZumbi, ordem: ordemZumbi, alternar: alternarZumbi } = useOrdenacao(
+    zumbi?.disponivel ? zumbi.itens.slice(0, 25) : [],
+  )
+  const { itens: itensPosicao, ordem: ordemPos, alternar: alternarPos } = useOrdenacao(
+    posicao?.disponivel ? posicao.itens : [],
+  )
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -409,35 +420,52 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
 
               {sim?.disponivel ? (
                 <>
+                  <div className="mut" style={{ fontSize: 13 }}>
+                    O simulador compara o estoque de cada SKU com quanto ele{' '}
+                    <b>precisaria</b> ter para cobrir só os {sim.objetivo_dias} dias de
+                    objetivo, no ritmo de venda atual. O que sobra disso é o{' '}
+                    <b>excesso</b>; multiplicando o excesso pelo valor unitário do
+                    estoque, chega-se ao <b>capital potencialmente liberável</b> — o
+                    dinheiro que está parado além do necessário para aquele objetivo de
+                    cobertura.
+                  </div>
                   <div className="kpis">
-                    <Kpi rotulo="Estoque atual" valor={brl(sim.valor_estoque_atual)} />
-                    <Kpi rotulo="Objetivo" valor={`${sim.objetivo_dias} dias`} />
+                    <Kpi rotulo="Estoque atual" valor={brl(sim.valor_estoque_atual)} sub="valor de todo o estoque em SKUs" />
+                    <Kpi rotulo="Objetivo" valor={`${sim.objetivo_dias} dias`} sub="cobertura desejada" />
                     <Kpi
                       rotulo="Capital potencialmente liberável"
                       valor={brl(sim.capital_potencialmente_liberavel)}
-                      sub={sim.pct_do_estoque !== null ? `${pct(sim.pct_do_estoque)} do estoque` : undefined}
+                      sub={
+                        sim.pct_do_estoque !== null
+                          ? `${pct(sim.pct_do_estoque)} do estoque está acima do objetivo`
+                          : undefined
+                      }
                     />
-                    <Kpi rotulo="SKUs com excesso" valor={inteiro(sim.n_skus_com_excesso)} />
+                    <Kpi rotulo="SKUs com excesso" valor={inteiro(sim.n_skus_com_excesso)} sub="têm mais estoque do que o objetivo pede" />
                   </div>
                   <Aviso tipo="atencao">
-                    POTENCIALMENTE LIBERÁVEL — não é dinheiro garantidamente recuperável.
-                    A premissa é que a venda futura segue o ritmo medido; não entram lote
-                    mínimo, validade nem acordo de recompra, que não estão na base.
+                    <b>POTENCIALMENTE LIBERÁVEL — não é dinheiro garantidamente
+                    recuperável.</b> É o valor do excesso de estoque, não um valor em
+                    caixa: para virar dinheiro de verdade, esse excesso precisa ser
+                    vendido (no ritmo medido, sem sazonalidade) ou devolvido ao
+                    fornecedor. A premissa é que a venda futura segue o ritmo medido;
+                    não entram lote mínimo, validade nem acordo de recompra, que não
+                    estão na base.
                   </Aviso>
                   <div className="rolagem">
                     <table>
                       <thead>
                         <tr>
-                          <th>Produto</th>
-                          <th>Filial</th>
-                          <th className="num">Estoque atual</th>
-                          <th className="num">Objetivo</th>
-                          <th className="num">Excesso</th>
-                          <th className="num">Capital</th>
+                          <Th campo="produto" ordem={ordemSim} alternar={alternarSim}>Produto</Th>
+                          <Th campo="filial" ordem={ordemSim} alternar={alternarSim}>Filial</Th>
+                          <Th campo="estoque_atual_un" ordem={ordemSim} alternar={alternarSim} num titulo="Estoque disponível hoje, em unidades">Estoque atual</Th>
+                          <Th campo="estoque_objetivo_un" ordem={ordemSim} alternar={alternarSim} num titulo="Unidades necessárias para cobrir o objetivo de dias, no ritmo de venda atual">Objetivo</Th>
+                          <Th campo="excesso_un" ordem={ordemSim} alternar={alternarSim} num titulo="Estoque atual menos o objetivo, em unidades">Excesso</Th>
+                          <Th campo="excesso_valor" ordem={ordemSim} alternar={alternarSim} num titulo="Excesso em unidades × valor unitário do estoque — o capital parado além do objetivo">Capital do excesso</Th>
                         </tr>
                       </thead>
                       <tbody>
-                        {sim.itens.slice(0, 25).map((i) => (
+                        {itensSim.map((i) => (
                           <tr key={`${i.produto_id}-${i.filial}`}>
                             <td>
                               {i.produto}
@@ -519,17 +547,17 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                     <table>
                       <thead>
                         <tr>
-                          <th>Produto</th>
-                          <th>Filial</th>
-                          <th className="num">Estoque</th>
-                          <th className="num">Venda média/mês</th>
-                          <th className="num">DDE</th>
-                          <th className="num">Valor</th>
-                          <th>Classe</th>
+                          <Th campo="produto" ordem={ordemZumbi} alternar={alternarZumbi}>Produto</Th>
+                          <Th campo="filial" ordem={ordemZumbi} alternar={alternarZumbi}>Filial</Th>
+                          <Th campo="estoque_disp_un" ordem={ordemZumbi} alternar={alternarZumbi} num>Estoque</Th>
+                          <Th campo="media_venda_mes_fonte" ordem={ordemZumbi} alternar={alternarZumbi} num>Venda média/mês</Th>
+                          <Th campo="dde" ordem={ordemZumbi} alternar={alternarZumbi} num>DDE</Th>
+                          <Th campo="valor_estoque" ordem={ordemZumbi} alternar={alternarZumbi} num>Valor</Th>
+                          <Th campo="classificacao" ordem={ordemZumbi} alternar={alternarZumbi}>Classe</Th>
                         </tr>
                       </thead>
                       <tbody>
-                        {zumbi.itens.slice(0, 25).map((i) => (
+                        {itensZumbi.map((i) => (
                           <tr key={`${i.produto_id}-${i.filial}`}>
                             <td>
                               🔴 {i.produto}
@@ -577,18 +605,18 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                 <table>
                   <thead>
                     <tr>
-                      <th>Produto</th>
-                      <th>Filial</th>
-                      <th className="num">Estoque</th>
-                      <th className="num">Venda média/mês</th>
-                      <th className="num">DDE (fonte)</th>
-                      <th className="num">DDE (período)</th>
-                      <th className="num">Valor</th>
-                      <th>Classe</th>
+                      <Th campo="produto" ordem={ordemPos} alternar={alternarPos}>Produto</Th>
+                      <Th campo="filial" ordem={ordemPos} alternar={alternarPos}>Filial</Th>
+                      <Th campo="estoque_disp_un" ordem={ordemPos} alternar={alternarPos} num>Estoque</Th>
+                      <Th campo="media_venda_mes_fonte" ordem={ordemPos} alternar={alternarPos} num>Venda média/mês</Th>
+                      <Th campo="dde_fonte" ordem={ordemPos} alternar={alternarPos} num>DDE (fonte)</Th>
+                      <Th campo="dde_periodo" ordem={ordemPos} alternar={alternarPos} num>DDE (período)</Th>
+                      <Th campo="valor_estoque" ordem={ordemPos} alternar={alternarPos} num>Valor</Th>
+                      <Th campo="classificacao" ordem={ordemPos} alternar={alternarPos}>Classe</Th>
                     </tr>
                   </thead>
                   <tbody>
-                    {posicao.itens.map((i) => (
+                    {itensPosicao.map((i) => (
                       <tr key={`${i.produto_id}-${i.filial}`}>
                         <td>{i.produto}</td>
                         <td>{i.filial}</td>

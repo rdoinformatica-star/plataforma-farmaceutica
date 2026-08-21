@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
 import { Grafico, useCoresGrafico } from '../components/Grafico'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Tag, Vazio } from '../components/ui'
 import { analytics, type Calculo } from '../lib/analytics'
@@ -129,6 +130,13 @@ function PrecoCliente({ clienteId, clientes }: { clienteId: number; clientes: Cl
     queryFn: () => analytics.uf(clienteId, p!.ini, p!.fim),
     enabled: habilitado,
   })
+
+  const { itens: itensPreco, ordem: ordemPreco, alternar: alternarPreco } = useOrdenacao(
+    preco?.disponivel ? preco.itens.slice(0, 30) : [],
+  )
+  const { itens: itensVarejo, ordem: ordemVarejo, alternar: alternarVarejo } = useOrdenacao(
+    varejo?.disponivel ? varejo.itens.slice(0, 20) : [],
+  )
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -265,16 +273,16 @@ function PrecoCliente({ clienteId, clientes }: { clienteId: number; clientes: Cl
                   <table>
                     <thead>
                       <tr>
-                        <th>Produto</th>
-                        <th className="num">Preço cliente</th>
-                        <th className="num">Preço demais</th>
-                        <th className="num">Diferença</th>
-                        <th className="num">Unidades</th>
-                        <th>Posição</th>
+                        <Th campo="produto" ordem={ordemPreco} alternar={alternarPreco}>Produto</Th>
+                        <Th campo="preco_cliente" ordem={ordemPreco} alternar={alternarPreco} num>Preço cliente</Th>
+                        <Th campo="preco_outros" ordem={ordemPreco} alternar={alternarPreco} num>Preço demais</Th>
+                        <Th campo="diferenca_pct" ordem={ordemPreco} alternar={alternarPreco} num>Diferença</Th>
+                        <Th campo="unidades_cliente" ordem={ordemPreco} alternar={alternarPreco} num>Unidades</Th>
+                        <Th campo="posicao" ordem={ordemPreco} alternar={alternarPreco}>Posição</Th>
                       </tr>
                     </thead>
                     <tbody>
-                      {preco.itens.slice(0, 30).map((i) => (
+                      {itensPreco.map((i) => (
                         <tr key={i.produto_id}>
                           <td>{i.produto}</td>
                           <td className="num">{rs(i.preco_cliente)}</td>
@@ -373,16 +381,16 @@ function PrecoCliente({ clienteId, clientes }: { clienteId: number; clientes: Cl
                   <table>
                     <thead>
                       <tr>
-                        <th>Mercado</th>
-                        <th className="num">Preço VITAMEDIC</th>
-                        <th>Líder</th>
-                        <th className="num">Preço líder</th>
-                        <th className="num">vs líder</th>
-                        <th className="num">Mais baratos</th>
+                        <Th campo="mercado" ordem={ordemVarejo} alternar={alternarVarejo}>Mercado</Th>
+                        <Th campo="preco_vitamedic" ordem={ordemVarejo} alternar={alternarVarejo} num>Preço VITAMEDIC</Th>
+                        <Th campo="lider" ordem={ordemVarejo} alternar={alternarVarejo}>Líder</Th>
+                        <Th campo="preco_lider" ordem={ordemVarejo} alternar={alternarVarejo} num>Preço líder</Th>
+                        <Th campo="indice_vs_lider_pct" ordem={ordemVarejo} alternar={alternarVarejo} num>vs líder</Th>
+                        <Th campo="concorrentes_mais_baratos" ordem={ordemVarejo} alternar={alternarVarejo} num>Mais baratos</Th>
                       </tr>
                     </thead>
                     <tbody>
-                      {varejo.itens.slice(0, 20).map((i) => (
+                      {itensVarejo.map((i) => (
                         <tr key={i.mercado}>
                           <td>{i.mercado}</td>
                           <td className="num">{rs(i.preco_vitamedic)}</td>

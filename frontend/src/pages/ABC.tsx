@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 
 import { Grafico, useCoresGrafico } from '../components/Grafico'
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Tag, Vazio } from '../components/ui'
 import { analytics, type FaixaCrescimento } from '../lib/analytics'
@@ -94,6 +95,10 @@ function ABCCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
     queryFn: () => analytics.abcCrescimento(clienteId, p!.ini, p!.fim, uf),
     enabled: habilitado,
   })
+
+  const { itens: itensCurva, ordem: ordemCurva, alternar: alternarCurva } = useOrdenacao(
+    curva?.disponivel ? curva.itens.slice(0, 100) : [],
+  )
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -199,15 +204,20 @@ function ABCCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                   <table>
                     <thead>
                       <tr>
-                        <th>Produto</th><th>Classe</th>
-                        <th className="num">Faturamento</th><th className="num">Participação</th>
-                        <th className="num">Acumulado</th><th className="num">Unidades</th>
-                        <th className="num">Variação</th>
-                        {curva.itens[0]?.pdvs_compradores !== undefined && <th className="num">PDVs</th>}
+                        <Th campo="produto" ordem={ordemCurva} alternar={alternarCurva}>Produto</Th>
+                        <Th campo="classe_abc" ordem={ordemCurva} alternar={alternarCurva}>Classe</Th>
+                        <Th campo="faturamento_atual" ordem={ordemCurva} alternar={alternarCurva} num>Faturamento</Th>
+                        <Th campo="participacao_pct" ordem={ordemCurva} alternar={alternarCurva} num>Participação</Th>
+                        <Th campo="participacao_acumulada_pct" ordem={ordemCurva} alternar={alternarCurva} num>Acumulado</Th>
+                        <Th campo="unidades_atual" ordem={ordemCurva} alternar={alternarCurva} num>Unidades</Th>
+                        <Th campo="variacao_pct" ordem={ordemCurva} alternar={alternarCurva} num>Variação</Th>
+                        {curva.itens[0]?.pdvs_compradores !== undefined && (
+                          <Th campo="pdvs_compradores" ordem={ordemCurva} alternar={alternarCurva} num>PDVs</Th>
+                        )}
                       </tr>
                     </thead>
                     <tbody>
-                      {curva.itens.slice(0, 100).map((it) => (
+                      {itensCurva.map((it) => (
                         <tr key={it.produto_id}>
                           <td>{it.produto}</td>
                           <td><Tag tipo={CLASSE_TAG[it.classe_abc]}>{it.classe_abc}</Tag></td>

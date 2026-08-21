@@ -1,3 +1,4 @@
+import { Th, useOrdenacao } from '../Tabela'
 import { Aviso, Card, Carregando, Vazio } from '../ui'
 import type { RankingPDVs } from '../../lib/analytics'
 import { brl, inteiro, pct } from '../../lib/format'
@@ -19,6 +20,10 @@ export function AnalisePDV({
   setVisao: (v: string) => void
   carregando: boolean
 }) {
+  const { itens, ordem, alternar } = useOrdenacao(
+    dados?.disponivel ? dados.itens : [],
+  )
+
   if (!carregando && dados && !dados.disponivel) return null
 
   return (
@@ -50,15 +55,15 @@ export function AnalisePDV({
           <table>
             <thead>
               <tr>
-                <th>PDV</th>
-                <th className="num">Faturamento</th>
-                <th className="num">SKUs</th>
-                <th className="num">Participação</th>
-                <th className="num">Variação</th>
+                <Th campo="pdv" ordem={ordem} alternar={alternar}>PDV</Th>
+                <Th campo="faturamento" ordem={ordem} alternar={alternar} num>Faturamento</Th>
+                <Th campo="n_skus" ordem={ordem} alternar={alternar} num>SKUs</Th>
+                <Th campo="participacao_pct" ordem={ordem} alternar={alternar} num>Participação</Th>
+                <Th campo="variacao_pct" ordem={ordem} alternar={alternar} num>Variação</Th>
               </tr>
             </thead>
             <tbody>
-              {dados.itens.map((it) => (
+              {itens.map((it) => (
                 <tr key={it.pdv_id}>
                   <td>{it.pdv}</td>
                   <td className="num">{brl(it.faturamento)}</td>

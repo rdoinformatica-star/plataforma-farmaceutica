@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Tag, Vazio } from '../components/ui'
 import { analytics } from '../lib/analytics'
@@ -13,12 +14,34 @@ import { useEstado } from '../lib/estado'
 import type { Periodo } from '../lib/periodo'
 import { resolverPreset } from '../lib/periodo'
 
-const QUADRANTE_INFO: Record<string, { tag: string; rotulo: string }> = {
-  PRIORITARIO: { tag: 't-erro', rotulo: 'Prioritário' },
-  CONSOLIDADO: { tag: 't-fato', rotulo: 'Consolidado' },
-  INVESTIGAR_PRODUTIVIDADE: { tag: 't-hip', rotulo: 'Investigar produtividade' },
-  BAIXA_PRIORIDADE: { tag: 't-neutro', rotulo: 'Baixa prioridade' },
+const QUADRANTE_INFO: Record<string, { tag: string; rotulo: string; leitura: string }> = {
+  PRIORITARIO: {
+    tag: 't-erro',
+    rotulo: 'Prioritário',
+    leitura: 'Fatura acima da mediana com cobertura abaixo dela: vende bem onde está, mas está em poucos PDVs.',
+  },
+  CONSOLIDADO: {
+    tag: 't-fato',
+    rotulo: 'Consolidado',
+    leitura: 'Fatura acima da mediana e já cobre acima dela: o produto está distribuído e performando.',
+  },
+  INVESTIGAR_PRODUTIVIDADE: {
+    tag: 't-hip',
+    rotulo: 'Investigar produtividade',
+    leitura: 'Cobertura acima da mediana mas faturamento abaixo: está em muitos PDVs e rende pouco em cada um.',
+  },
+  BAIXA_PRIORIDADE: {
+    tag: 't-neutro',
+    rotulo: 'Baixa prioridade',
+    leitura: 'Faturamento e cobertura abaixo da mediana: pouco alcance e pouco retorno no período.',
+  },
 }
+const ORDEM_QUADRANTES = [
+  'PRIORITARIO',
+  'CONSOLIDADO',
+  'INVESTIGAR_PRODUTIVIDADE',
+  'BAIXA_PRIORIDADE',
+] as const
 const INCREMENTOS = [5, 10, 15, 20]
 
 export function Cobertura() {
@@ -67,6 +90,7 @@ function CoberturaCliente({ clienteId, clientes }: { clienteId: number; clientes
   }, [disponivel?.ini, disponivel?.fim])
 
   const [incrementoPp, setIncrementoPp] = useState(10)
+  const [quadrante, setQuadrante] = useState<string | null>(null)
   const p = periodo
   const habilitado = !!p
 
@@ -85,6 +109,17 @@ function CoberturaCliente({ clienteId, clientes }: { clienteId: number; clientes
     queryFn: () => analytics.coberturaPotencial(clienteId, p!.ini, p!.fim, incrementoPp),
     enabled: habilitado,
   })
+
+  const doQuadrante =
+    matriz?.disponivel && quadrante
+      ? matriz.itens.filter((i) => i.quadrante === quadrante)
+      : []
+  const { itens: itensQuadrante, ordem: ordemQ, alternar: alternarQ } =
+    useOrdenacao(doQuadrante, { campo: 'faturamento_atual', direcao: 'desc' })
+  const { itens: itensPotencial, ordem: ordemP, alternar: alternarP } =
+    useOrdenacao(potencial?.disponivel ? potencial.itens : [])
+  const { itens: itensCobertura, ordem: ordemC, alternar: alternarC } =
+    useOrdenacao(cobertura?.disponivel ? cobertura.itens.slice(0, 100) : [])
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -135,13 +170,71 @@ function CoberturaCliente({ clienteId, clientes }: { clienteId: number; clientes
               }} />
             }>
               <div className="grade c2">
-                {Object.entries(QUADRANTE_INFO).map(([chave, info]) => (
-                  <div key={chave} className="linha entre" style={{ padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
-                    <Tag tipo={info.tag}>{info.rotulo}</Tag>
-                    <span className="num" style={{ fontWeight: 600 }}>{matriz.resumo[chave] ?? 0} produtos</span>
-                  </div>
-                ))}
+                {ORDEM_QUADRANTES.map((chave) => {
+                  const info = QUADRANTE_INFO[chave]
+                  const n = matriz.resumo[chave] ?? 0
+                  const ativo = quadrante === chave
+                  return (
+                    <button
+                      key={chave}
+                      onClick={() => setQuadrante(ativo ? null : chave)}
+                      className={`quadrante${ativo ? ' ativo' : ''}`}
+                      disabled={n === 0}
+                    >
+                      <span className="linha entre">
+                        <Tag tipo={info.tag}>{info.rotulo}</Tag>
+                        <span className="num" style={{ fontWeight: 600 }}>{n} produtos</span>
+                      </span>
+                      <span className="mut" style={{ fontSize: 12, display: 'block', marginTop: 6 }}>
+                        {info.leitura}
+                      </span>
+                      {n > 0 && (
+                        <span className="mut" style={{ fontSize: 11.5, display: 'block', marginTop: 6 }}>
+                          {ativo ? '▾ mostrando os produtos abaixo' : '▸ clique para ver quais são'}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
+
+              {quadrante && (
+                <div style={{ marginTop: 14 }}>
+                  <div className="linha entre" style={{ marginBottom: 8 }}>
+                    <b style={{ fontSize: 13 }}>
+                      Produtos em “{QUADRANTE_INFO[quadrante].rotulo}” ({doQuadrante.length})
+                    </b>
+                    <button onClick={() => setQuadrante(null)}>Fechar</button>
+                  </div>
+                  <div className="rolagem">
+                    <table>
+                      <thead>
+                        <tr>
+                          <Th campo="produto" ordem={ordemQ} alternar={alternarQ}>Produto</Th>
+                          <Th campo="faturamento_atual" ordem={ordemQ} alternar={alternarQ} num>Faturamento</Th>
+                          <Th campo="pdvs_compradores" ordem={ordemQ} alternar={alternarQ} num>PDVs</Th>
+                          <Th campo="cobertura_pct" ordem={ordemQ} alternar={alternarQ} num>Cobertura</Th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {itensQuadrante.map((it) => (
+                          <tr key={it.produto_id}>
+                            <td>{it.produto}</td>
+                            <td className="num">{brl(it.faturamento_atual)}</td>
+                            <td className="num">{inteiro(it.pdvs_compradores)}</td>
+                            <td className="num">{pct(it.cobertura_pct)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mut" style={{ fontSize: 11.5, marginTop: 8 }}>
+                    Corte pela mediana do recorte atual: faturamento {brl(matriz.mediana_faturamento)} ·
+                    cobertura {pct(matriz.mediana_cobertura_pct)}. Mudar período ou UF move o corte —
+                    o quadrante é relativo aos produtos deste recorte, não uma classificação absoluta.
+                  </div>
+                </div>
+              )}
             </Card>
           )}
 
@@ -168,12 +261,14 @@ function CoberturaCliente({ clienteId, clientes }: { clienteId: number; clientes
                   <table>
                     <thead>
                       <tr>
-                        <th>Produto</th><th className="num">Cobertura</th>
-                        <th className="num">R$/PDV</th><th className="num">Potencial</th>
+                        <Th campo="produto" ordem={ordemP} alternar={alternarP}>Produto</Th>
+                        <Th campo="cobertura_pct" ordem={ordemP} alternar={alternarP} num>Cobertura</Th>
+                        <Th campo="rs_por_pdv" ordem={ordemP} alternar={alternarP} num>R$/PDV</Th>
+                        <Th campo="potencial_estimado" ordem={ordemP} alternar={alternarP} num>Potencial</Th>
                       </tr>
                     </thead>
                     <tbody>
-                      {potencial.itens.map((it) => (
+                      {itensPotencial.map((it) => (
                         <tr key={it.produto_id}>
                           <td>{it.produto}</td>
                           <td className="num">{pct(it.cobertura_pct)}</td>
@@ -205,12 +300,14 @@ function CoberturaCliente({ clienteId, clientes }: { clienteId: number; clientes
                 <table>
                   <thead>
                     <tr>
-                      <th>Produto</th><th className="num">Faturamento</th>
-                      <th className="num">PDVs compradores</th><th className="num">Cobertura</th>
+                      <Th campo="produto" ordem={ordemC} alternar={alternarC}>Produto</Th>
+                      <Th campo="faturamento_atual" ordem={ordemC} alternar={alternarC} num>Faturamento</Th>
+                      <Th campo="pdvs_compradores" ordem={ordemC} alternar={alternarC} num>PDVs compradores</Th>
+                      <Th campo="cobertura_pct" ordem={ordemC} alternar={alternarC} num>Cobertura</Th>
                     </tr>
                   </thead>
                   <tbody>
-                    {cobertura.itens.slice(0, 100).map((it) => (
+                    {itensCobertura.map((it) => (
                       <tr key={it.produto_id}>
                         <td>{it.produto}</td>
                         <td className="num">{brl(it.faturamento_atual)}</td>

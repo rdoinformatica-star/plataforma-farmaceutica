@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 
 import { Grafico, useCoresGrafico } from '../components/Grafico'
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Vazio } from '../components/ui'
 import { analytics } from '../lib/analytics'
@@ -83,6 +84,13 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
     queryFn: () => analytics.mixOportunidades(clienteId, p!.ini, p!.fim),
     enabled: habilitado,
   })
+
+  const { itens: itensMono, ordem: ordemMono, alternar: alternarMono } = useOrdenacao(
+    mono?.disponivel ? mono.top_produtos.slice(0, 5) : [],
+  )
+  const { itens: itensExpansao, ordem: ordemExp, alternar: alternarExp } = useOrdenacao(
+    expansao?.disponivel ? expansao.itens : [],
+  )
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -177,8 +185,14 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                     <div>
                       <div className="rot" style={{ marginBottom: 6 }}>Produtos mais concentradores</div>
                       <table>
+                        <thead>
+                          <tr>
+                            <Th campo="produto" ordem={ordemMono} alternar={alternarMono}>Produto</Th>
+                            <Th campo="n_pdvs" ordem={ordemMono} alternar={alternarMono} num>PDVs</Th>
+                          </tr>
+                        </thead>
                         <tbody>
-                          {mono.top_produtos.slice(0, 5).map((tp) => (
+                          {itensMono.map((tp) => (
                             <tr key={tp.produto_id}>
                               <td>{tp.produto}</td>
                               <td className="num">{tp.n_pdvs} PDVs</td>
@@ -218,12 +232,15 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                     <table>
                       <thead>
                         <tr>
-                          <th>PDV</th><th>Mix atual</th><th>Faixa de referência</th>
-                          <th className="num">Faturamento</th><th className="num">R$/PDV de referência</th>
+                          <Th campo="pdv" ordem={ordemExp} alternar={alternarExp}>PDV</Th>
+                          <Th campo="faixa_atual" ordem={ordemExp} alternar={alternarExp}>Mix atual</Th>
+                          <Th campo="faixa_referencia" ordem={ordemExp} alternar={alternarExp}>Faixa de referência</Th>
+                          <Th campo="faturamento_atual" ordem={ordemExp} alternar={alternarExp} num>Faturamento</Th>
+                          <Th campo="rs_por_pdv_faixa_referencia" ordem={ordemExp} alternar={alternarExp} num>R$/PDV de referência</Th>
                         </tr>
                       </thead>
                       <tbody>
-                        {expansao.itens.map((it) => (
+                        {itensExpansao.map((it) => (
                           <tr key={it.pdv_id}>
                             <td>{it.pdv}</td>
                             <td>{it.faixa_atual} ({it.n_skus_atual})</td>

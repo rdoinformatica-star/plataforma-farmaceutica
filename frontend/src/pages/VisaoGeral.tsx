@@ -3,6 +3,7 @@ import { Database, Upload } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
+import { Th, useOrdenacao } from '../components/Tabela'
 import { Aviso, Card, Carregando, Kpi, StatusImport, Vazio } from '../components/ui'
 import { api, type Estatisticas, type Importacao } from '../lib/api'
 import { dataHora, inteiro, nomeElo } from '../lib/format'
@@ -22,6 +23,10 @@ export function VisaoGeral() {
         : false,
     refetchIntervalInBackground: true,
   })
+
+  const { itens: fontesOrdenadas, ordem: ordemFontes, alternar: alternarFontes } = useOrdenacao(
+    est?.por_fonte.filter((f) => f.n_importacoes > 0) ?? [],
+  )
 
   if (isLoading || !est) return <Carregando />
 
@@ -87,23 +92,21 @@ export function VisaoGeral() {
               <table>
                 <thead>
                   <tr>
-                    <th>Fonte</th>
+                    <Th campo="nome" ordem={ordemFontes} alternar={alternarFontes}>Fonte</Th>
                     <th>Elo da cadeia</th>
-                    <th className="num">Importações</th>
-                    <th className="num">Registros</th>
+                    <Th campo="n_importacoes" ordem={ordemFontes} alternar={alternarFontes} num>Importações</Th>
+                    <Th campo="linhas" ordem={ordemFontes} alternar={alternarFontes} num>Registros</Th>
                   </tr>
                 </thead>
                 <tbody>
-                  {est.por_fonte
-                    .filter((f) => f.n_importacoes > 0)
-                    .map((f) => (
-                      <tr key={f.codigo}>
-                        <td>{f.nome}</td>
-                        <td className="mut">{eloDaFonte(f.codigo)}</td>
-                        <td className="num">{inteiro(f.n_importacoes)}</td>
-                        <td className="num">{inteiro(f.linhas)}</td>
-                      </tr>
-                    ))}
+                  {fontesOrdenadas.map((f) => (
+                    <tr key={f.codigo}>
+                      <td>{f.nome}</td>
+                      <td className="mut">{eloDaFonte(f.codigo)}</td>
+                      <td className="num">{inteiro(f.n_importacoes)}</td>
+                      <td className="num">{inteiro(f.linhas)}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </Card>
