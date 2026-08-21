@@ -272,7 +272,12 @@ salva no navegador. O botão some na impressão e no PDF.
       SKUs (monoproduto, alto-mix, expansão), matriz de oportunidades com
       score configurável (potencial/impacto/facilidade) — tudo validado
       ao vivo contra `engine/analise.py`
-- [ ] Etapa 4 — mercado, IQVIA, share, preço, regiões
+- [x] **Etapa 4 — Estoque, mercado e preço:** DDE e faixas de cobertura,
+      estoque zumbi, capital parado, simulador de objetivo, matriz estoque ×
+      vendas; mercado IQVIA (tamanho, crescimento, share da indústria,
+      regional por UF, cliente vs mercado em p.p., ponte com os produtos do
+      cliente); preço do cliente × demais distribuidores e inventário de
+      comparabilidade entre fontes. 143 testes.
 - [ ] Etapa 5 — estoque, DDE, capital parado, anomalias, simulador
 - [ ] Etapa 6 — agente, FATO/HIPÓTESE/RECOMENDAÇÃO, limitações, gerador de prompt
 - [ ] Etapa 7 — relatório executivo, histórico, refinamento visual
