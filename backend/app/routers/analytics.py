@@ -10,6 +10,7 @@ por engano).
 import analytics.abc as abc_mod
 import analytics.cobertura as cobertura_mod
 import analytics.combos as combos_mod
+import analytics.compra as compra_mod
 import analytics.estoque as estoque_mod
 import analytics.mercado as mercado_mod
 import analytics.mix as mix_mod
@@ -19,7 +20,8 @@ import analytics.preco as preco_mod
 import analytics.vendas as vendas
 from analytics.contexto import carregar as carregar_disponibilidade
 from analytics.periodo import validar as validar_periodo
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Response
+from pydantic import BaseModel
 
 from .. import db
 from ..core import errors
@@ -311,6 +313,66 @@ def oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
             peso_impacto=peso_impacto, peso_facilidade=peso_facilidade,
             incremento_pp=incremento_pp, uf=uf.upper() if uf else None,
             escopo=escopo, top_n=top_n)
+
+
+class _PedidoEntrada(BaseModel):
+    """DDE por grupo e por produto vem no corpo: sao mapas de tamanho variavel,
+    e o comprador ajusta varias linhas antes de recalcular."""
+    periodo_ini: int
+    periodo_fim: int
+    agrupamento: str = "abc"
+    dde_padrao: float = compra_mod.DDE_ALVO_PADRAO
+    dde_por_grupo: dict[str, float] = {}
+    dde_por_produto: dict[int, float] = {}
+    base_velocidade: str = "fonte"
+    filial: str | None = None
+    valor_alvo: float | None = None
+    teto_por_sku: float = compra_mod.TETO_POR_SKU_PADRAO
+    incluir_sem_giro: bool = False
+
+
+def _montar_pedido(con, client_id: int, e: _PedidoEntrada) -> dict:
+    ini, fim = _periodo(e.periodo_ini, e.periodo_fim)
+    if e.base_velocidade not in ("fonte", "periodo"):
+        raise errors.invalido("base_velocidade deve ser 'fonte' ou 'periodo'.")
+    try:
+        return compra_mod.sugerir_pedido(
+            con, client_id, ini, fim, agrupamento=e.agrupamento,
+            dde_por_grupo=e.dde_por_grupo, dde_padrao=e.dde_padrao,
+            dde_por_produto=e.dde_por_produto, base_velocidade=e.base_velocidade,
+            filial=e.filial, valor_alvo=e.valor_alvo, teto_por_sku=e.teto_por_sku,
+            incluir_sem_giro=e.incluir_sem_giro)
+    except ValueError as exc:
+        raise errors.invalido(str(exc))
+
+
+@router.post("/{client_id}/compra")
+def compra_sugestao(client_id: int, entrada: _PedidoEntrada):
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return _montar_pedido(con, client_id, entrada)
+
+
+@router.post("/{client_id}/compra/xlsx")
+def compra_xlsx(client_id: int, entrada: _PedidoEntrada):
+    with db.conexao() as con:
+        cliente = _cliente_existe(con, client_id)
+        dados = _montar_pedido(con, client_id, entrada)
+        if not dados.get("disponivel"):
+            raise errors.invalido(dados.get("motivo", "Sem dados para exportar."))
+        nome = (cliente or {}).get("nome") if isinstance(cliente, dict) else None
+        if not nome:
+            row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+            nome = (row or {}).get("nome", f"cliente {client_id}")
+        conteudo = compra_mod.exportar_xlsx(dados, nome)
+
+    seguro = "".join(c if c.isalnum() or c in "-_" else "_" for c in nome)
+    arquivo = f"proposta_compra_{seguro}_{dados['data_ref']}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
 
 
 @router.get("/{client_id}/combos")

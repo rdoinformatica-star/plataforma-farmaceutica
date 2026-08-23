@@ -255,7 +255,7 @@ def alertas_expandidos(con: sqlite3.Connection, client_id: int, ini: int, fim: i
                 "produto_id": None, "valor_pct": None,
             })
 
-    curva = abc.curva_abc(con, client_id, ini, fim, uf=uf, com_cobertura=False)
+    curva = abc.curva_abc(con, client_id, ini, fim, com_cobertura=False)
     if curva["disponivel"] and curva["itens"]:
         top5_pct = sum(i["participacao_pct"] or 0 for i in
                        sorted(curva["itens"], key=lambda x: -x["faturamento_atual"])[:5])

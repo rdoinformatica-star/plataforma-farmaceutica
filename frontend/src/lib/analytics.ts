@@ -540,6 +540,90 @@ export type MatrizOportunidades =
 
 export type AlertasExpandidos = Indisponivel | { disponivel: true; itens: Alerta[]; n_total: number; calculo: Calculo }
 
+/* Sugestão de pedido de compra — ver analytics/compra.py */
+
+export type Agrupamento = 'abc' | 'estoque' | 'marca'
+
+export interface LinhaPedido {
+  produto_id: number
+  produto: string
+  grupo: string
+  classe_estoque: string | null
+  filiais: string[]
+  estoque_atual_un: number
+  pendencia_un: number
+  venda_dia: number
+  venda_mes: number
+  dde_atual: number | null
+  dde_alvo: number
+  dde_origem: 'produto' | 'grupo' | 'padrao'
+  estoque_alvo_un: number
+  sugestao_un: number
+  custo_unitario: number
+  sugestao_valor: number
+  dde_apos_pedido: number | null
+  limitado_por_teto?: boolean
+  sugestao_valor_cheio?: number
+}
+
+export interface GrupoPedido {
+  grupo: string
+  skus: number
+  unidades: number
+  valor: number
+  dde_alvo: number
+}
+
+export interface CortePedido {
+  valor_alvo: number
+  necessidade_total: number
+  atendido: number
+  sobra_do_orcamento: number
+  necessidade_nao_atendida: number
+  teto_por_sku_pct: number
+  teto_por_sku_valor: number
+  n_limitados_por_teto: number
+}
+
+export type SugestaoPedido =
+  | Indisponivel
+  | {
+      disponivel: true
+      data_ref: string
+      agrupamento: Agrupamento
+      base_velocidade: string
+      filial: string | null
+      dde_padrao: number
+      dde_por_grupo: Record<string, number>
+      n_skus: number
+      n_sem_giro: number
+      n_sem_ligacao: number
+      valor_sem_ligacao: number
+      grupo_sem_ligacao: string
+      total_unidades: number
+      total_valor: number
+      necessidade_total: number
+      corte: CortePedido | null
+      grupos: GrupoPedido[]
+      grupos_disponiveis: string[]
+      itens: LinhaPedido[]
+      calculo: Calculo
+    }
+
+export interface EntradaPedido {
+  periodo_ini: number
+  periodo_fim: number
+  agrupamento?: Agrupamento
+  dde_padrao?: number
+  dde_por_grupo?: Record<string, number>
+  dde_por_produto?: Record<number, number>
+  base_velocidade?: string
+  filial?: string | null
+  valor_alvo?: number | null
+  teto_por_sku?: number
+  incluir_sem_giro?: boolean
+}
+
 /* Combos, afinidade e ajuste de preço — ver analytics/combos.py */
 
 export type FocoCombo = 'geral' | 'criticos' | 'zumbi' | 'misto' | 'giro_rapido'
@@ -1146,6 +1230,36 @@ export const analytics = {
         escopo,
       })}`,
     ),
+
+  compra: (cid: number, entrada: EntradaPedido) =>
+    api.post<SugestaoPedido>(`/analytics/${cid}/compra`, entrada),
+
+  /** Baixa a proposta em .xlsx. Não passa por api.post: a resposta é binária,
+   * não JSON, e precisa virar um download no navegador. */
+  compraXlsx: async (cid: number, entrada: EntradaPedido) => {
+    const r = await fetch(`/api/analytics/${cid}/compra/xlsx`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entrada),
+    })
+    if (!r.ok) {
+      const corpo = await r.json().catch(() => ({}))
+      throw new Error(corpo?.erro?.mensagem ?? 'Não foi possível gerar a planilha.')
+    }
+    const blob = await r.blob()
+    // O nome vem do Content-Disposition do servidor, que já inclui cliente e data.
+    const cd = r.headers.get('content-disposition') ?? ''
+    const nome = /filename="([^"]+)"/.exec(cd)?.[1] ?? 'proposta_compra.xlsx'
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = nome
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    return nome
+  },
 
   combos: (
     cid: number, ini: number, fim: number,

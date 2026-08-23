@@ -6,6 +6,7 @@ import { Auditoria } from './pages/Auditoria'
 import { CamposNovos } from './pages/CamposNovos'
 import { Clientes } from './pages/Clientes'
 import { Cobertura } from './pages/Cobertura'
+import { Compra } from './pages/Compra'
 import { Config } from './pages/Config'
 import { Dashboard } from './pages/Dashboard'
 import { Dimensoes } from './pages/Dimensoes'
@@ -33,6 +34,7 @@ export const rotas = createBrowserRouter([
       { path: 'mix', element: <Mix /> },
       { path: 'oportunidades', element: <Oportunidades /> },
       { path: 'estoque', element: <Estoque /> },
+      { path: 'compra', element: <Compra /> },
       { path: 'mercado', element: <Mercado /> },
       { path: 'preco', element: <Preco /> },
       { path: 'importar', element: <Importar /> },
