@@ -154,6 +154,125 @@ def monoproduto(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     }
 
 
+def detalhe_faixa(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
+                  *, sku_min: int, sku_max: int | None = None,
+                  uf: str | None = None, limite: int = 200,
+                  top_produtos: int = 15) -> dict:
+    """Quem esta numa faixa de mix, e o que essa faixa compra.
+
+    Generaliza monoproduto() para qualquer intervalo de SKUs: 1, 2-3, 4-9,
+    10+ ou um recorte arbitrario. Devolve os PDVs (com nome, faturamento e
+    quantos SKUs) e os produtos que mais concentram esses PDVs — que e a
+    pergunta util: "os PDVs de 2-3 SKUs compram O QUE?".
+    """
+    disp = carregar(con, client_id)
+    if not disp.tem_sellout:
+        return {"disponivel": False, "motivo": disp.motivo_indisponivel}
+    if uf is not None and not disp.tem_uf:
+        return {"disponivel": False,
+               "motivo": "Este cliente não tem UF de PDV resolvida nos dados importados."}
+    if sku_min < 1:
+        raise ValueError("sku_min deve ser pelo menos 1.")
+    teto = sku_max if sku_max is not None else 10**9
+    if teto < sku_min:
+        raise ValueError("sku_max nao pode ser menor que sku_min.")
+
+    pdvs = _mix_bruto(con, disp.distribuidor_ids, ini, fim, uf=uf)
+    if not pdvs:
+        return {"disponivel": False, "motivo": "Nenhum PDV comprador neste período."}
+    total_base = sum(p["faturamento"] for p in pdvs)
+
+    grupo = [p for p in pdvs if sku_min <= p["n_skus"] <= teto]
+    rotulo = f"{sku_min} SKU" if sku_min == teto else (
+        f"{sku_min}+ SKUs" if sku_max is None else f"{sku_min}-{sku_max} SKUs")
+    if not grupo:
+        return {"disponivel": True, "faixa": rotulo, "sku_min": sku_min,
+                "sku_max": sku_max, "uf": uf, "n_pdvs": 0, "faturamento": 0.0,
+                "participacao_pct": 0.0, "rs_por_pdv": None, "top_produtos": [],
+                "itens": [],
+                "calculo": f.Calculo(
+                    formula=f"PDVs com {rotulo} comprados no período.",
+                    premissas=[_ELO_SELLOUT]).como_dict()}
+
+    ids = [p["pdv_id"] for p in grupo]
+    marca_dist = _marca(len(disp.distribuidor_ids))
+
+    # Quais produtos esses PDVs compram, e em quantos deles cada um aparece.
+    # Em lotes de 900 por causa do teto de variaveis do SQLite — a faixa 4-9
+    # tem milhares de PDVs na base real.
+    contagem: dict[int, int] = {}
+    valor_prod: dict[int, float] = {}
+    for i in range(0, len(ids), 900):
+        lote = ids[i:i + 900]
+        for pid, n_pdvs, valor in con.execute(
+            f"SELECT produto_id, count(DISTINCT pdv_id), sum(valor) FROM v_vendas"
+            f" WHERE distribuidor_id IN ({marca_dist}) AND pdv_id IN ({_marca(len(lote))})"
+            f"   AND periodo BETWEEN ? AND ? GROUP BY produto_id",
+            disp.distribuidor_ids + lote + [ini, fim]):
+            contagem[pid] = contagem.get(pid, 0) + n_pdvs
+            valor_prod[pid] = valor_prod.get(pid, 0.0) + (valor or 0.0)
+
+    top_ids = sorted(contagem, key=lambda p: -contagem[p])[:top_produtos]
+    nomes_prod = dict(con.execute(
+        f"SELECT id, nome_canonico FROM dim_product WHERE id IN ({_marca(len(top_ids))})",
+        top_ids).fetchall()) if top_ids else {}
+
+    grupo.sort(key=lambda p: -p["faturamento"])
+    mostrados = grupo[:limite]
+    nomes_pdv: dict[int, str] = {}
+    ufs_pdv: dict[int, str | None] = {}
+    ids_mostrados = [p["pdv_id"] for p in mostrados]
+    for i in range(0, len(ids_mostrados), 900):
+        lote = ids_mostrados[i:i + 900]
+        for pid, razao, u in con.execute(
+            f"SELECT id, razao_social, uf FROM dim_pdv WHERE id IN ({_marca(len(lote))})", lote):
+            nomes_pdv[pid] = razao
+            ufs_pdv[pid] = u
+
+    faturamento = sum(p["faturamento"] for p in grupo)
+    itens = [{"pdv_id": p["pdv_id"],
+              "pdv": nomes_pdv.get(p["pdv_id"], f"PDV #{p['pdv_id']}"),
+              "uf": ufs_pdv.get(p["pdv_id"]),
+              "faturamento": p["faturamento"], "unidades": p["unidades"],
+              "n_skus": p["n_skus"]} for p in mostrados]
+
+    return {
+        "disponivel": True,
+        "faixa": rotulo, "sku_min": sku_min, "sku_max": sku_max, "uf": uf,
+        "n_pdvs": len(grupo),
+        "faturamento": faturamento,
+        "participacao_pct": (faturamento / total_base * 100) if total_base else 0.0,
+        "rs_por_pdv": faturamento / len(grupo),
+        "mix_medio": statistics.mean(p["n_skus"] for p in grupo),
+        "n_mostrados": len(itens),
+        "top_produtos": [{
+            "produto_id": pid,
+            "produto": nomes_prod.get(pid, f"produto #{pid}"),
+            "n_pdvs": contagem[pid],
+            "pct_da_faixa": contagem[pid] / len(grupo) * 100,
+            "faturamento": valor_prod.get(pid, 0.0),
+        } for pid in top_ids],
+        "itens": itens,
+        "calculo": f.Calculo(
+            formula=(f"PDVs com {rotulo} distintos comprados no período. "
+                     f"'top_produtos' = em quantos PDVs DA FAIXA cada produto "
+                     f"aparece (não no total do cliente)."),
+            valores={"faixa": rotulo, "PDVs na faixa": len(grupo),
+                     "PDVs listados": len(itens),
+                     "faturamento da faixa": round(faturamento, 2),
+                     "R$ por PDV": round(faturamento / len(grupo), 2)},
+            premissas=[
+                _ELO_SELLOUT,
+                "'Em quantos PDVs' conta PDVs da própria faixa — o percentual "
+                "é sobre os PDVs da faixa, não sobre a base inteira.",
+                f"A lista mostra os {limite} maiores por faturamento; a "
+                f"contagem e o faturamento da faixa consideram todos os "
+                f"{len(grupo)}.",
+            ] + ([f"Recorte: só PDVs do estado {uf}."] if uf else []),
+        ).como_dict(),
+    }
+
+
 def alto_mix(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
             *, minimo_skus: int = 10, uf: str | None = None, limite: int = 50) -> dict:
     disp = carregar(con, client_id)

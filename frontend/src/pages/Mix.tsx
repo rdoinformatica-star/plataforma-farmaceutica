@@ -7,6 +7,7 @@ import { Grafico, useCoresGrafico } from '../components/Grafico'
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
 import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
+import { SeletorUF } from '../components/dashboard/SeletorUF'
 import { Aviso, Card, Kpi, Vazio } from '../components/ui'
 import { analytics } from '../lib/analytics'
 import { api, type Cliente } from '../lib/api'
@@ -61,36 +62,58 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disponivel?.ini, disponivel?.fim])
 
+  const [uf, setUf] = useState<string | undefined>(undefined)
+  // Faixa em drill-down. Começa em monoproduto (1 SKU) para o card já nascer
+  // com conteúdo em vez de um vazio pedindo clique.
+  const [faixa, setFaixa] = useState<{ min: number; max: number | null }>({ min: 1, max: 1 })
+
   const p = periodo
   const habilitado = !!p
 
-  const { data: mix } = useQuery({
-    queryKey: ['analytics', 'mix', clienteId, p?.ini, p?.fim],
-    queryFn: () => analytics.mix(clienteId, p!.ini, p!.fim),
+  const { data: ufs } = useQuery({
+    queryKey: ['analytics', 'uf', clienteId, p?.ini, p?.fim],
+    queryFn: () => analytics.uf(clienteId, p!.ini, p!.fim),
     enabled: habilitado,
   })
-  const { data: mono } = useQuery({
-    queryKey: ['analytics', 'mix-mono', clienteId, p?.ini, p?.fim],
-    queryFn: () => analytics.mixMonoproduto(clienteId, p!.ini, p!.fim),
+  const { data: mix } = useQuery({
+    queryKey: ['analytics', 'mix', clienteId, p?.ini, p?.fim, uf ?? ''],
+    queryFn: () => analytics.mix(clienteId, p!.ini, p!.fim, uf),
+    enabled: habilitado,
+  })
+  const { data: detalhe } = useQuery({
+    queryKey: ['analytics', 'mix-faixa', clienteId, p?.ini, p?.fim, uf ?? '', faixa.min, faixa.max ?? ''],
+    queryFn: () => analytics.mixFaixa(clienteId, p!.ini, p!.fim, faixa.min, faixa.max ?? undefined, uf),
     enabled: habilitado,
   })
   const { data: alto } = useQuery({
-    queryKey: ['analytics', 'mix-alto', clienteId, p?.ini, p?.fim],
-    queryFn: () => analytics.mixAlto(clienteId, p!.ini, p!.fim),
+    queryKey: ['analytics', 'mix-alto', clienteId, p?.ini, p?.fim, uf ?? ''],
+    queryFn: () => analytics.mixAlto(clienteId, p!.ini, p!.fim, 10, uf),
     enabled: habilitado,
   })
   const { data: expansao } = useQuery({
-    queryKey: ['analytics', 'mix-expansao', clienteId, p?.ini, p?.fim],
-    queryFn: () => analytics.mixOportunidades(clienteId, p!.ini, p!.fim),
+    queryKey: ['analytics', 'mix-expansao', clienteId, p?.ini, p?.fim, uf ?? ''],
+    queryFn: () => analytics.mixOportunidades(clienteId, p!.ini, p!.fim, uf),
     enabled: habilitado,
   })
 
-  const { itens: itensMono, ordem: ordemMono, alternar: alternarMono } = useOrdenacao(
-    mono?.disponivel ? mono.top_produtos.slice(0, 5) : [],
+  const { itens: itensProd, ordem: ordemProd, alternar: alternarProd } = useOrdenacao(
+    detalhe?.disponivel ? detalhe.top_produtos : [],
+  )
+  const { itens: itensPdv, ordem: ordemPdv, alternar: alternarPdv } = useOrdenacao(
+    detalhe?.disponivel ? detalhe.itens : [],
   )
   const { itens: itensExpansao, ordem: ordemExp, alternar: alternarExp } = useOrdenacao(
     expansao?.disponivel ? expansao.itens : [],
   )
+
+  // O resumo devolve sku_max=null para a faixa aberta (10+); o drill-down
+  // precisa do mesmo par para a seleção casar com a linha clicada.
+  const selecionarFaixa = (rotulo: string) => {
+    const f = mix?.disponivel ? mix.resumo.find((r) => r.faixa === rotulo) : undefined
+    if (f) setFaixa({ min: f.sku_min, max: f.sku_max })
+  }
+  const faixaAtiva = (min: number, max: number | null) =>
+    faixa.min === min && faixa.max === max
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -102,9 +125,12 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
             <h1>Mix de PDV — {disp.cliente}</h1>
             <p className="dek">Quantos SKUs distintos cada PDV compra, e o quanto isso vale.</p>
           </div>
-          <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
-            {clientes.map((c) => (<option key={c.id} value={c.id}>{c.nome}</option>))}
-          </select>
+          <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+            <SeletorUF ufs={ufs} valor={uf} aoMudar={setUf} />
+            <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
+              {clientes.map((c) => (<option key={c.id} value={c.id}>{c.nome}</option>))}
+            </select>
+          </div>
         </div>
       </header>
 
@@ -134,6 +160,9 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                   premissas: mix.calculo.premissas,
                 }} />
               }>
+                <div className="mut" style={{ fontSize: 12, marginBottom: 8 }}>
+                  Clique numa faixa para ver quem está nela e o que ela compra.
+                </div>
                 <table>
                   <thead>
                     <tr>
@@ -144,7 +173,15 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                   </thead>
                   <tbody>
                     {mix.resumo.map((f) => (
-                      <tr key={f.faixa}>
+                      <tr
+                        key={f.faixa}
+                        onClick={() => setFaixa({ min: f.sku_min, max: f.sku_max })}
+                        style={{
+                          cursor: 'pointer',
+                          background: faixaAtiva(f.sku_min, f.sku_max)
+                            ? 'var(--sel, rgba(127,29,29,.08))' : undefined,
+                        }}
+                      >
                         <td style={{ fontWeight: 600 }}>{f.faixa}</td>
                         <td className="num">{inteiro(f.n_pdvs)}</td>
                         <td className="num">{pct(f.pct_pdvs)}</td>
@@ -159,63 +196,146 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
 
               <Card titulo="Produtividade por faixa (R$/PDV)">
                 <Grafico
+                  aoClicar={(nome) => selecionarFaixa(nome)}
                   opcoes={{
                     xAxis: { type: 'category', data: mix.resumo.map((f) => f.faixa),
                              axisLine: { lineStyle: { color: cor.borderForte } },
                              axisLabel: { color: cor.muted } },
                     yAxis: { type: 'value', axisLabel: { color: cor.muted },
                              splitLine: { lineStyle: { color: cor.border } } },
-                    series: [{ type: 'bar', data: mix.resumo.map((f) => f.rs_por_pdv ?? 0),
-                              itemStyle: { color: cor.wine } }],
+                    series: [{
+                      type: 'bar',
+                      data: mix.resumo.map((f) => ({
+                        value: f.rs_por_pdv ?? 0,
+                        itemStyle: {
+                          color: faixaAtiva(f.sku_min, f.sku_max) ? cor.wine : cor.borderForte,
+                        },
+                      })),
+                    }],
                   }}
                 />
               </Card>
             </>
           )}
 
-          <div className="grade c2">
-            <Card titulo="PDVs monoproduto (1 SKU)">
-              {mono?.disponivel ? (
-                <div className="pilha">
-                  <div className="kpis">
-                    <Kpi rotulo="PDVs" valor={inteiro(mono.n_pdvs)} />
-                    <Kpi rotulo="R$/PDV" valor={brl(mono.rs_por_pdv)} />
-                  </div>
-                  {mono.top_produtos.length > 0 && (
-                    <div>
-                      <div className="rot" style={{ marginBottom: 6 }}>Produtos mais concentradores</div>
+          <Card
+            titulo={
+              detalhe?.disponivel
+                ? `Faixa em análise: ${detalhe.faixa}`
+                : 'Faixa em análise'
+            }
+            acoes={
+              mix?.disponivel ? (
+                <div className="linha" style={{ gap: 6, flexWrap: 'wrap' }}>
+                  {mix.resumo.map((f) => (
+                    <button
+                      key={f.faixa}
+                      className={faixaAtiva(f.sku_min, f.sku_max) ? 'primario' : ''}
+                      onClick={() => setFaixa({ min: f.sku_min, max: f.sku_max })}
+                    >
+                      {f.faixa}
+                    </button>
+                  ))}
+                </div>
+              ) : undefined
+            }
+          >
+            {!detalhe ? (
+              <div className="mut">Carregando...</div>
+            ) : !detalhe.disponivel ? (
+              <Vazio icone={null} titulo={detalhe.motivo} />
+            ) : detalhe.n_pdvs === 0 ? (
+              <Vazio icone={null} titulo="Nenhum PDV nesta faixa no período." />
+            ) : (
+              <div className="pilha" style={{ gap: 14 }}>
+                <div className="kpis">
+                  <Kpi rotulo="PDVs na faixa" valor={inteiro(detalhe.n_pdvs)} />
+                  <Kpi rotulo="Faturamento" valor={brl(detalhe.faturamento)}
+                       sub={`${pct(detalhe.participacao_pct)} do total`} />
+                  <Kpi rotulo="R$/PDV" valor={brl(detalhe.rs_por_pdv)} />
+                  {detalhe.mix_medio != null && (
+                    <Kpi rotulo="Mix médio" valor={`${detalhe.mix_medio.toFixed(1)} SKUs`} />
+                  )}
+                </div>
+
+                <div className="grade c2">
+                  <div>
+                    <div className="rot" style={{ marginBottom: 6 }}>
+                      O que esta faixa compra
+                    </div>
+                    <div className="mut" style={{ fontSize: 12, marginBottom: 6 }}>
+                      Em quantos PDVs <b>da faixa</b> cada produto aparece.
+                    </div>
+                    <div className="rolagem">
                       <table>
                         <thead>
                           <tr>
-                            <Th campo="produto" ordem={ordemMono} alternar={alternarMono}>Produto</Th>
-                            <Th campo="n_pdvs" ordem={ordemMono} alternar={alternarMono} num>PDVs</Th>
+                            <Th campo="produto" ordem={ordemProd} alternar={alternarProd}>Produto</Th>
+                            <Th campo="n_pdvs" ordem={ordemProd} alternar={alternarProd} num>PDVs</Th>
+                            <Th campo="pct_da_faixa" ordem={ordemProd} alternar={alternarProd} num>% da faixa</Th>
+                            <Th campo="faturamento" ordem={ordemProd} alternar={alternarProd} num>Faturamento</Th>
                           </tr>
                         </thead>
                         <tbody>
-                          {itensMono.map((tp) => (
+                          {itensProd.map((tp) => (
                             <tr key={tp.produto_id}>
                               <td>{tp.produto}</td>
-                              <td className="num">{tp.n_pdvs} PDVs</td>
+                              <td className="num">{inteiro(tp.n_pdvs)}</td>
+                              <td className="num">{pct(tp.pct_da_faixa)}</td>
+                              <td className="num">{brl(tp.faturamento)}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
-                  )}
-                </div>
-              ) : <div className="mut">Carregando...</div>}
-            </Card>
+                  </div>
 
-            <Card titulo="PDVs estratégicos de alto mix (10+ SKUs)">
-              {alto?.disponivel ? (
-                <div className="kpis">
-                  <Kpi rotulo="PDVs" valor={inteiro(alto.n_pdvs)} />
-                  <Kpi rotulo="Participação" valor={pct(alto.participacao_pct)} />
-                  <Kpi rotulo="R$/PDV" valor={brl(alto.rs_por_pdv)} />
+                  <div>
+                    <div className="rot" style={{ marginBottom: 6 }}>
+                      Quais PDVs estão nela
+                    </div>
+                    <div className="mut" style={{ fontSize: 12, marginBottom: 6 }}>
+                      {detalhe.n_mostrados != null && detalhe.n_mostrados < detalhe.n_pdvs
+                        ? `Os ${inteiro(detalhe.n_mostrados)} maiores por faturamento, de ${inteiro(detalhe.n_pdvs)}.`
+                        : `Todos os ${inteiro(detalhe.n_pdvs)}.`}
+                    </div>
+                    <div className="rolagem" style={{ maxHeight: 420, overflowY: 'auto' }}>
+                      <table>
+                        <thead>
+                          <tr>
+                            <Th campo="pdv" ordem={ordemPdv} alternar={alternarPdv}>PDV</Th>
+                            <Th campo="uf" ordem={ordemPdv} alternar={alternarPdv}>UF</Th>
+                            <Th campo="n_skus" ordem={ordemPdv} alternar={alternarPdv} num>SKUs</Th>
+                            <Th campo="faturamento" ordem={ordemPdv} alternar={alternarPdv} num>Faturamento</Th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {itensPdv.map((it) => (
+                            <tr key={it.pdv_id}>
+                              <td>{it.pdv}</td>
+                              <td className="mut">{it.uf ?? '—'}</td>
+                              <td className="num">{inteiro(it.n_skus)}</td>
+                              <td className="num">{brl(it.faturamento)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
-              ) : <div className="mut">Carregando...</div>}
-            </Card>
-          </div>
+              </div>
+            )}
+          </Card>
+
+          <Card titulo="PDVs estratégicos de alto mix (10+ SKUs)">
+            {alto?.disponivel ? (
+              <div className="kpis">
+                <Kpi rotulo="PDVs" valor={inteiro(alto.n_pdvs)} />
+                <Kpi rotulo="Participação" valor={pct(alto.participacao_pct)} />
+                <Kpi rotulo="R$/PDV" valor={brl(alto.rs_por_pdv)} />
+              </div>
+            ) : <div className="mut">Carregando...</div>}
+          </Card>
 
           <Card titulo="Oportunidades de expansão de mix">
             {expansao?.disponivel ? (

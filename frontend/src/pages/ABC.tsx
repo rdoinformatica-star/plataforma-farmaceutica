@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 
 import { Grafico, useCoresGrafico } from '../components/Grafico'
 import { ComoFoiCalculado } from '../components/ComoFoiCalculado'
+import { ComparativoMercado } from '../components/abc/ComparativoMercado'
 import { Th, useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { Aviso, Card, Kpi, Tag, Vazio } from '../components/ui'
@@ -95,10 +96,23 @@ function ABCCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
     queryFn: () => analytics.abcCrescimento(clienteId, p!.ini, p!.fim, uf),
     enabled: habilitado,
   })
+  const { data: vsMercado } = useQuery({
+    queryKey: ['analytics', 'abc-mercado', clienteId, p?.ini, p?.fim, limiteA, limiteB, uf],
+    queryFn: () => analytics.abcMercado(clienteId, p!.ini, p!.fim, limiteA, limiteB, uf),
+    enabled: habilitado,
+  })
 
   const { itens: itensCurva, ordem: ordemCurva, alternar: alternarCurva } = useOrdenacao(
     curva?.disponivel ? curva.itens.slice(0, 100) : [],
   )
+
+  // Share por produto vem da comparação com o mercado (base diferente da curva);
+  // indexa por produto para enriquecer a tabela sem refazer a conta.
+  const sharePorProduto = new Map<number, number | null>()
+  if (vsMercado?.disponivel) {
+    for (const i of vsMercado.itens) sharePorProduto.set(i.produto_id, i.share_no_vitamedic_pct)
+  }
+  const temShare = sharePorProduto.size > 0
 
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
@@ -214,6 +228,14 @@ function ABCCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                         {curva.itens[0]?.pdvs_compradores !== undefined && (
                           <Th campo="pdvs_compradores" ordem={ordemCurva} alternar={alternarCurva} num>PDVs</Th>
                         )}
+                        {temShare && (
+                          <th
+                            className="num"
+                            title="Quanto da venda Vitamedic deste produto na região passa por este cliente (base IQVIA)"
+                          >
+                            Share
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody>
@@ -229,6 +251,13 @@ function ABCCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
                             {it.variacao_pct == null ? 'novo' : `${it.variacao_pct >= 0 ? '+' : ''}${pct(it.variacao_pct)}`}
                           </td>
                           {it.pdvs_compradores !== undefined && <td className="num">{it.pdvs_compradores}</td>}
+                          {temShare && (
+                            <td className="num">
+                              {sharePorProduto.get(it.produto_id) != null
+                                ? pct(sharePorProduto.get(it.produto_id)!)
+                                : '—'}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -237,6 +266,8 @@ function ABCCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
               </Card>
             </>
           )}
+
+          <ComparativoMercado dados={vsMercado} />
 
           {matriz?.disponivel && (
             <Card titulo="ABC × Crescimento">

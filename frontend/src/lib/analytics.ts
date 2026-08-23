@@ -283,6 +283,59 @@ export type CurvaABC =
       calculo: Calculo
     }
 
+/* ABC do cliente x ABC da Vitamedic no mercado (IQVIA) */
+
+export interface ItemABCMercado {
+  produto_id: number
+  produto: string
+  faturamento_cliente: number
+  participacao_cliente_pct: number | null
+  acumulada_cliente_pct: number
+  classe_cliente: 'A' | 'B' | 'C'
+  valor_mercado: number
+  participacao_mercado_pct: number
+  acumulada_mercado_pct: number
+  classe_mercado: 'A' | 'B' | 'C'
+  posicao_mercado: number
+  distancia_classes: number
+  situacao: 'OPORTUNIDADE' | 'EM_LINHA' | 'ACIMA_DO_MERCADO'
+  share_no_vitamedic_pct: number | null
+  variacao_pct: number | null
+}
+
+export interface PontoCurva {
+  posicao: number
+  acumulada_pct: number
+}
+
+export type ABCMercado =
+  | Indisponivel
+  | {
+      disponivel: true
+      uf: string | null
+      limite_a: number
+      limite_b: number
+      n_ligados: number
+      n_sem_correspondencia: number
+      cobertura_da_ponte_pct: number | null
+      faturamento_cliente_ligado: number
+      valor_mercado_total: number
+      share_no_vitamedic_pct: number | null
+      por_situacao: Record<string, number>
+      n_produtos_mercado: number
+      curva_cliente: PontoCurva[]
+      curva_mercado: PontoCurva[]
+      oportunidades: ItemABCMercado[]
+      itens: ItemABCMercado[]
+      sem_correspondencia: {
+        produto_id: number
+        produto: string
+        faturamento: number
+        classe_cliente: string
+      }[]
+      calculo: Calculo
+    }
+
 export interface ItemMatrizABC {
   produto_id: number
   produto: string
@@ -379,6 +432,44 @@ export type Mix =
       mix_mediano: number
       uf: string | null
       resumo: FaixaMix[]
+      calculo: Calculo
+    }
+
+export interface ProdutoDaFaixa {
+  produto_id: number
+  produto: string
+  n_pdvs: number
+  pct_da_faixa: number
+  faturamento: number
+}
+
+export interface PDVDaFaixa {
+  pdv_id: number
+  pdv: string
+  uf: string | null
+  faturamento: number
+  unidades: number
+  n_skus: number
+}
+
+/** Drill-down de uma faixa de mix — generaliza Monoproduto para qualquer
+ * intervalo de SKUs (1, 2-3, 4-9, 10+ ou recorte arbitrário). */
+export type DetalheFaixaMix =
+  | Indisponivel
+  | {
+      disponivel: true
+      faixa: string
+      sku_min: number
+      sku_max: number | null
+      uf: string | null
+      n_pdvs: number
+      faturamento: number
+      participacao_pct: number
+      rs_por_pdv: number | null
+      mix_medio?: number
+      n_mostrados?: number
+      top_produtos: ProdutoDaFaixa[]
+      itens: PDVDaFaixa[]
       calculo: Calculo
     }
 
@@ -904,6 +995,11 @@ export const analytics = {
       `/analytics/${cid}/abc${q({ periodo_ini: ini, periodo_fim: fim, limite_a: limiteA, limite_b: limiteB, uf })}`,
     ),
 
+  abcMercado: (cid: number, ini: number, fim: number, limiteA = 80, limiteB = 95, uf?: string) =>
+    api.get<ABCMercado>(
+      `/analytics/${cid}/abc/mercado${q({ periodo_ini: ini, periodo_fim: fim, limite_a: limiteA, limite_b: limiteB, uf })}`,
+    ),
+
   abcCrescimento: (cid: number, ini: number, fim: number, uf?: string) =>
     api.get<ABCCrescimento>(
       `/analytics/${cid}/abc/crescimento${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
@@ -930,6 +1026,14 @@ export const analytics = {
   mixMonoproduto: (cid: number, ini: number, fim: number, uf?: string) =>
     api.get<Monoproduto>(
       `/analytics/${cid}/mix/monoproduto${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
+    ),
+
+  mixFaixa: (
+    cid: number, ini: number, fim: number,
+    skuMin: number, skuMax?: number, uf?: string, limite = 200,
+  ) =>
+    api.get<DetalheFaixaMix>(
+      `/analytics/${cid}/mix/faixa${q({ periodo_ini: ini, periodo_fim: fim, sku_min: skuMin, sku_max: skuMax, uf, limite })}`,
     ),
 
   mixAlto: (cid: number, ini: number, fim: number, minimoSkus = 10, uf?: string) =>

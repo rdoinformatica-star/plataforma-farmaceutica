@@ -182,6 +182,19 @@ def abc(client_id: int, periodo_ini: int, periodo_fim: int,
                                  limite_a=limite_a, limite_b=limite_b, uf=uf)
 
 
+@router.get("/{client_id}/abc/mercado")
+def abc_mercado(client_id: int, periodo_ini: int, periodo_fim: int,
+                limite_a: float = 80.0, limite_b: float = 95.0,
+                uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                top_n: int = Query(100, le=1000)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return abc_mod.abc_vs_mercado(con, client_id, ini, fim,
+                                      limite_a=limite_a, limite_b=limite_b,
+                                      uf=uf.upper() if uf else None, top_n=top_n)
+
+
 @router.get("/{client_id}/abc/crescimento")
 def abc_crescimento(client_id: int, periodo_ini: int, periodo_fim: int,
                     limite_a: float = 80.0, limite_b: float = 95.0,
@@ -234,6 +247,22 @@ def mix(client_id: int, periodo_ini: int, periodo_fim: int, uf: str | None = Non
     with db.conexao() as con:
         _cliente_existe(con, client_id)
         return mix_mod.mix_por_pdv(con, client_id, ini, fim, uf=uf)
+
+
+@router.get("/{client_id}/mix/faixa")
+def mix_faixa(client_id: int, periodo_ini: int, periodo_fim: int,
+              sku_min: int = Query(1, ge=1), sku_max: int | None = Query(None, ge=1),
+              uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+              limite: int = Query(200, le=2000)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        try:
+            return mix_mod.detalhe_faixa(con, client_id, ini, fim,
+                                         sku_min=sku_min, sku_max=sku_max,
+                                         uf=uf.upper() if uf else None, limite=limite)
+        except ValueError as e:
+            raise errors.invalido(str(e))
 
 
 @router.get("/{client_id}/mix/monoproduto")
