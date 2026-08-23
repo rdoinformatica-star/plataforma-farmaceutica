@@ -230,7 +230,8 @@ def velocidade_venda(con: sqlite3.Connection, distribuidor_ids: list[int],
 
 def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
             faixas=None, base_velocidade: str = "fonte",
-            filial: str | None = None, limite: int = 500) -> dict:
+            filial: str | None = None, classe: str | None = None,
+            limite: int = 500) -> dict:
     """Tabela principal de estoque: SKU, posicao, velocidade, DDE, classe, valor.
 
     base_velocidade:
@@ -240,6 +241,11 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
       "periodo"   — usa a velocidade calculada do sell-out na janela
                     selecionada. Responde "e no ritmo DESTE periodo?".
     Os dois DDE vem na resposta; base_velocidade so define qual classifica.
+
+    classe filtra pela faixa de cobertura (SAUDAVEL, ATENCAO, ... , INDEFINIDO).
+    O filtro e aplicado DEPOIS de classificar e ANTES do limite — senao a faixa
+    so listaria o que coubesse nos N SKUs mais caros, e uma faixa inteira poderia
+    aparecer vazia so por nao ter entrado no corte.
     """
     if base_velocidade not in ("fonte", "periodo"):
         raise ValueError("base_velocidade deve ser 'fonte' ou 'periodo'.")
@@ -263,6 +269,9 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
         where.append("e.filial = ?")
         params.append(filial)
 
+    # Sem LIMIT no SQL: a classe so existe depois de calcular o DDE, e cortar
+    # antes faria o filtro de faixa enxergar so os SKUs mais caros. A foto de
+    # estoque e pequena (centenas de linhas), entao ler tudo e barato.
     linhas = con.execute(
         f"""SELECT e.produto_id, e.filial, pr.apresentacao,
                    e.estoque_total_un, e.estoque_disp_un, e.estoque_disp_x100,
@@ -270,8 +279,7 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
               FROM v_estoque e
               LEFT JOIN dim_product pr ON pr.id = e.produto_id
              WHERE {' AND '.join(where)}
-             ORDER BY e.estoque_disp_x100 DESC
-             LIMIT ?""", params + [limite]).fetchall()
+             ORDER BY e.estoque_disp_x100 DESC""", params).fetchall()
 
     # Velocidade do periodo, por produto e por filial (cada filial tem o
     # sell-out do seu proprio distribuidor).
@@ -330,11 +338,23 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
             "motivo_dde_indefinido": motivo_dde,
         })
 
+    n_antes = len(itens)
+    if classe:
+        alvo = classe.strip().upper()
+        rotulos = {r for _, _, r in fx} | {INDEFINIDO}
+        if alvo not in rotulos:
+            raise ValueError(
+                f"Classe '{classe}' nao existe. Use uma de: {', '.join(sorted(rotulos))}.")
+        itens = [i for i in itens if i["classificacao"] == alvo]
+    itens = itens[:limite]
+
     return {
         "disponivel": True,
         "data_ref": data_ref,
         "base_velocidade": base_velocidade,
         "filial": filial,
+        "classe": classe,
+        "n_total_sem_filtro": n_antes,
         "itens": itens,
         "faixas": [{"de": a, "ate": b, "rotulo": r} for a, b, r in fx],
         "calculo": Calculo(

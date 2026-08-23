@@ -13,6 +13,7 @@ import analytics.estoque as estoque_mod
 import analytics.mercado as mercado_mod
 import analytics.mix as mix_mod
 import analytics.oportunidades as oportunidades_mod
+import analytics.potencial as potencial_mod
 import analytics.preco as preco_mod
 import analytics.vendas as vendas
 from analytics.contexto import carregar as carregar_disponibilidade
@@ -80,12 +81,14 @@ def evolucao_mensal(client_id: int, periodo_ini: int, periodo_fim: int,
 def produtos(client_id: int, periodo_ini: int, periodo_fim: int,
             ordenar: str = Query("faturamento",
                                  pattern="^(faturamento|unidades|crescimento|queda)$"),
+            uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
             limite: int = Query(20, le=500), offset: int = 0):
     ini, fim = _periodo(periodo_ini, periodo_fim)
     with db.conexao() as con:
         _cliente_existe(con, client_id)
-        return vendas.ranking_produtos(con, client_id, ini, fim,
-                                       ordenar=ordenar, limite=limite, offset=offset)
+        return vendas.ranking_produtos(con, client_id, ini, fim, ordenar=ordenar,
+                                       uf=uf.upper() if uf else None,
+                                       limite=limite, offset=offset)
 
 
 @router.get("/{client_id}/produtos/variacao")
@@ -118,12 +121,36 @@ def uf(client_id: int, periodo_ini: int, periodo_fim: int):
 @router.get("/{client_id}/pdvs")
 def pdvs(client_id: int, periodo_ini: int, periodo_fim: int,
          visao: str = Query("ranking", pattern="^(ranking|novos|sumidos)$"),
+         uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
          limite: int = Query(20, le=500), offset: int = 0):
     ini, fim = _periodo(periodo_ini, periodo_fim)
     with db.conexao() as con:
         _cliente_existe(con, client_id)
-        return vendas.ranking_pdvs(con, client_id, ini, fim,
-                                   visao=visao, limite=limite, offset=offset)
+        return vendas.ranking_pdvs(con, client_id, ini, fim, visao=visao,
+                                   uf=uf.upper() if uf else None,
+                                   limite=limite, offset=offset)
+
+
+@router.get("/{client_id}/potencial/produtos")
+def potencial_produtos(client_id: int, periodo_ini: int, periodo_fim: int,
+                       uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                       top_n: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return potencial_mod.potencial_produtos(
+            con, client_id, ini, fim, uf=uf.upper() if uf else None, top_n=top_n)
+
+
+@router.get("/{client_id}/potencial/pdvs")
+def potencial_pdvs(client_id: int, periodo_ini: int, periodo_fim: int,
+                   uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                   top_n: int = Query(50, le=500)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return potencial_mod.potencial_pdvs(
+            con, client_id, ini, fim, uf=uf.upper() if uf else None, top_n=top_n)
 
 
 @router.get("/{client_id}/concentracao")
@@ -277,13 +304,17 @@ def estoque_perfil(client_id: int):
 @router.get("/{client_id}/estoque")
 def estoque_posicao(client_id: int, periodo_ini: int, periodo_fim: int,
                     base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
-                    filial: str | None = None, limite: int = Query(200, le=2000)):
+                    filial: str | None = None, classe: str | None = None,
+                    limite: int = Query(200, le=2000)):
     ini, fim = _periodo(periodo_ini, periodo_fim)
     with db.conexao() as con:
         _cliente_existe(con, client_id)
-        return estoque_mod.posicao(con, client_id, ini, fim,
-                                   base_velocidade=base_velocidade,
-                                   filial=filial, limite=limite)
+        try:
+            return estoque_mod.posicao(con, client_id, ini, fim,
+                                       base_velocidade=base_velocidade,
+                                       filial=filial, classe=classe, limite=limite)
+        except ValueError as e:
+            raise errors.invalido(str(e))
 
 
 @router.get("/{client_id}/estoque/resumo")

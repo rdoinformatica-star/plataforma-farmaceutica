@@ -6,10 +6,10 @@ errada aceita em silencio poluiria o banco, e o sistema nao pode presumir.
 """
 from pathlib import Path
 
-from .adapters import estoque_xlsx, iqvia_mercado, tabular, vmd_sellout
+from .adapters import estoque_xlsx, html_tabular, iqvia_mercado, tabular, vmd_sellout
 
 ADAPTADORES = {
-    m.CODIGO: m for m in (vmd_sellout, iqvia_mercado, estoque_xlsx, tabular)
+    m.CODIGO: m for m in (vmd_sellout, iqvia_mercado, estoque_xlsx, html_tabular, tabular)
 }
 
 CABECA_BYTES = 256 * 1024

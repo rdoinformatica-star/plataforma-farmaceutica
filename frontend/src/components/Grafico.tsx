@@ -27,8 +27,19 @@ export function useCoresGrafico() {
 }
 
 /** Wrapper fino sobre ECharts com os tokens visuais do sistema — evita
- * repetir a mesma paleta/tipografia em cada grafico novo. */
-export function Grafico({ opcoes, altura = 280 }: { opcoes: Record<string, unknown>; altura?: number }) {
+ * repetir a mesma paleta/tipografia em cada grafico novo.
+ *
+ * aoClicar recebe o nome da categoria clicada (params.name) e o indice dela.
+ * Fica opcional para nao mudar nada nos graficos que ja existem. */
+export function Grafico({
+  opcoes,
+  altura = 280,
+  aoClicar,
+}: {
+  opcoes: Record<string, unknown>
+  altura?: number
+  aoClicar?: (nome: string, indice: number) => void
+}) {
   const cor = useCoresGrafico()
 
   const base = {
@@ -44,5 +55,17 @@ export function Grafico({ opcoes, altura = 280 }: { opcoes: Record<string, unkno
     ...opcoes,
   }
 
-  return <ReactECharts option={base} style={{ height: altura, width: '100%' }} notMerge />
+  return (
+    <ReactECharts
+      option={base}
+      style={{ height: altura, width: '100%', cursor: aoClicar ? 'pointer' : undefined }}
+      notMerge
+      onEvents={
+        aoClicar
+          ? { click: (p: { name?: string; dataIndex?: number }) =>
+              aoClicar(String(p.name ?? ''), p.dataIndex ?? -1) }
+          : undefined
+      }
+    />
+  )
 }

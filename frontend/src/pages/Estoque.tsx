@@ -101,6 +101,9 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
   const [base, setBase] = useState<'fonte' | 'periodo'>('fonte')
   const [filial, setFilial] = useState<string | undefined>(undefined)
   const [objetivo, setObjetivo] = useState(60)
+  // Filtro de classe da tabela de posicao. Clicar na faixa (grafico ou tabela
+  // de distribuicao) joga a classe aqui; clicar de novo na mesma limpa.
+  const [classe, setClasse] = useState<string | null>(null)
 
   const p = periodo
   const temEstoque = perfil?.disponivel === true
@@ -133,10 +136,15 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
     enabled: habilitado,
   })
   const { data: posicao } = useQuery({
-    queryKey: ['analytics', 'estoque-posicao', ...chave],
-    queryFn: () => analytics.estoque(clienteId, p!.ini, p!.fim, base, filial, 300),
+    queryKey: ['analytics', 'estoque-posicao', ...chave, classe ?? ''],
+    queryFn: () => analytics.estoque(clienteId, p!.ini, p!.fim, base, filial, 300, classe ?? undefined),
     enabled: habilitado,
   })
+
+  // Clicar na faixa ja selecionada limpa o filtro — evita ficar preso numa
+  // classe sem um botao separado de "limpar".
+  const alternarClasse = (nome: string) =>
+    setClasse((atual) => (atual === nome ? null : nome || null))
 
   const { itens: itensSim, ordem: ordemSim, alternar: alternarSim } = useOrdenacao(
     sim?.disponivel ? sim.itens.slice(0, 25) : [],
@@ -327,7 +335,12 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                   />
                 }
               >
+                <div className="mut" style={{ fontSize: 12 }}>
+                  Clique numa faixa (na barra ou na linha) para filtrar a tabela
+                  de SKUs no fim da página.
+                </div>
                 <Grafico
+                  aoClicar={(nome) => alternarClasse(nome)}
                   opcoes={{
                     xAxis: {
                       type: 'category',
@@ -343,8 +356,12 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                     series: [
                       {
                         type: 'bar',
-                        data: resumo.por_classe.map((c) => c.valor),
-                        itemStyle: { color: cor.wine },
+                        data: resumo.por_classe.map((c) => ({
+                          value: c.valor,
+                          itemStyle: {
+                            color: classe && classe !== c.classe ? cor.border : cor.wine,
+                          },
+                        })),
                       },
                     ],
                   }}
@@ -359,7 +376,14 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                   </thead>
                   <tbody>
                     {resumo.por_classe.map((c) => (
-                      <tr key={c.classe}>
+                      <tr
+                        key={c.classe}
+                        onClick={() => alternarClasse(c.classe)}
+                        style={{
+                          cursor: 'pointer',
+                          background: classe === c.classe ? 'var(--sel, rgba(127,29,29,.08))' : undefined,
+                        }}
+                      >
                         <td><Tag tipo={CLASSE_TAG[c.classe] ?? 't-neutro'}>{c.classe}</Tag></td>
                         <td className="num">{inteiro(c.skus)}</td>
                         <td className="num">{brl(c.valor)}</td>
@@ -585,23 +609,49 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
           <Card
             titulo="Posição de estoque por SKU"
             acoes={
-              posicao?.disponivel ? (
-                <ComoFoiCalculado
-                  calculo={{
-                    titulo: 'Como o DDE foi calculado',
-                    formula: posicao.calculo.formula,
-                    valores: Object.entries(posicao.calculo.valores ?? {}).map(([rotulo, valor]) => ({
-                      rotulo,
-                      valor: String(valor),
-                    })),
-                    premissas: posicao.calculo.premissas,
-                  }}
-                />
-              ) : undefined
+              <div className="linha" style={{ gap: 8, alignItems: 'center' }}>
+                <select
+                  value={classe ?? ''}
+                  onChange={(e) => setClasse(e.target.value || null)}
+                  style={{ width: 150 }}
+                  title="Filtrar por faixa de cobertura"
+                >
+                  <option value="">Todas as classes</option>
+                  {(posicao?.disponivel ? posicao.faixas.map((f) => f.rotulo) : []).map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                  <option value="INDEFINIDO">INDEFINIDO</option>
+                </select>
+                {posicao?.disponivel ? (
+                  <ComoFoiCalculado
+                    calculo={{
+                      titulo: 'Como o DDE foi calculado',
+                      formula: posicao.calculo.formula,
+                      valores: Object.entries(posicao.calculo.valores ?? {}).map(([rotulo, valor]) => ({
+                        rotulo,
+                        valor: String(valor),
+                      })),
+                      premissas: posicao.calculo.premissas,
+                    }}
+                  />
+                ) : null}
+              </div>
             }
           >
             {posicao?.disponivel ? (
-              <div className="rolagem">
+              <div className="pilha" style={{ gap: 8 }}>
+                {classe && (
+                  <div className="linha" style={{ gap: 8, alignItems: 'center' }}>
+                    <Tag tipo={CLASSE_TAG[classe] ?? 't-neutro'}>{classe}</Tag>
+                    <span className="mut" style={{ fontSize: 12 }}>
+                      {inteiro(posicao.itens.length)} de {inteiro(posicao.n_total_sem_filtro)} SKUs
+                    </span>
+                    <button className="discreto" onClick={() => setClasse(null)}>
+                      limpar filtro
+                    </button>
+                  </div>
+                )}
+                <div className="rolagem">
                 <table>
                   <thead>
                     <tr>
@@ -632,6 +682,12 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                     ))}
                   </tbody>
                 </table>
+                </div>
+                {posicao.itens.length === 0 && (
+                  <div className="mut" style={{ fontSize: 13 }}>
+                    Nenhum SKU nesta faixa.
+                  </div>
+                )}
               </div>
             ) : (
               <div className="mut">{posicao?.motivo ?? 'Carregando...'}</div>

@@ -20,3 +20,7 @@ reports/*
 !reports/.gitkeep
 prompts/*
 !prompts/.gitkeep
+
+# dados reais de cliente (faturamento, nomes de PDV, CNPJ) — nunca versionar
+dados/*
+!dados/.gitkeep

@@ -171,6 +171,27 @@ def perfil(iid: int):
     return dados
 
 
+@router.get("/{iid}/dossies")
+def dossies(iid: int):
+    """Tabelas de referência extraídas de relatórios HTML (dossiês). Não
+    entram no motor de análise — só para consulta."""
+    with db.conexao() as con:
+        imp = db.uma(con, "SELECT id FROM imports WHERE id = ?", (iid,))
+        if not imp:
+            raise errors.nao_encontrado("Importacao", iid)
+        linhas = db.varias(con,
+            "SELECT d.id, d.tabela_indice, d.tabela_titulo, d.cabecalhos_json,"
+            "       d.linhas_json, d.distribuidor_nome_detectado,"
+            "       dd.nome AS distribuidor_vinculado"
+            "  FROM dossies_html d"
+            "  LEFT JOIN dim_distribuidor dd ON dd.id = d.distribuidor_id"
+            " WHERE d.import_id = ? ORDER BY d.tabela_indice", (iid,))
+    for l in linhas:
+        l["cabecalhos"] = json.loads(l.pop("cabecalhos_json"))
+        l["linhas"] = json.loads(l.pop("linhas_json"))
+    return linhas
+
+
 @router.get("/{iid}/colunas")
 def colunas(iid: int):
     with db.conexao() as con:
@@ -246,7 +267,7 @@ def desfazer(iid: int):
                                   "Cancele antes de desfazer.")
         apagados = 0
         for tabela in ("fact_sales", "fact_inventory", "fact_market",
-                       "agg_vendas_mensal"):
+                       "agg_vendas_mensal", "dossies_html"):
             cur = con.execute(f"DELETE FROM {tabela} WHERE import_id = ?", (iid,))
             apagados += cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
         con.execute(

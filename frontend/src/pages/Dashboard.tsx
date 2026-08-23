@@ -82,6 +82,10 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
   const [limiteProdutos, setLimiteProdutos] = useState(10)
   const [visaoPdv, setVisaoPdv] = useState('ranking')
   const [contextoConcentracao, setContextoConcentracao] = useState<'produtos' | 'pdvs'>('produtos')
+  // UF por ranking: o usuario pode querer olhar produtos do RJ e PDVs do ES
+  // ao mesmo tempo. Um estado so forcaria os dois juntos.
+  const [ufProdutos, setUfProdutos] = useState<string | undefined>(undefined)
+  const [ufPdvs, setUfPdvs] = useState<string | undefined>(undefined)
 
   const p = periodo
   const habilitado = !!p
@@ -97,8 +101,18 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
     enabled: !!disponivel,
   })
   const { data: ranking, isLoading: lRanking } = useQuery({
-    queryKey: ['analytics', 'produtos', clienteId, p?.ini, p?.fim, ordenar, limiteProdutos],
-    queryFn: () => analytics.produtos(clienteId, p!.ini, p!.fim, ordenar, limiteProdutos),
+    queryKey: ['analytics', 'produtos', clienteId, p?.ini, p?.fim, ordenar, limiteProdutos, ufProdutos ?? ''],
+    queryFn: () => analytics.produtos(clienteId, p!.ini, p!.fim, ordenar, limiteProdutos, 0, ufProdutos),
+    enabled: habilitado,
+  })
+  const { data: potProdutos } = useQuery({
+    queryKey: ['analytics', 'potencial-produtos', clienteId, p?.ini, p?.fim, ufProdutos ?? ''],
+    queryFn: () => analytics.potencialProdutos(clienteId, p!.ini, p!.fim, ufProdutos),
+    enabled: habilitado,
+  })
+  const { data: potPdvs } = useQuery({
+    queryKey: ['analytics', 'potencial-pdvs', clienteId, p?.ini, p?.fim, ufPdvs ?? ''],
+    queryFn: () => analytics.potencialPdvs(clienteId, p!.ini, p!.fim, ufPdvs),
     enabled: habilitado,
   })
   const { data: crescimento, isLoading: lCrescimento } = useQuery({
@@ -117,8 +131,9 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
     enabled: habilitado,
   })
   const { data: pdvs, isLoading: lPdvs } = useQuery({
-    queryKey: ['analytics', 'pdvs', clienteId, p?.ini, p?.fim, visaoPdv],
-    queryFn: () => analytics.pdvs(clienteId, p!.ini, p!.fim, visaoPdv as 'ranking' | 'novos' | 'sumidos'),
+    queryKey: ['analytics', 'pdvs', clienteId, p?.ini, p?.fim, visaoPdv, ufPdvs ?? ''],
+    queryFn: () => analytics.pdvs(
+      clienteId, p!.ini, p!.fim, visaoPdv as 'ranking' | 'novos' | 'sumidos', 20, ufPdvs),
     enabled: habilitado,
   })
   const { data: concentracao, isLoading: lConcentracao } = useQuery({
@@ -196,6 +211,7 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
           <RankingProdutos
             dados={ranking} ordenar={ordenar} setOrdenar={setOrdenar}
             limite={limiteProdutos} setLimite={setLimiteProdutos} carregando={lRanking}
+            ufs={uf} uf={ufProdutos} setUf={setUfProdutos} potencial={potProdutos}
           />
 
           <div className="grade c2">
@@ -207,7 +223,10 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
             />
           </div>
 
-          <AnalisePDV dados={pdvs} visao={visaoPdv} setVisao={setVisaoPdv} carregando={lPdvs} />
+          <AnalisePDV
+            dados={pdvs} visao={visaoPdv} setVisao={setVisaoPdv} carregando={lPdvs}
+            ufs={uf} uf={ufPdvs} setUf={setUfPdvs} potencial={potPdvs}
+          />
 
           <Alertas dados={alertas} carregando={lAlertas} />
         </div>

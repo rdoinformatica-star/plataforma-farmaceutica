@@ -290,6 +290,27 @@ CREATE INDEX IF NOT EXISTS ix_mkt_imp  ON fact_market(import_id);
 
 -- ════════════════════════════════ AUDITORIA ═════════════════════════════
 
+-- Dossies/relatorios HTML com tabelas ja processadas (share por UF, dossie
+-- comparativo, etc). Nao alimentam fact_sales: sao numeros ja calculados,
+-- de grao variavel entre tabelas do mesmo arquivo, e nem sempre incrementais
+-- (ex.: "7 meses acumulados") — somar junto ao motor de vendas duplicaria ou
+-- misturaria grao. Ficam guardados aqui, ligados ao distribuidor quando
+-- identificado, so para consulta.
+CREATE TABLE IF NOT EXISTS dossies_html (
+  id              INTEGER PRIMARY KEY,
+  import_id       INTEGER NOT NULL REFERENCES imports(id),
+  distribuidor_id INTEGER REFERENCES dim_distribuidor(id),
+  distribuidor_nome_detectado TEXT,
+  arquivo_nome    TEXT NOT NULL,
+  tabela_indice   INTEGER NOT NULL,
+  tabela_titulo   TEXT,
+  cabecalhos_json TEXT NOT NULL,
+  linhas_json     TEXT NOT NULL,
+  criado_em       TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+);
+CREATE INDEX IF NOT EXISTS ix_dossies_import ON dossies_html(import_id);
+CREATE INDEX IF NOT EXISTS ix_dossies_dist ON dossies_html(distribuidor_id);
+
 CREATE TABLE IF NOT EXISTS audit_logs (
   id           INTEGER PRIMARY KEY,
   ts           TEXT NOT NULL DEFAULT (datetime('now','localtime')),

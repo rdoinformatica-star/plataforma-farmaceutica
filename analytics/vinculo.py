@@ -64,3 +64,37 @@ def resolver_vinculos(con: sqlite3.Connection, client_id: int | None = None) -> 
 def distribuidores_do_cliente(con: sqlite3.Connection, client_id: int) -> list[int]:
     return [r[0] for r in con.execute(
         "SELECT id FROM dim_distribuidor WHERE client_id = ?", (client_id,))]
+
+
+def auto_criar_clientes_novos(con: sqlite3.Connection) -> dict:
+    """Encontra distribuidores sem client_id e cria clientes novos automaticamente.
+    Roda APÓS resolver_vinculos(), so restam distribuidores que nao casaram com
+    clientes existentes. Devolve resumo de clientes criados."""
+
+    orfaos = con.execute(
+        "SELECT id, nome FROM dim_distribuidor WHERE client_id IS NULL"
+    ).fetchall()
+
+    criados: list[str] = []
+    for dist_id, dist_nome in orfaos:
+        # Cria cliente novo com mesmo nome do distribuidor
+        con.execute(
+            "INSERT INTO clients(nome, nome_norm, ativo) VALUES (?, ?, 1)",
+            (dist_nome, normalizar(dist_nome))
+        )
+        client_id = con.lastrowid
+
+        # Vincula distribuidor ao cliente novo
+        con.execute(
+            "UPDATE dim_distribuidor SET client_id = ? WHERE id = ?",
+            (client_id, dist_id)
+        )
+
+        registrar(
+            con, "CLIENTE_CRIADO_AUTOMATICO",
+            f"Cliente novo criado automaticamente ao importar distribuidores sem cadastro.",
+            "clients", client_id, {"nome": dist_nome, "distribuidor_id": dist_id},
+        )
+        criados.append(dist_nome)
+
+    return {"criados": criados, "n_total": len(criados)}

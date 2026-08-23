@@ -132,8 +132,96 @@ export type RankingPDVs =
       disponivel: true
       visao: 'ranking' | 'novos' | 'sumidos'
       total: number
+      uf?: string | null
+      faturamento_total?: number
       comparacao_valida?: boolean
       itens: ItemPDV[]
+      calculo: Calculo
+    }
+
+/* Potencial — duas bases de comparação diferentes, ver analytics/potencial.py */
+
+export interface ItemPotencialProduto {
+  produto_id: number
+  produto: string
+  mercado: string | null
+  nivel_ligacao: string
+  faturamento_atual: number
+  unidades_atual: number
+  mercado_un: number
+  penetracao_pct: number
+  penetracao_referencia_pct: number
+  indice: number | null
+  unidades_alvo: number
+  potencial_un: number
+  preco_medio: number
+  potencial_valor: number
+  share_industria_pct: number | null
+}
+
+export interface ContextoMolecula {
+  produto_id: number
+  produto: string
+  mercado: string | null
+  referencia_mercado: string
+  faturamento_atual: number
+  unidades_atual: number
+  mercado_molecula_un: number
+  penetracao_na_molecula_pct: number
+}
+
+export type PotencialProdutos =
+  | Indisponivel
+  | {
+      disponivel: true
+      uf: string | null
+      penetracao_referencia_pct: number
+      n_skus: number
+      n_skus_fora: number
+      n_so_molecula: number
+      contexto_molecula: ContextoMolecula[]
+      n_sem_correspondencia: number
+      cobertura_da_ponte_pct: number | null
+      potencial_total: number
+      itens: ItemPotencialProduto[]
+      calculo: Calculo
+    }
+
+export interface ItemPotencialPDV {
+  pdv_id: number
+  pdv: string
+  uf: string | null
+  faturamento_atual: number
+  n_skus: number
+  faixa_atual: string
+  faixa_alvo: string
+  mix_alvo: number
+  skus_a_ganhar: number
+  rs_por_sku_referencia: number
+  potencial_valor: number
+  indice: number | null
+}
+
+export interface PerfilFaixaMix {
+  faixa: string
+  indice: number
+  n_pdvs: number
+  mix_mediano: number
+  rs_por_sku_mediano: number
+  rs_por_pdv_mediano: number
+}
+
+export type PotencialPDVs =
+  | Indisponivel
+  | {
+      disponivel: true
+      uf: string | null
+      n_pdvs_avaliados: number
+      n_pdvs_com_potencial: number
+      n_pdvs_sem_referencia: number
+      potencial_total: number
+      perfil_faixas: PerfilFaixaMix[]
+      itens: ItemPotencialPDV[]
       calculo: Calculo
     }
 
@@ -423,6 +511,8 @@ export type PosicaoEstoque =
       data_ref: string
       base_velocidade: string
       filial: string | null
+      classe: string | null
+      n_total_sem_filtro: number
       itens: ItemEstoque[]
       faixas: FaixaCobertura[]
       calculo: Calculo
@@ -766,9 +856,12 @@ export const analytics = {
       `/analytics/${cid}/evolucao-mensal${q({ periodo_ini: ini, periodo_fim: fim, metrica })}`,
     ),
 
-  produtos: (cid: number, ini: number, fim: number, ordenar: string, limite = 20, offset = 0) =>
+  produtos: (
+    cid: number, ini: number, fim: number, ordenar: string,
+    limite = 20, offset = 0, uf?: string,
+  ) =>
     api.get<RankingProdutos>(
-      `/analytics/${cid}/produtos${q({ periodo_ini: ini, periodo_fim: fim, ordenar, limite, offset })}`,
+      `/analytics/${cid}/produtos${q({ periodo_ini: ini, periodo_fim: fim, ordenar, uf, limite, offset })}`,
     ),
 
   produtosVariacao: (cid: number, ini: number, fim: number, direcao: 'crescimento' | 'queda') =>
@@ -779,9 +872,22 @@ export const analytics = {
   uf: (cid: number, ini: number, fim: number) =>
     api.get<AnaliseUF>(`/analytics/${cid}/uf${q({ periodo_ini: ini, periodo_fim: fim })}`),
 
-  pdvs: (cid: number, ini: number, fim: number, visao: 'ranking' | 'novos' | 'sumidos', limite = 20) =>
+  pdvs: (
+    cid: number, ini: number, fim: number,
+    visao: 'ranking' | 'novos' | 'sumidos', limite = 20, uf?: string,
+  ) =>
     api.get<RankingPDVs>(
-      `/analytics/${cid}/pdvs${q({ periodo_ini: ini, periodo_fim: fim, visao, limite })}`,
+      `/analytics/${cid}/pdvs${q({ periodo_ini: ini, periodo_fim: fim, visao, uf, limite })}`,
+    ),
+
+  potencialProdutos: (cid: number, ini: number, fim: number, uf?: string, topN = 200) =>
+    api.get<PotencialProdutos>(
+      `/analytics/${cid}/potencial/produtos${q({ periodo_ini: ini, periodo_fim: fim, uf, top_n: topN })}`,
+    ),
+
+  potencialPdvs: (cid: number, ini: number, fim: number, uf?: string, topN = 200) =>
+    api.get<PotencialPDVs>(
+      `/analytics/${cid}/potencial/pdvs${q({ periodo_ini: ini, periodo_fim: fim, uf, top_n: topN })}`,
     ),
 
   concentracao: (cid: number, ini: number, fim: number, contexto: 'produtos' | 'pdvs') =>
@@ -862,9 +968,12 @@ export const analytics = {
   estoquePerfil: (cid: number) =>
     api.get<PerfilEstoque>(`/analytics/${cid}/estoque/perfil`),
 
-  estoque: (cid: number, ini: number, fim: number, base = 'fonte', filial?: string, limite = 500) =>
+  estoque: (
+    cid: number, ini: number, fim: number, base = 'fonte',
+    filial?: string, limite = 500, classe?: string,
+  ) =>
     api.get<PosicaoEstoque>(
-      `/analytics/${cid}/estoque${q({ periodo_ini: ini, periodo_fim: fim, base_velocidade: base, filial, limite })}`,
+      `/analytics/${cid}/estoque${q({ periodo_ini: ini, periodo_fim: fim, base_velocidade: base, filial, classe, limite })}`,
     ),
 
   estoqueResumo: (cid: number, ini: number, fim: number, base = 'fonte', filial?: string) =>

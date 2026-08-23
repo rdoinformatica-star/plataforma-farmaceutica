@@ -161,6 +161,10 @@ export function Perfil() {
           </Aviso>
         )}
 
+        {p.importacao.adaptador === 'html_tabular' && (
+          <DossiesHtml importId={p.importacao.id} />
+        )}
+
         <div className="linha entre">
           <ComoFoiCalculado
             calculo={{
@@ -191,6 +195,79 @@ export function Perfil() {
         <DetalheColuna coluna={colunaAberta} aoFechar={() => setColunaAberta(null)} />
       )}
     </>
+  )
+}
+
+interface DossieTabela {
+  id: number
+  tabela_indice: number
+  tabela_titulo: string | null
+  cabecalhos: string[]
+  linhas: string[][]
+  distribuidor_nome_detectado: string | null
+  distribuidor_vinculado: string | null
+}
+
+function DossiesHtml({ importId }: { importId: number }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['importacao', importId, 'dossies'],
+    queryFn: () => api.get<DossieTabela[]>(`/importacoes/${importId}/dossies`),
+  })
+
+  if (isLoading) return <Carregando />
+  if (!data?.length) return null
+
+  const distribuidor = data[0]?.distribuidor_nome_detectado
+  const vinculado = data[0]?.distribuidor_vinculado
+
+  return (
+    <Card
+      titulo={`Tabelas de referência (${data.length})`}
+      acoes={
+        distribuidor ? (
+          <Tag tipo={vinculado ? 't-ok' : 't-neutro'}>
+            {vinculado
+              ? `vinculado a ${vinculado}`
+              : `"${distribuidor}" detectado — ainda sem cadastro`}
+          </Tag>
+        ) : undefined
+      }
+    >
+      <Aviso tipo="info">
+        Números já calculados no arquivo original (share, variação, penetração).
+        Não entram no motor de ABC/cobertura/estoque/mercado — ficam aqui só para
+        consulta.
+      </Aviso>
+      <div className="pilha" style={{ gap: 20, marginTop: 12 }}>
+        {data.map((t) => (
+          <div key={t.id}>
+            <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13 }}>
+              {t.tabela_titulo ?? `Tabela ${t.tabela_indice + 1}`}
+            </div>
+            <div className="rolagem">
+              <table>
+                <thead>
+                  <tr>
+                    {t.cabecalhos.map((h, i) => (
+                      <th key={i} className={i > 0 ? 'num' : undefined}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {t.linhas.map((linha, i) => (
+                    <tr key={i}>
+                      {linha.map((v, j) => (
+                        <td key={j} className={j > 0 ? 'num' : undefined}>{v}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
   )
 }
 

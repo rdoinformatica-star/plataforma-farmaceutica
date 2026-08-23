@@ -386,13 +386,22 @@ def analise_uf(con: sqlite3.Connection, client_id: int, ini: int, fim: int) -> d
 
 
 def ranking_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
-                 *, visao: str = "ranking", limite: int = 20, offset: int = 0) -> dict:
+                 *, visao: str = "ranking", limite: int = 20, offset: int = 0,
+                 uf: str | None = None) -> dict:
     disp = carregar(con, client_id)
     if not disp.tem_sellout:
         return {"disponivel": False, "motivo": disp.motivo_indisponivel}
+    if uf is not None and not disp.tem_uf:
+        return {"disponivel": False,
+               "motivo": "Este cliente não tem UF de PDV resolvida nos dados importados."}
     dist_ids = disp.distribuidor_ids
     marca = _marca(len(dist_ids))
     janela_ant = pe.janela_anterior(ini, fim)
+    # v_vendas nao carrega uf (so pdv_id); o recorte por estado vem de dim_pdv.
+    # Subconsulta em vez de JOIN para nao mudar o plano das agregacoes por pdv.
+    filtro_uf = (" AND pdv_id IN (SELECT id FROM dim_pdv WHERE uf = ?)"
+                 if uf is not None else "")
+    params_uf = [uf] if uf is not None else []
     # Mesma regra das outras analises: um periodo de comparacao so parcialmente
     # coberto pelos dados produz numeros enganosos (um PDV que comprou antes do
     # inicio dos dados pareceria "novo" sem ser).
@@ -408,30 +417,67 @@ def ranking_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
             return {"disponivel": True, "visao": visao, "total": 0, "itens": [],
                    "calculo": f.Calculo(formula="Sem base de comparação válida.",
                                        premissas=[aviso_cobertura]).como_dict()}
-        atuais = {r[0] for r in con.execute(
-            f"SELECT DISTINCT pdv_id FROM v_vendas"
-            f" WHERE distribuidor_id IN ({marca}) AND periodo BETWEEN ? AND ?",
-            dist_ids + [ini, fim])}
-        anteriores = {r[0] for r in con.execute(
-            f"SELECT DISTINCT pdv_id FROM v_vendas"
-            f" WHERE distribuidor_id IN ({marca}) AND periodo BETWEEN ? AND ?",
-            dist_ids + [janela_ant.ini, janela_ant.fim])}
-        alvo_ids = list((atuais - anteriores) if visao == "novos" else (anteriores - atuais))
+        # Agrega ja na consulta: um PDV novo so tem numero no periodo ATUAL, um
+        # sumido so no ANTERIOR. Sem isso a tela mostra a lista de nomes sem
+        # dizer quanto cada um vale — que e a informacao que decide prioridade.
+        def _por_pdv(a: int, b: int) -> dict[int, tuple[float, float, int]]:
+            return {r[0]: (r[1], r[2], r[3]) for r in con.execute(
+                f"SELECT pdv_id, sum(valor), sum(unidades), count(DISTINCT produto_id)"
+                f"  FROM v_vendas WHERE distribuidor_id IN ({marca})"
+                f"   AND periodo BETWEEN ? AND ?{filtro_uf}"
+                f" GROUP BY pdv_id", dist_ids + [a, b] + params_uf)}
+
+        agg_atual = _por_pdv(ini, fim)
+        agg_ant = _por_pdv(janela_ant.ini, janela_ant.fim)
+        atuais, anteriores = set(agg_atual), set(agg_ant)
+
+        eh_novo = visao == "novos"
+        alvo_ids = list((atuais - anteriores) if eh_novo else (anteriores - atuais))
         alvo_ids = [i for i in alvo_ids if i is not None]
+        # Novo so tem venda agora; sumido so tinha antes. Cada um se mede na
+        # janela em que existe — e a participacao e sobre o total DAQUELA janela.
+        agg = agg_atual if eh_novo else agg_ant
+        total_janela = sum(v for v, _, _ in agg.values())
+
         nomes = dict(con.execute(
             f"SELECT id, razao_social FROM dim_pdv WHERE id IN ({_marca(len(alvo_ids))})",
             alvo_ids).fetchall()) if alvo_ids else {}
-        itens = [{"pdv_id": i, "pdv": nomes.get(i, f"PDV #{i}")} for i in alvo_ids]
+        itens = []
+        for i in alvo_ids:
+            valor, unidades, n_skus = agg.get(i, (0.0, 0.0, 0))
+            itens.append({
+                "pdv_id": i, "pdv": nomes.get(i, f"PDV #{i}"),
+                "faturamento": valor, "unidades": unidades, "n_skus": n_skus,
+                "participacao_pct": f.participacao_pct(valor, total_janela),
+                "variacao_pct": None,  # nao ha as duas pontas para comparar
+            })
+        itens.sort(key=lambda r: r["faturamento"], reverse=True)
+        total_alvo = sum(r["faturamento"] for r in itens)
+
+        janela_medida = pe.Janela(ini, fim).rotulo if eh_novo else janela_ant.rotulo
         return {
-            "disponivel": True, "visao": visao, "total": len(itens),
+            "disponivel": True, "visao": visao, "total": len(itens), "uf": uf,
+            "faturamento_total": total_alvo,
             "itens": itens[offset:offset + limite],
             "calculo": f.Calculo(
                 formula=("PDVs com venda no período atual e nenhuma no período "
-                        "anterior." if visao == "novos" else
-                        "PDVs com venda no período anterior e nenhuma no atual."),
+                        "anterior; faturamento medido no período atual."
+                        if eh_novo else
+                        "PDVs com venda no período anterior e nenhuma no atual; "
+                        "faturamento medido no período anterior — é o valor que "
+                        "deixou de entrar."),
                 valores={"periodo_atual": pe.Janela(ini, fim).rotulo,
-                        "periodo_anterior": janela_ant.rotulo},
-                premissas=[_ELO_SELLOUT,
+                        "periodo_anterior": janela_ant.rotulo,
+                        "janela_medida": janela_medida,
+                        "PDVs": len(itens),
+                        "faturamento": round(total_alvo, 2)},
+                premissas=[_ELO_SELLOUT] + ([f"Recorte: só PDVs do estado {uf}."]
+                                            if uf is not None else []) + [
+                          f"Faturamento e SKUs vêm de {janela_medida} — a única "
+                          f"janela em que estes PDVs têm venda. Por isso não há "
+                          f"variação: falta a outra ponta da comparação.",
+                          "Participação é sobre o total de PDVs daquela mesma "
+                          "janela, não sobre o total do período atual.",
                           "Um PDV \"sumido\" pode ter migrado para outro "
                           "distribuidor, não necessariamente parado de comprar "
                           "Vitamedic — ver perda do distribuidor vs. da "
@@ -442,12 +488,12 @@ def ranking_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     atuais = con.execute(
         f"SELECT pdv_id, sum(valor) v, sum(unidades) u, count(DISTINCT produto_id) n"
         f"  FROM v_vendas WHERE distribuidor_id IN ({marca})"
-        f"   AND periodo BETWEEN ? AND ? GROUP BY pdv_id",
-        dist_ids + [ini, fim]).fetchall()
+        f"   AND periodo BETWEEN ? AND ?{filtro_uf} GROUP BY pdv_id",
+        dist_ids + [ini, fim] + params_uf).fetchall()
     anteriores = dict(con.execute(
         f"SELECT pdv_id, sum(valor) FROM v_vendas WHERE distribuidor_id IN ({marca})"
-        f"   AND periodo BETWEEN ? AND ? GROUP BY pdv_id",
-        dist_ids + [janela_ant.ini, janela_ant.fim]).fetchall()
+        f"   AND periodo BETWEEN ? AND ?{filtro_uf} GROUP BY pdv_id",
+        dist_ids + [janela_ant.ini, janela_ant.fim] + params_uf).fetchall()
     ) if comparacao_valida else {}
     total = sum(v for _, v, _, _ in atuais)
     ids = [p for p, _, _, _ in atuais]
@@ -465,16 +511,20 @@ def ranking_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     linhas.sort(key=lambda r: r["faturamento"], reverse=True)
 
     premissas = [_ELO_SELLOUT]
+    if uf is not None:
+        premissas.append(f"Recorte: só PDVs do estado {uf}. A participação é "
+                         f"sobre o total do estado, não sobre o do cliente inteiro.")
     if aviso_cobertura:
         premissas.append(aviso_cobertura)
 
     return {
-        "disponivel": True, "visao": "ranking", "total": len(linhas),
+        "disponivel": True, "visao": "ranking", "total": len(linhas), "uf": uf,
         "comparacao_valida": comparacao_valida,
+        "faturamento_total": total,
         "itens": linhas[offset:offset + limite],
         "calculo": f.Calculo(
             formula="Faturamento por PDV no período; participação sobre o "
-                   "total de todos os PDVs do cliente.",
+                   "total de todos os PDVs do recorte.",
             valores={"faturamento_total_periodo": round(total, 2),
                     "n_pdvs": len(linhas)},
             premissas=premissas,
