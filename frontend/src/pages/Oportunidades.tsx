@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { LineChart, Target, Users } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Download, LineChart, Target, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -113,6 +113,11 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
     { campo: 'score', direcao: 'desc' },
   )
 
+  const exportar = useMutation({
+    mutationFn: () => analytics.oportunidadesXlsx(
+      clienteId, p!.ini, p!.fim, pesoPotencial, pesoImpacto, pesoFacilidade, uf, foco),
+  })
+
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
   return (
@@ -124,12 +129,19 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
             <p className="dek">Junta ABC, cobertura e mix num score único — o que priorizar primeiro.</p>
           </div>
           <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+            <button disabled={exportar.isPending || !habilitado} onClick={() => exportar.mutate()}>
+              <Download size={14} />
+              {exportar.isPending ? 'Gerando...' : 'Exportar tudo em Excel'}
+            </button>
             <SeletorUF ufs={ufs} valor={uf} aoMudar={setUf} />
             <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
               {clientes.map((c) => (<option key={c.id} value={c.id}>{c.nome}</option>))}
             </select>
           </div>
         </div>
+        {exportar.isError && (
+          <Aviso tipo="atencao">{(exportar.error as Error).message}</Aviso>
+        )}
       </header>
 
       {!disp.tem_sellout ? (

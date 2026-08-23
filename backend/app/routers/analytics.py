@@ -11,6 +11,7 @@ import analytics.abc as abc_mod
 import analytics.cobertura as cobertura_mod
 import analytics.combos as combos_mod
 import analytics.compra as compra_mod
+import analytics.exportar as xls
 import analytics.estoque as estoque_mod
 import analytics.mercado as mercado_mod
 import analytics.mix as mix_mod
@@ -198,6 +199,64 @@ def abc_mercado(client_id: int, periodo_ini: int, periodo_fim: int,
                                       uf=uf.upper() if uf else None, top_n=top_n)
 
 
+@router.get("/{client_id}/abc/xlsx")
+def abc_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+            limite_a: float = 80.0, limite_b: float = 95.0,
+            uf: str | None = Query(None, pattern="^[A-Za-z]{2}$")):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    ufu = uf.upper() if uf else None
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+        curva = abc_mod.curva_abc(con, client_id, ini, fim,
+                                  limite_a=limite_a, limite_b=limite_b, uf=ufu)
+        vsmerc = abc_mod.abc_vs_mercado(con, client_id, ini, fim,
+                                        limite_a=limite_a, limite_b=limite_b, uf=ufu)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+    if curva.get("disponivel"):
+        abas.append(xls.AbaXlsx("Curva ABC", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Classe", "classe_abc", 9),
+            xls.ColunaXlsx("Faturamento", "faturamento_atual", 16, "#,##0.00"),
+            xls.ColunaXlsx("Unidades", "unidades_atual", 13, "#,##0"),
+            xls.ColunaXlsx("Participação %", "participacao_pct", 14, "0.00"),
+            xls.ColunaXlsx("Acumulado %", "participacao_acumulada_pct", 14, "0.00"),
+            xls.ColunaXlsx("Variação %", "variacao_pct", 13, "0.0"),
+            xls.ColunaXlsx("PDVs compradores", "pdvs_compradores", 16, "#,##0"),
+            xls.ColunaXlsx("Cobertura %", "cobertura_pct", 13, "0.0"),
+        ], curva["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Curva ABC", curva["calculo"]["formula"],
+            curva["calculo"].get("valores") or {}, curva["calculo"].get("premissas") or []))
+    if vsmerc.get("disponivel"):
+        abas.append(xls.AbaXlsx("ABC x Mercado", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Classe cliente", "classe_cliente", 13),
+            xls.ColunaXlsx("Classe mercado", "classe_mercado", 13),
+            xls.ColunaXlsx("Situação", "situacao", 16),
+            xls.ColunaXlsx("Faturamento cliente", "faturamento_cliente", 17, "#,##0.00"),
+            xls.ColunaXlsx("Valor mercado", "valor_mercado", 17, "#,##0.00"),
+            xls.ColunaXlsx("Share no Vitamedic %", "share_no_vitamedic_pct", 17, "0.00"),
+        ], vsmerc["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "ABC x Mercado", vsmerc["calculo"]["formula"],
+            vsmerc["calculo"].get("valores") or {}, vsmerc["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Curva ABC para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Curva ABC — {nome_cliente}", abas, secoes)
+    arquivo = f"curva_abc_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
+
+
 @router.get("/{client_id}/abc/crescimento")
 def abc_crescimento(client_id: int, periodo_ini: int, periodo_fim: int,
                     limite_a: float = 80.0, limite_b: float = 95.0,
@@ -313,6 +372,126 @@ def oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
             peso_impacto=peso_impacto, peso_facilidade=peso_facilidade,
             incremento_pp=incremento_pp, uf=uf.upper() if uf else None,
             escopo=escopo, top_n=top_n)
+
+
+@router.get("/{client_id}/oportunidades/xlsx")
+def oportunidades_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+                       peso_potencial: float = 40.0, peso_impacto: float = 35.0,
+                       peso_facilidade: float = 25.0,
+                       incremento_pp: float = Query(10.0, gt=0, le=100),
+                       uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                       foco: str = Query("geral", pattern="^(geral|criticos|zumbi|misto|giro_rapido)$")):
+    """Uma planilha com todas as tabelas que a pagina de Oportunidades mostra:
+    oportunidades por produto, por PDV, combos (no foco atual da tela) e
+    ajuste de preco. Um botao so, um arquivo so — mais facil de circular
+    do que quatro planilhas separadas."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    ufu = uf.upper() if uf else None
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+
+        op_produto = oportunidades_mod.matriz_oportunidades(
+            con, client_id, ini, fim, peso_potencial=peso_potencial,
+            peso_impacto=peso_impacto, peso_facilidade=peso_facilidade,
+            incremento_pp=incremento_pp, uf=ufu, escopo="PRODUTO", top_n=200)
+        op_pdv = oportunidades_mod.matriz_oportunidades(
+            con, client_id, ini, fim, peso_potencial=peso_potencial,
+            peso_impacto=peso_impacto, peso_facilidade=peso_facilidade,
+            incremento_pp=incremento_pp, uf=ufu, escopo="PDV", top_n=200)
+        try:
+            combos = combos_mod.sugerir_combos(con, client_id, ini, fim, foco=foco,
+                                               uf=ufu, top_n=200)
+        except ValueError:
+            combos = {"disponivel": False}
+        ajuste = combos_mod.ajuste_preco(con, client_id, ini, fim, uf=ufu, top_n=200)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if op_produto.get("disponivel") and op_produto["itens"]:
+        abas.append(xls.AbaXlsx("Oportunidades - produtos", [
+            xls.ColunaXlsx("Tipo", "tipo", 14),
+            xls.ColunaXlsx("Oportunidade", "oportunidade", 60),
+            xls.ColunaXlsx("Prioridade", "prioridade", 11),
+            xls.ColunaXlsx("Score", "score", 9, "0.0"),
+            xls.ColunaXlsx("Potencial estimado", "potencial_estimado", 17, "#,##0.00"),
+            xls.ColunaXlsx("Impacto %", "impacto_pct", 11, "0.00"),
+            xls.ColunaXlsx("Facilidade", "facilidade", 11),
+            xls.ColunaXlsx("Premissa", "premissa", 60),
+        ], op_produto["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Oportunidades por produto", op_produto["calculo"]["formula"],
+            op_produto["calculo"].get("valores") or {}, op_produto["calculo"].get("premissas") or []))
+
+    if op_pdv.get("disponivel") and op_pdv["itens"]:
+        abas.append(xls.AbaXlsx("Oportunidades - PDVs", [
+            xls.ColunaXlsx("Tipo", "tipo", 14),
+            xls.ColunaXlsx("Oportunidade", "oportunidade", 60),
+            xls.ColunaXlsx("Prioridade", "prioridade", 11),
+            xls.ColunaXlsx("Score", "score", 9, "0.0"),
+            xls.ColunaXlsx("Potencial estimado", "potencial_estimado", 17, "#,##0.00"),
+            xls.ColunaXlsx("Impacto %", "impacto_pct", 11, "0.00"),
+            xls.ColunaXlsx("Facilidade", "facilidade", 11),
+            xls.ColunaXlsx("Premissa", "premissa", 60),
+        ], op_pdv["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Oportunidades por PDV", op_pdv["calculo"]["formula"],
+            op_pdv["calculo"].get("valores") or {}, op_pdv["calculo"].get("premissas") or []))
+
+    if combos.get("disponivel") and combos["itens"]:
+        linhas_combo = []
+        for c in combos["itens"]:
+            for a in c["acompanhantes"]:
+                linhas_combo.append({
+                    "puxador": c["puxador"], "acompanhante": a["produto"],
+                    "lift": a["lift"], "confianca_pct": a["confianca_pct"],
+                    "cobertura_pdvs": a["cobertura_pdvs"],
+                    "classe_estoque": a["classe_estoque"], "dde": a["dde"],
+                    "estoque_valor": a["estoque_valor"],
+                    "uso_continuo": "sim" if a["uso_continuo"] else "não",
+                })
+        abas.append(xls.AbaXlsx("Combos", [
+            xls.ColunaXlsx("Puxador", "puxador", 34),
+            xls.ColunaXlsx("Acompanhante", "acompanhante", 34),
+            xls.ColunaXlsx("Lift", "lift", 9, "0.0"),
+            xls.ColunaXlsx("Conversão %", "confianca_pct", 12, "0.0"),
+            xls.ColunaXlsx("Cobertura (PDVs)", "cobertura_pdvs", 14, "#,##0"),
+            xls.ColunaXlsx("Estoque", "classe_estoque", 12),
+            xls.ColunaXlsx("DDE", "dde", 9, "0"),
+            xls.ColunaXlsx("Valor parado", "estoque_valor", 15, "#,##0.00"),
+            xls.ColunaXlsx("Uso contínuo", "uso_continuo", 13),
+        ], linhas_combo))
+        secoes.append(xls.SecaoCalculo(
+            f"Combos (foco: {foco})", combos["calculo"]["formula"],
+            combos["calculo"].get("valores") or {}, combos["calculo"].get("premissas") or []))
+
+    if ajuste.get("disponivel") and ajuste["itens"]:
+        abas.append(xls.AbaXlsx("Ajuste de preço", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Prioridade", "prioridade", 11),
+            xls.ColunaXlsx("Preço cliente", "preco_cliente", 13, "#,##0.00"),
+            xls.ColunaXlsx("Preço outros", "preco_outros", 13, "#,##0.00"),
+            xls.ColunaXlsx("Diferença %", "diferenca_pct", 12, "0.0"),
+            xls.ColunaXlsx("Ajuste sugerido %", "ajuste_sugerido_pct", 16, "0.0"),
+            xls.ColunaXlsx("Estoque", "classe_estoque", 12),
+            xls.ColunaXlsx("Receita cedida", "receita_cedida_no_volume_atual", 16, "#,##0.00"),
+        ], ajuste["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Ajuste de preço", ajuste["calculo"]["formula"],
+            ajuste["calculo"].get("valores") or {}, ajuste["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Oportunidades para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Oportunidades — {nome_cliente}", abas, secoes)
+    arquivo = f"oportunidades_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
 
 
 class _PedidoEntrada(BaseModel):

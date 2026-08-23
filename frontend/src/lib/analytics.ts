@@ -1104,6 +1104,30 @@ const q = (params: Record<string, string | number | undefined>) =>
     .map(([k, v]) => `${k}=${encodeURIComponent(v!)}`)
     .join('&')
 
+/** Baixa um arquivo binário (planilha) e dispara o download no navegador.
+ * Usado por toda exportação em .xlsx — a resposta não é JSON, então não
+ * passa por api.get/post. */
+async function _baixarArquivo(url: string, init: RequestInit | undefined, nomePadrao: string) {
+  const r = await fetch(url, init)
+  if (!r.ok) {
+    const corpo = await r.json().catch(() => ({}))
+    throw new Error(corpo?.erro?.mensagem ?? 'Não foi possível gerar a planilha.')
+  }
+  const blob = await r.blob()
+  // O nome vem do Content-Disposition do servidor, que já inclui cliente e data.
+  const cd = r.headers.get('content-disposition') ?? ''
+  const nome = /filename="([^"]+)"/.exec(cd)?.[1] ?? nomePadrao
+  const objUrl = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = objUrl
+  a.download = nome
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(objUrl)
+  return nome
+}
+
 export const analytics = {
   disponibilidade: (cid: number) => api.get<Disponibilidade>(`/analytics/${cid}/disponibilidade`),
 
@@ -1241,30 +1265,31 @@ export const analytics = {
 
   /** Baixa a proposta em .xlsx. Não passa por api.post: a resposta é binária,
    * não JSON, e precisa virar um download no navegador. */
-  compraXlsx: async (cid: number, entrada: EntradaPedido) => {
-    const r = await fetch(`/api/analytics/${cid}/compra/xlsx`, {
+  compraXlsx: (cid: number, entrada: EntradaPedido) =>
+    _baixarArquivo(`/api/analytics/${cid}/compra/xlsx`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entrada),
-    })
-    if (!r.ok) {
-      const corpo = await r.json().catch(() => ({}))
-      throw new Error(corpo?.erro?.mensagem ?? 'Não foi possível gerar a planilha.')
-    }
-    const blob = await r.blob()
-    // O nome vem do Content-Disposition do servidor, que já inclui cliente e data.
-    const cd = r.headers.get('content-disposition') ?? ''
-    const nome = /filename="([^"]+)"/.exec(cd)?.[1] ?? 'proposta_compra.xlsx'
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = nome
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-    return nome
-  },
+    }, 'proposta_compra.xlsx'),
+
+  abcXlsx: (cid: number, ini: number, fim: number, limiteA = 80, limiteB = 95, uf?: string) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/abc/xlsx${q({ periodo_ini: ini, periodo_fim: fim, limite_a: limiteA, limite_b: limiteB, uf })}`,
+      undefined, 'curva_abc.xlsx',
+    ),
+
+  oportunidadesXlsx: (
+    cid: number, ini: number, fim: number,
+    pesoPotencial = 40, pesoImpacto = 35, pesoFacilidade = 25,
+    uf?: string, foco: FocoCombo = 'geral',
+  ) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/oportunidades/xlsx${q({
+        periodo_ini: ini, periodo_fim: fim, peso_potencial: pesoPotencial,
+        peso_impacto: pesoImpacto, peso_facilidade: pesoFacilidade, uf, foco,
+      })}`,
+      undefined, 'oportunidades.xlsx',
+    ),
 
   combos: (
     cid: number, ini: number, fim: number,
