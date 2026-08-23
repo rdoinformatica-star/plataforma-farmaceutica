@@ -564,6 +564,7 @@ export interface LinhaPedido {
   dde_apos_pedido: number | null
   limitado_por_teto?: boolean
   sugestao_valor_cheio?: number
+  excedeu_teto_na_redistribuicao?: boolean
 }
 
 export interface GrupoPedido {
@@ -583,6 +584,8 @@ export interface CortePedido {
   teto_por_sku_pct: number
   teto_por_sku_valor: number
   n_limitados_por_teto: number
+  n_redistribuidos_acima_do_teto: number
+  avisos: string[]
 }
 
 export type SugestaoPedido =
@@ -783,6 +786,8 @@ export type ResumoEstoque =
       skus_dde_indefinido: number
       cobertura_media_dias: number | null
       cobertura_ponderada_dias: number | null
+      cobertura_portfolio_dias: number | null
+      demanda_diaria_valor: number
       skus_acima_180: number
       valor_acima_180: number
       skus_acima_365: number

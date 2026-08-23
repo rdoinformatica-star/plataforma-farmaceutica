@@ -206,47 +206,84 @@ def sugerir_pedido(con: sqlite3.Connection, client_id: int, ini: int, fim: int, 
     corte = None
     if valor_alvo is not None:
         teto_valor = valor_alvo * teto_por_sku
+        avisos_orcamento: list[str] = []
+
+        # Fase 1 (protecao): em ordem de urgencia, cada SKU recebe o minimo
+        # entre sua necessidade, o teto por SKU e o que resta do orcamento. O
+        # teto evita que o SKU mais urgente sozinho consuma o pedido inteiro.
         gasto = 0.0
         for x in linhas:
-            if x["sugestao_valor"] > teto_valor:
-                # Corta pelo teto, e reprojeta o DDE que o pedido cortado entrega.
-                x["sugestao_valor_cheio"] = x["sugestao_valor"]
-                x["sugestao_valor"] = teto_valor
-                x["sugestao_un"] = (math.floor(teto_valor / x["custo_unitario"])
-                                    if x["custo_unitario"] else 0.0)
-                # Recalcula o valor pelas unidades inteiras: o teto e um limite
-                # de orcamento, entao aqui arredonda para BAIXO.
-                x["sugestao_valor"] = x["sugestao_un"] * x["custo_unitario"]
-                x["limitado_por_teto"] = True
-            else:
-                x["limitado_por_teto"] = False
+            necessidade_cheia = x["sugestao_valor"]
+            x["sugestao_valor_cheio"] = necessidade_cheia
+            x["limitado_por_teto"] = necessidade_cheia > teto_valor
             restante = valor_alvo - gasto
-            if restante <= 0:
-                x["sugestao_valor"] = 0.0
-                x["sugestao_un"] = 0.0
-                x["fora_do_orcamento"] = True
-            elif x["sugestao_valor"] > restante:
-                x["sugestao_un"] = (math.floor(restante / x["custo_unitario"])
-                                    if x["custo_unitario"] else 0.0)
-                x["sugestao_valor"] = x["sugestao_un"] * x["custo_unitario"]
-                x["fora_do_orcamento"] = False
-            else:
-                x["fora_do_orcamento"] = False
+            alvo_fase1 = min(necessidade_cheia, teto_valor, max(0.0, restante))
+            un = math.floor(alvo_fase1 / x["custo_unitario"]) if x["custo_unitario"] else 0.0
+            x["sugestao_un"] = un
+            x["sugestao_valor"] = un * x["custo_unitario"]
             gasto += x["sugestao_valor"]
+
+        # Fase 2 (preenchimento): se sobrou orcamento — porque a soma das
+        # necessidades tetadas foi menor que o alvo —, o restante e
+        # redistribuido nos MESMOS SKUs, em ordem de urgencia, agora SEM
+        # teto, ate cada um atingir a necessidade real ou o orcamento
+        # acabar. Sem esta fase, dinheiro ficaria parado mesmo havendo
+        # necessidade real para absorve-lo — nao trava o volume estipulado.
+        sobra = valor_alvo - gasto
+        n_redistribuidos = 0
+        if sobra > 0.01:
+            for x in linhas:
+                if sobra <= 0.01:
+                    break
+                falta = x["sugestao_valor_cheio"] - x["sugestao_valor"]
+                if falta <= 0.01 or not x["custo_unitario"]:
+                    continue
+                extra_un = math.floor(min(falta, sobra) / x["custo_unitario"])
+                if extra_un <= 0:
+                    continue
+                incremento = extra_un * x["custo_unitario"]
+                x["sugestao_un"] += extra_un
+                x["sugestao_valor"] += incremento
+                x["excedeu_teto_na_redistribuicao"] = x["sugestao_valor"] > teto_valor + 0.01
+                sobra -= incremento
+                gasto += incremento
+                n_redistribuidos += 1
+
+        for x in linhas:
+            x.setdefault("excedeu_teto_na_redistribuicao", False)
             if x["venda_dia"] > 0 and x["custo_unitario"]:
                 x["dde_apos_pedido"] = (
                     (x["estoque_atual_un"] + x["pendencia_un"] + x["sugestao_un"])
                     / x["venda_dia"])
+
         linhas = [x for x in linhas if x["sugestao_valor"] > 0]
+        n_limitados = sum(1 for x in linhas
+                          if x.get("limitado_por_teto") and not x.get("excedeu_teto_na_redistribuicao"))
+
+        if n_redistribuidos > 0:
+            avisos_orcamento.append(
+                f"{n_redistribuidos} SKU(s) precisaram de mais do que o teto de "
+                f"{teto_por_sku * 100:.0f}% por SKU na primeira rodada; o "
+                f"orçamento que sobrou foi redistribuído para eles em ordem de "
+                f"urgência, sem ultrapassar a necessidade real de cada um.")
+        sobra_final = max(0.0, valor_alvo - gasto)
+        if sobra_final > valor_alvo * 0.05:
+            avisos_orcamento.append(
+                f"Sobraram R$ {sobra_final:,.2f} do orçamento sem SKU que "
+                f"precise deles neste recorte — a necessidade real da carteira "
+                f"é menor que o valor alvo definido.")
+
         corte = {
             "valor_alvo": valor_alvo,
             "necessidade_total": necessidade_total,
             "atendido": gasto,
-            "sobra_do_orcamento": max(0.0, valor_alvo - gasto),
+            "sobra_do_orcamento": sobra_final,
             "necessidade_nao_atendida": max(0.0, necessidade_total - gasto),
             "teto_por_sku_pct": teto_por_sku * 100,
             "teto_por_sku_valor": teto_valor,
-            "n_limitados_por_teto": sum(1 for x in linhas if x.get("limitado_por_teto")),
+            "n_limitados_por_teto": n_limitados,
+            "n_redistribuidos_acima_do_teto": n_redistribuidos,
+            "avisos": avisos_orcamento,
         }
 
     total_valor = sum(x["sugestao_valor"] for x in linhas)
@@ -321,9 +358,13 @@ def sugerir_pedido(con: sqlite3.Connection, client_id: int, ini: int, fim: int, 
                 "O custo e o de reposicao da foto de estoque; condicao comercial "
                 "negociada no pedido pode mudar o valor final.",
             ] + ([
-                f"Com valor alvo de R$ {valor_alvo:,.2f}, o pedido e limitado a "
-                f"{teto_por_sku * 100:.0f}% por SKU — sem teto, um item de giro "
-                f"alto consumiria o orcamento inteiro.",
+                f"Com valor alvo de R$ {valor_alvo:,.2f}: primeiro passo, cada "
+                f"SKU recebe no maximo {teto_por_sku * 100:.0f}% do orcamento "
+                f"(protege contra um so item consumir tudo); segundo passo, o "
+                f"que sobrar e redistribuido nos mesmos SKUs em ordem de "
+                f"urgencia, agora sem teto, ate cada um atingir a necessidade "
+                f"real ou o orcamento acabar — o volume que voce definiu nao "
+                f"fica parado se houver necessidade real para absorve-lo.",
             ] if valor_alvo is not None else []),
         ).como_dict(),
     }

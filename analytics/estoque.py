@@ -275,27 +275,32 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
     linhas = con.execute(
         f"""SELECT e.produto_id, e.filial, pr.apresentacao,
                    e.estoque_total_un, e.estoque_disp_un, e.estoque_disp_x100,
-                   e.custo_rep_x100, e.media_venda_un, e.cobertura_dias
+                   e.custo_rep_x100, e.media_venda_un, e.cobertura_dias,
+                   e.media_venda_valor
               FROM v_estoque e
               LEFT JOIN dim_product pr ON pr.id = e.produto_id
              WHERE {' AND '.join(where)}
              ORDER BY e.estoque_disp_x100 DESC""", params).fetchall()
 
     # Velocidade do periodo, por produto e por filial (cada filial tem o
-    # sell-out do seu proprio distribuidor).
+    # sell-out do seu proprio distribuidor). Unidades e valor juntos: o
+    # portfolio precisa da demanda em R$/dia, nao so em unidades/dia.
     vel_periodo: dict[tuple[int, str], float] = {}
+    vel_periodo_valor: dict[tuple[int, str], float] = {}
     meses = contar_meses(ini, fim)
     dias_periodo = meses * DIAS_MES
     for fil, did in vinculo.items():
-        for prod, un in con.execute(
-            """SELECT produto_id, coalesce(sum(unidades),0) FROM v_vendas_mensal
+        for prod, un, val in con.execute(
+            """SELECT produto_id, coalesce(sum(unidades),0), coalesce(sum(valor),0)
+                 FROM v_vendas_mensal
                 WHERE distribuidor_id = ? AND periodo BETWEEN ? AND ?
                 GROUP BY produto_id""", (did, ini, fim)):
             vel_periodo[(prod, fil)] = float(un) / dias_periodo if dias_periodo else 0.0
+            vel_periodo_valor[(prod, fil)] = float(val) / dias_periodo if dias_periodo else 0.0
 
     itens = []
     for (pid, fil, apres, e_tot, e_disp, e_val_x100, custo_x100,
-         mv_un, cob_fonte) in linhas:
+         mv_un, cob_fonte, mv_valor) in linhas:
         e_disp = float(e_disp)
         valor = (e_val_x100 or 0) / 100.0
 
@@ -303,15 +308,17 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
         mv = float(mv_un) if mv_un is not None else None
         vd_fonte = (mv / DIAS_MES) if (mv is not None and mv > 0) else None
         dde_fonte = (e_disp / vd_fonte) if vd_fonte else None
+        vd_valor_fonte = (float(mv_valor) / DIAS_MES) if mv_valor else None
 
         vd_bruta = vel_periodo.get((pid, fil))
         vd_per = vd_bruta if (vd_bruta or 0) > 0 else None
         dde_per = (e_disp / vd_per) if vd_per else None
+        vd_valor_per = vel_periodo_valor.get((pid, fil))
 
         if base_velocidade == "fonte":
-            dde, mv_ref = dde_fonte, mv
+            dde, mv_ref, vd_valor = dde_fonte, mv, vd_valor_fonte
         else:
-            dde, mv_ref = dde_per, vd_bruta
+            dde, mv_ref, vd_valor = dde_per, vd_bruta, vd_valor_per
         motivo_dde = None
         if dde is None:
             motivo_dde = ("devolucao_liquida" if (mv_ref is not None and mv_ref < 0)
@@ -327,6 +334,7 @@ def posicao(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
             "media_venda_mes_fonte": float(mv_un) if mv_un else None,
             "venda_dia_fonte": vd_fonte,
             "venda_dia_periodo": vd_per,
+            "venda_dia_valor": vd_valor,
             "dde_fonte": dde_fonte,
             "dde_periodo": dde_per,
             "dde": dde,
@@ -391,10 +399,21 @@ def resumo(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
     valor_total = sum(i["valor_estoque"] for i in itens)
     com_dde = [i for i in itens if i["dde"] is not None]
     cob_media = (sum(i["dde"] for i in com_dde) / len(com_dde)) if com_dde else None
-    # Cobertura ponderada por valor: mais fiel ao capital do que a media simples.
+    # Media ponderada por valor: media dos DDEs individuais, com peso do valor
+    # de cada SKU. Ainda e uma MEDIA DE RAZOES — um SKU de giro altissimo e
+    # DDE baixo pode nao puxar o numero tanto quanto deveria, porque cada SKU
+    # entra como uma unidade na media, so com peso diferente.
     peso = sum(i["valor_estoque"] for i in com_dde)
     cob_ponderada = (sum(i["dde"] * i["valor_estoque"] for i in com_dde) / peso
                      if peso else None)
+    # Cobertura de PORTFOLIO: razao dos totais, nao media das razoes. E o "em
+    # quantos dias o estoque inteiro esvazia, no ritmo de venda em R$ de HOJE"
+    # — a formula padrao de dias-de-estoque a nivel de carteira. Diferente da
+    # ponderada: aqui SKUs de giro alto pesam pela demanda que realmente
+    # geram, nao por uma media de DDEs individuais.
+    demanda_diaria_valor = sum(i["venda_dia_valor"] or 0.0 for i in itens
+                               if i["classificacao"] != INDEFINIDO)
+    cob_portfolio = (valor_total / demanda_diaria_valor) if demanda_diaria_valor else None
 
     def acima(dias: float) -> tuple[int, float]:
         sel = [i for i in itens if _acima_de(i, dias)]
@@ -421,18 +440,33 @@ def resumo(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
         "skus_dde_indefinido": n_indef,
         "cobertura_media_dias": cob_media,
         "cobertura_ponderada_dias": cob_ponderada,
+        "cobertura_portfolio_dias": cob_portfolio,
+        "demanda_diaria_valor": demanda_diaria_valor,
         "skus_acima_180": n180, "valor_acima_180": v180,
         "skus_acima_365": n365, "valor_acima_365": v365,
         "por_classe": list(por_classe.values()),
         "calculo": Calculo(
             formula=("valor total = soma do estoque disponivel R$; "
-                     "cobertura ponderada = soma(DDE x valor) / soma(valor)"),
+                     "cobertura de portfolio = valor total do estoque / demanda "
+                     "diaria em R$ (razao dos totais); "
+                     "cobertura ponderada = soma(DDE x valor) / soma(valor) "
+                     "(media dos DDEs individuais, ponderada por valor)"),
             valores={"SKUs com estoque": len(itens),
                      "valor total": round(valor_total, 2),
+                     "demanda diaria (R$)": round(demanda_diaria_valor, 2),
+                     "cobertura de portfolio (dias)": (round(cob_portfolio, 1)
+                                                       if cob_portfolio else None),
                      "valor acima de 180 dias": round(v180, 2),
                      "valor acima de 365 dias": round(v365, 2),
                      "SKUs com DDE indefinido": n_indef},
             premissas=[
+                "COBERTURA DE PORTFOLIO e a razao dos totais (valor total do "
+                "estoque / demanda diaria total em R$) — responde 'em quantos "
+                "dias o estoque inteiro esvazia, no ritmo de venda de hoje'. "
+                "E DIFERENTE da media ponderada: a media ponderada e uma media "
+                "dos DDEs de cada SKU (com peso do valor), e pode ser puxada "
+                "por SKUs individuais de DDE muito alto mesmo que pesem pouco "
+                "na demanda real. A de portfolio nao sofre desse efeito.",
                 "Valor do estoque = campo de valor da origem (custo de "
                 "reposicao), nao preco de venda: e capital imobilizado, nao "
                 "receita perdida.",

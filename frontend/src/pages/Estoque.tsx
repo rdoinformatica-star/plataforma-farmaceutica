@@ -294,9 +294,16 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
                 <Kpi rotulo="Estoque total" valor={brl(resumo.valor_total)} />
                 <Kpi rotulo="SKUs com estoque" valor={inteiro(resumo.skus_com_estoque)} />
                 <Kpi
-                  rotulo="Cobertura média"
+                  rotulo="Cobertura do portfólio"
+                  valor={dias(resumo.cobertura_portfolio_dias)}
+                  sub="valor total do estoque ÷ demanda diária em R$"
+                  titulo="Razão dos totais, não média dos DDEs individuais: em quantos dias o estoque inteiro esvazia no ritmo de venda de hoje. Diferente da média ponderada abaixo, que pode ser puxada por SKUs de DDE alto mesmo pesando pouco na demanda real."
+                />
+                <Kpi
+                  rotulo="Média por SKU"
                   valor={dias(resumo.cobertura_media_dias)}
                   sub={`ponderada por valor: ${dias(resumo.cobertura_ponderada_dias)}`}
+                  titulo="Média (simples e ponderada) dos DDEs de cada SKU — uma média de razões, não a razão dos totais."
                 />
                 <Kpi
                   rotulo="Estoque > 180 dias"

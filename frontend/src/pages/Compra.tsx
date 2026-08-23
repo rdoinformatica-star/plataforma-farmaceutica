@@ -320,6 +320,11 @@ function CompraCliente({ clienteId, clientes }: { clienteId: number; clientes: C
                     <Aviso tipo={pedido.corte.necessidade_nao_atendida > 0 ? 'atencao' : 'info'}>
                       Orçamento de <b>{brl(pedido.corte.valor_alvo)}</b>: a proposta usa{' '}
                       <b>{brl(pedido.corte.atendido)}</b>.
+                      {pedido.corte.n_redistribuidos_acima_do_teto > 0 && (
+                        <> {pedido.corte.n_redistribuidos_acima_do_teto} SKU(s) receberam
+                        mais do que o teto de {brl(pedido.corte.teto_por_sku_valor)} porque
+                        sobrou orçamento e havia necessidade real para absorvê-lo.</>
+                      )}
                       {pedido.corte.sobra_do_orcamento > 0 && (
                         <> Sobram <b>{brl(pedido.corte.sobra_do_orcamento)}</b> — a
                         necessidade real é menor que o alvo, e o sistema não completa
@@ -327,12 +332,15 @@ function CompraCliente({ clienteId, clientes }: { clienteId: number; clientes: C
                       )}
                       {pedido.corte.necessidade_nao_atendida > 0 && (
                         <> Ficam <b>{brl(pedido.corte.necessidade_nao_atendida)}</b> de
-                        necessidade fora, por teto de SKU ou por limite de orçamento.</>
+                        necessidade fora, por limite de orçamento.</>
                       )}
                       {pedido.corte.n_limitados_por_teto > 0 && (
-                        <> {pedido.corte.n_limitados_por_teto} SKU(s) foram limitados
-                        pelo teto de {brl(pedido.corte.teto_por_sku_valor)}.</>
+                        <> {pedido.corte.n_limitados_por_teto} SKU(s) ainda ficaram
+                        limitados pelo teto de {brl(pedido.corte.teto_por_sku_valor)}.</>
                       )}
+                      {pedido.corte.avisos.map((a, i) => (
+                        <div key={i} style={{ marginTop: 6 }}>{a}</div>
+                      ))}
                     </Aviso>
                   )}
 
@@ -450,7 +458,11 @@ function CompraCliente({ clienteId, clientes }: { clienteId: number; clientes: C
                             <tr key={i.produto_id}>
                               <td>
                                 {i.produto}
-                                {i.limitado_por_teto && (
+                                {i.excedeu_teto_na_redistribuicao ? (
+                                  <span title="Recebeu mais que o teto por SKU porque sobrou orçamento e havia necessidade real">
+                                    {' '}<Tag tipo="t-ok">redistribuído</Tag>
+                                  </span>
+                                ) : i.limitado_por_teto && (
                                   <> <Tag tipo="t-hip">limitado pelo teto</Tag></>
                                 )}
                               </td>

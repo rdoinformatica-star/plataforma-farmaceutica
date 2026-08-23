@@ -37,14 +37,16 @@ export function Kpi({
   valor,
   sub,
   tom,
+  titulo,
 }: {
   rotulo: string
   valor: ReactNode
   sub?: ReactNode
   tom?: 'pos' | 'neg'
+  titulo?: string
 }) {
   return (
-    <div className="kpi">
+    <div className="kpi" title={titulo}>
       <div className="rot">{rotulo}</div>
       <div className={`val ${tom ?? ''}`}>{valor}</div>
       {sub && <div className="sub">{sub}</div>}
