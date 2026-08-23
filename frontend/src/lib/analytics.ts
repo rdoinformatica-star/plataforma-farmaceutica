@@ -673,6 +673,42 @@ export type SugestaoCombos =
       calculo: Calculo
     }
 
+/* Kits tematicos (grupos de 3+ produtos, nao so pares) — ver kits_tematicos() */
+
+export interface ProdutoKit {
+  produto_id: number
+  produto: string
+}
+
+export interface MesKit {
+  mes: number
+  mes_nome: string
+  valor: number
+}
+
+export interface Kit {
+  produtos: ProdutoKit[]
+  tamanho: number
+  afinidade_media: number
+  faturamento_periodo_selecionado: number
+  faturamento_total_historico: number
+  picos_mes: number[]
+  picos_mes_nome: string[]
+  distribuicao_por_mes: MesKit[]
+}
+
+export type Kits =
+  | Indisponivel
+  | {
+      disponivel: true
+      uf: string | null
+      n_kits: number
+      n_anos_historico: number
+      periodo_historico: { min: number | null; max: number | null }
+      itens: Kit[]
+      calculo: Calculo
+    }
+
 export interface ItemAjustePreco {
   produto_id: number
   produto: string
@@ -1300,6 +1336,11 @@ export const analytics = {
         periodo_ini: ini, periodo_fim: fim, foco, uf,
         max_acompanhantes: maxAcompanhantes, top_n: topN,
       })}`,
+    ),
+
+  combosKits: (cid: number, ini: number, fim: number, uf?: string, topN = 15) =>
+    api.get<Kits>(
+      `/analytics/${cid}/combos/kits${q({ periodo_ini: ini, periodo_fim: fim, uf, top_n: topN })}`,
     ),
 
   ajustePreco: (cid: number, ini: number, fim: number, uf?: string, topN = 30) =>

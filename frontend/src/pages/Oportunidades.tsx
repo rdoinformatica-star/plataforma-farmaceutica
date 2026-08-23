@@ -8,6 +8,7 @@ import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { SeletorUF } from '../components/dashboard/SeletorUF'
 import { AjustePreco } from '../components/oportunidades/AjustePreco'
 import { Combos } from '../components/oportunidades/Combos'
+import { KitsTematicos } from '../components/oportunidades/KitsTematicos'
 import { Aviso, Card, Tag, Vazio } from '../components/ui'
 import { analytics, type FocoCombo, type ItemOportunidade } from '../lib/analytics'
 import { api, type Cliente } from '../lib/api'
@@ -95,6 +96,11 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
   const { data: combos } = useQuery({
     queryKey: ['analytics', 'combos', clienteId, p?.ini, p?.fim, foco, uf ?? ''],
     queryFn: () => analytics.combos(clienteId, p!.ini, p!.fim, foco, uf),
+    enabled: habilitado,
+  })
+  const { data: kits } = useQuery({
+    queryKey: ['analytics', 'combos-kits', clienteId, p?.ini, p?.fim, uf ?? ''],
+    queryFn: () => analytics.combosKits(clienteId, p!.ini, p!.fim, uf),
     enabled: habilitado,
   })
   const { data: ajuste } = useQuery({
@@ -308,6 +314,8 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
           </Card>
 
           <Combos dados={combos} foco={foco} setFoco={setFoco} />
+
+          <KitsTematicos dados={kits} />
 
           <AjustePreco dados={ajuste} />
 

@@ -405,6 +405,7 @@ def oportunidades_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
                                                uf=ufu, top_n=200)
         except ValueError:
             combos = {"disponivel": False}
+        kits = combos_mod.kits_tematicos(con, client_id, ini, fim, uf=ufu, top_n=50)
         ajuste = combos_mod.ajuste_preco(con, client_id, ini, fim, uf=ufu, top_n=200)
 
     abas: list[xls.AbaXlsx] = []
@@ -466,6 +467,29 @@ def oportunidades_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
         secoes.append(xls.SecaoCalculo(
             f"Combos (foco: {foco})", combos["calculo"]["formula"],
             combos["calculo"].get("valores") or {}, combos["calculo"].get("premissas") or []))
+
+    if kits.get("disponivel") and kits["itens"]:
+        linhas_kit = [{
+            "n": n,
+            "produtos": " + ".join(p["produto"] for p in k["produtos"]),
+            "tamanho": k["tamanho"],
+            "afinidade_media": k["afinidade_media"],
+            "picos": ", ".join(k["picos_mes_nome"]),
+            "fat_periodo": k["faturamento_periodo_selecionado"],
+            "fat_historico": k["faturamento_total_historico"],
+        } for n, k in enumerate(kits["itens"], start=1)]
+        abas.append(xls.AbaXlsx("Kits", [
+            xls.ColunaXlsx("#", "n", 5),
+            xls.ColunaXlsx("Produtos do kit", "produtos", 80),
+            xls.ColunaXlsx("Tamanho", "tamanho", 9),
+            xls.ColunaXlsx("Afinidade média", "afinidade_media", 15, "0.0"),
+            xls.ColunaXlsx("Picos (mês)", "picos", 18),
+            xls.ColunaXlsx("Fat. no período", "fat_periodo", 16, "#,##0.00"),
+            xls.ColunaXlsx("Fat. histórico", "fat_historico", 16, "#,##0.00"),
+        ], linhas_kit))
+        secoes.append(xls.SecaoCalculo(
+            "Kits de produtos", kits["calculo"]["formula"],
+            kits["calculo"].get("valores") or {}, kits["calculo"].get("premissas") or []))
 
     if ajuste.get("disponivel") and ajuste["itens"]:
         abas.append(xls.AbaXlsx("Ajuste de preço", [
@@ -580,6 +604,22 @@ def combos_afinidade(client_id: int, periodo_ini: int, periodo_fim: int,
         _cliente_existe(con, client_id)
         return combos_mod.afinidade(con, client_id, ini, fim,
                                     uf=uf.upper() if uf else None, top_n=top_n)
+
+
+@router.get("/{client_id}/combos/kits")
+def combos_kits(client_id: int, periodo_ini: int, periodo_fim: int,
+                uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                min_lift: float = Query(combos_mod.MIN_LIFT_KIT, gt=0),
+                tamanho_min: int = Query(3, ge=2, le=10),
+                tamanho_max: int = Query(6, ge=2, le=10),
+                top_n: int = Query(15, le=100)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return combos_mod.kits_tematicos(
+            con, client_id, ini, fim, uf=uf.upper() if uf else None,
+            min_lift=min_lift, tamanho_min=tamanho_min, tamanho_max=tamanho_max,
+            top_n=top_n)
 
 
 @router.get("/{client_id}/ajuste-preco")

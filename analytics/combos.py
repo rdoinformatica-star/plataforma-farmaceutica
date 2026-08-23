@@ -436,3 +436,172 @@ def ajuste_preco(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
             ] + ([f"Recorte: so PDVs do estado {uf}."] if uf else []),
         ).como_dict(),
     }
+
+
+_MESES = ["jan", "fev", "mar", "abr", "mai", "jun",
+          "jul", "ago", "set", "out", "nov", "dez"]
+
+# Kit exige afinidade mais forte que o combo par-a-par: um kit e um
+# compromisso maior (3+ produtos juntos tem que fazer sentido entre TODOS os
+# pares, nao so cada um com um produto central).
+MIN_LIFT_KIT = 1.5
+
+
+def kits_tematicos(con: sqlite3.Connection, client_id: int, ini: int, fim: int, *,
+                   uf: str | None = None, min_lift: float = MIN_LIFT_KIT,
+                   min_pdvs: int = MIN_PDVS_PAR, tamanho_min: int = 3,
+                   tamanho_max: int = 6, top_n: int = 15) -> dict:
+    """Kits de produtos que a base mostra sendo comprados juntos como GRUPO —
+    o mais proximo de um "combo pronto" (tipo "combo inverno", "combo
+    imunidade") que da para provar com dado: todo par dentro do kit tem
+    afinidade forte entre si, nao so cada produto com um puxador central
+    (que e o que sugerir_combos() ja faz, em formato estrela).
+
+    ESTE SISTEMA NAO TENTA ADIVINHAR O TEMA. Chamar um grupo de "combo
+    inverno" a partir do nome dos produtos seria opiniao disfarcada de dado —
+    a base nao tem essa marcacao. Em vez disso, mostra QUANDO o kit vende
+    mais (mes do ano, sobre todo o historico do cliente) para o usuario
+    reconhecer o padrao com o proprio conhecimento de negocio.
+    """
+    disp = carregar(con, client_id)
+    if not disp.tem_sellout:
+        return _sem(disp.motivo_indisponivel)
+    if uf is not None and not disp.tem_uf:
+        return _sem("Este cliente nao tem UF de PDV resolvida nos dados importados.")
+
+    af = afinidade(con, client_id, ini, fim, uf=uf, min_pdvs=min_pdvs,
+                   min_lift=min_lift, top_n=100000)
+    if not af.get("disponivel"):
+        return af
+    if not af["itens"]:
+        return _sem(
+            f"Nenhum par de produtos com lift >= {min_lift} e pelo menos "
+            f"{min_pdvs} PDVs em comum neste período — sem base para montar kits.")
+
+    # Adjacencia: produto -> {produto vizinho: lift}. So pares que passaram
+    # no piso de afinidade() entram aqui.
+    adj: dict[int, dict[int, float]] = defaultdict(dict)
+    nomes: dict[int, str] = {}
+    for p in af["itens"]:
+        a, b = p["produto_a_id"], p["produto_b_id"]
+        adj[a][b] = p["lift"]
+        adj[b][a] = p["lift"]
+        nomes[a] = p["produto_a"]
+        nomes[b] = p["produto_b"]
+
+    def afinidade_media(grupo: set[int]) -> float:
+        pares = [(x, y) for x in grupo for y in grupo if x < y]
+        return sum(adj[x][y] for x, y in pares) / len(pares) if pares else 0.0
+
+    # Cliques gulosas: cada produto (do mais conectado ao menos) vira semente
+    # e cresce enquanto houver um vizinho ligado a TODOS os membros atuais —
+    # sempre escolhendo o de maior afinidade media com o grupo, nao o primeiro.
+    cliques: list[set[int]] = []
+    for semente in sorted(adj, key=lambda p: -len(adj[p])):
+        grupo = {semente}
+        while len(grupo) < tamanho_max:
+            candidatos = [p for p in adj[semente]
+                         if p not in grupo and all(p in adj[m] for m in grupo)]
+            if not candidatos:
+                break
+            melhor = max(candidatos,
+                        key=lambda p: sum(adj[m][p] for m in grupo) / len(grupo))
+            grupo.add(melhor)
+        if len(grupo) >= tamanho_min:
+            cliques.append(grupo)
+
+    # Deduplica: cliques que compartilham a maioria dos produtos sao o mesmo
+    # kit visto de sementes diferentes. Mede por Jaccard; fica so o maior/
+    # mais forte de cada familia.
+    cliques.sort(key=lambda c: (-len(c), -afinidade_media(c)))
+    finais: list[set[int]] = []
+    for c in cliques:
+        if any(len(c & f) / len(c | f) > 0.5 for f in finais):
+            continue
+        finais.append(c)
+    finais = finais[:top_n]
+
+    periodo_min, periodo_max = disp.periodo_min, disp.periodo_max
+    n_anos = ((periodo_max // 100) - (periodo_min // 100) + 1
+             if periodo_min and periodo_max else 0)
+    marca_dist = ",".join("?" * len(disp.distribuidor_ids))
+
+    kits = []
+    for grupo in finais:
+        ids = list(grupo)
+        marca = ",".join("?" * len(ids))
+
+        # Sazonalidade sobre TODO o historico do cliente — o periodo
+        # selecionado na tela costuma ser curto demais para dizer algo sobre
+        # sazonalidade (precisa de mais de uma volta do calendario).
+        por_mes = {int(m): float(v) for m, v in con.execute(
+            f"""SELECT periodo % 100, sum(valor) FROM v_vendas_mensal
+                 WHERE distribuidor_id IN ({marca_dist}) AND produto_id IN ({marca})
+                   AND periodo BETWEEN ? AND ?
+                 GROUP BY periodo % 100""",
+            disp.distribuidor_ids + ids + [periodo_min, periodo_max])}
+        total_historico = sum(por_mes.values())
+        picos = sorted(por_mes, key=lambda m: -por_mes[m])[:3] if por_mes else []
+
+        # Faturamento no periodo selecionado (o que esta na tela agora).
+        fat_periodo = con.execute(
+            f"""SELECT coalesce(sum(valor),0) FROM v_vendas_mensal
+                 WHERE distribuidor_id IN ({marca_dist}) AND produto_id IN ({marca})
+                   AND periodo BETWEEN ? AND ?""",
+            disp.distribuidor_ids + ids + [ini, fim]).fetchone()[0]
+
+        kits.append({
+            "produtos": sorted(
+                [{"produto_id": pid, "produto": nomes[pid]} for pid in ids],
+                key=lambda x: x["produto"]),
+            "tamanho": len(ids),
+            "afinidade_media": afinidade_media(grupo),
+            "faturamento_periodo_selecionado": float(fat_periodo),
+            "faturamento_total_historico": total_historico,
+            "picos_mes": picos,
+            "picos_mes_nome": [_MESES[m - 1] for m in picos],
+            "distribuicao_por_mes": [
+                {"mes": m, "mes_nome": _MESES[m - 1], "valor": por_mes.get(m, 0.0)}
+                for m in range(1, 13)],
+        })
+
+    kits.sort(key=lambda k: -k["afinidade_media"])
+
+    return {
+        "disponivel": True,
+        "uf": uf,
+        "n_kits": len(kits),
+        "n_anos_historico": n_anos,
+        "periodo_historico": {"min": periodo_min, "max": periodo_max},
+        "itens": kits,
+        "calculo": Calculo(
+            formula=(f"kit = conjunto de {tamanho_min}+ produtos onde TODO par "
+                     f"tem lift >= {min_lift} entre si (nao so cada um com um "
+                     "produto central); sazonalidade = faturamento do kit somado "
+                     "por mes-do-ano, sobre todo o historico disponivel do cliente."),
+            valores={"kits encontrados": len(kits), "lift minimo exigido": min_lift,
+                     "tamanho do kit": f"{tamanho_min} a {tamanho_max} produtos",
+                     "historico usado p/ sazonalidade": f"{periodo_min}-{periodo_max}",
+                     "anos de historico": n_anos},
+            premissas=[
+                "NAO TENTA ADIVINHAR UM TEMA. O sistema não sabe se um kit é "
+                "\"combo inverno\" ou \"combo imunidade\" — a base não tem essa "
+                "marcação. Mostra os produtos e QUANDO vendem mais; nomear o "
+                "padrão é do usuário, com o conhecimento de negócio que o "
+                "dado sozinho não tem.",
+                "Co-ocorrência não é causa: produtos no mesmo kit podem estar "
+                "juntos por perfil da loja, não por uma relação real entre eles.",
+                f"Com {n_anos} ano(s) de histórico, um \"pico\" de mês pode ser "
+                f"um evento pontual (campanha, ruptura de concorrente), não "
+                f"sazonalidade de verdade — sazonalidade confiável pede pelo "
+                f"menos 2 voltas do calendário.",
+                "Kits que compartilham a maioria dos produtos entre si são "
+                "unificados (fica só o maior/mais forte), para não repetir "
+                "essencialmente o mesmo grupo com nomes diferentes.",
+                "Exige afinidade mais forte que os combos par-a-par "
+                f"(lift >= {min_lift} vs. {MIN_LIFT} do combo comum): um "
+                "compromisso de 3+ produtos juntos precisa de uma base mais "
+                "sólida que um par só.",
+            ] + ([f"Recorte: só PDVs do estado {uf}."] if uf else []),
+        ).como_dict(),
+    }
