@@ -5,8 +5,11 @@ import { Link } from 'react-router-dom'
 
 import { useOrdenacao } from '../components/Tabela'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
+import { SeletorUF } from '../components/dashboard/SeletorUF'
+import { AjustePreco } from '../components/oportunidades/AjustePreco'
+import { Combos } from '../components/oportunidades/Combos'
 import { Aviso, Card, Tag, Vazio } from '../components/ui'
-import { analytics, type ItemOportunidade } from '../lib/analytics'
+import { analytics, type FocoCombo, type ItemOportunidade } from '../lib/analytics'
 import { api, type Cliente } from '../lib/api'
 import { brl, pct } from '../lib/format'
 import { useEstado } from '../lib/estado'
@@ -70,12 +73,33 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
   const [pesoPotencial, setPesoPotencial] = useState(40)
   const [pesoImpacto, setPesoImpacto] = useState(35)
   const [pesoFacilidade, setPesoFacilidade] = useState(25)
+  const [uf, setUf] = useState<string | undefined>(undefined)
+  // Produto e PDV são ações diferentes, para times diferentes — a tela separa.
+  const [escopo, setEscopo] = useState<'PRODUTO' | 'PDV'>('PRODUTO')
+  const [foco, setFoco] = useState<FocoCombo>('misto')
   const p = periodo
   const habilitado = !!p
 
+  const { data: ufs } = useQuery({
+    queryKey: ['analytics', 'uf', clienteId, p?.ini, p?.fim],
+    queryFn: () => analytics.uf(clienteId, p!.ini, p!.fim),
+    enabled: habilitado,
+  })
   const { data: matriz, isLoading: lMatriz } = useQuery({
-    queryKey: ['analytics', 'oportunidades', clienteId, p?.ini, p?.fim, pesoPotencial, pesoImpacto, pesoFacilidade],
-    queryFn: () => analytics.oportunidades(clienteId, p!.ini, p!.fim, pesoPotencial, pesoImpacto, pesoFacilidade),
+    queryKey: ['analytics', 'oportunidades', clienteId, p?.ini, p?.fim,
+               pesoPotencial, pesoImpacto, pesoFacilidade, uf ?? '', escopo],
+    queryFn: () => analytics.oportunidades(
+      clienteId, p!.ini, p!.fim, pesoPotencial, pesoImpacto, pesoFacilidade, uf, escopo),
+    enabled: habilitado,
+  })
+  const { data: combos } = useQuery({
+    queryKey: ['analytics', 'combos', clienteId, p?.ini, p?.fim, foco, uf ?? ''],
+    queryFn: () => analytics.combos(clienteId, p!.ini, p!.fim, foco, uf),
+    enabled: habilitado,
+  })
+  const { data: ajuste } = useQuery({
+    queryKey: ['analytics', 'ajuste-preco', clienteId, p?.ini, p?.fim, uf ?? ''],
+    queryFn: () => analytics.ajustePreco(clienteId, p!.ini, p!.fim, uf),
     enabled: habilitado,
   })
   const { data: alertas } = useQuery({
@@ -99,9 +123,12 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
             <h1>Oportunidades — {disp.cliente}</h1>
             <p className="dek">Junta ABC, cobertura e mix num score único — o que priorizar primeiro.</p>
           </div>
-          <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
-            {clientes.map((c) => (<option key={c.id} value={c.id}>{c.nome}</option>))}
-          </select>
+          <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+            <SeletorUF ufs={ufs} valor={uf} aoMudar={setUf} />
+            <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
+              {clientes.map((c) => (<option key={c.id} value={c.id}>{c.nome}</option>))}
+            </select>
+          </div>
         </div>
       </header>
 
@@ -183,29 +210,51 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
           </Card>
 
           <Card
-            titulo="Matriz de oportunidades"
+            titulo={escopo === 'PRODUTO' ? 'Oportunidades por produto' : 'Oportunidades por PDV'}
             acoes={
-              matriz?.disponivel && matriz.itens.length > 0 ? (
-                <label style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span className="mut" style={{ fontSize: 12 }}>Ordenar por</span>
-                  <select
-                    value={ordemMatriz?.campo ?? 'score'}
-                    onChange={(e) =>
-                      alternarMatriz(
-                        e.target.value as keyof ItemOportunidade & string,
-                        e.target.value === 'oportunidade' || e.target.value === 'tipo' ? 'texto' : 'numero',
-                      )
-                    }
-                    style={{ width: 160 }}
+              <div className="linha" style={{ gap: 10, alignItems: 'center' }}>
+                <div className="linha" style={{ gap: 6 }}>
+                  <button
+                    className={escopo === 'PRODUTO' ? 'primario' : ''}
+                    onClick={() => setEscopo('PRODUTO')}
                   >
-                    <option value="score">Score</option>
-                    <option value="potencial_estimado">Potencial</option>
-                    <option value="impacto_pct">Impacto</option>
-                    <option value="facilidade">Facilidade</option>
-                    <option value="oportunidade">Oportunidade (A–Z)</option>
-                  </select>
-                </label>
-              ) : undefined
+                    Produtos
+                    {matriz?.disponivel && matriz.por_escopo && (
+                      <> ({matriz.por_escopo.PRODUTO})</>
+                    )}
+                  </button>
+                  <button
+                    className={escopo === 'PDV' ? 'primario' : ''}
+                    onClick={() => setEscopo('PDV')}
+                  >
+                    PDVs
+                    {matriz?.disponivel && matriz.por_escopo && (
+                      <> ({matriz.por_escopo.PDV})</>
+                    )}
+                  </button>
+                </div>
+                {matriz?.disponivel && matriz.itens.length > 0 ? (
+                  <label style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span className="mut" style={{ fontSize: 12 }}>Ordenar por</span>
+                    <select
+                      value={ordemMatriz?.campo ?? 'score'}
+                      onChange={(e) =>
+                        alternarMatriz(
+                          e.target.value as keyof ItemOportunidade & string,
+                          e.target.value === 'oportunidade' || e.target.value === 'tipo' ? 'texto' : 'numero',
+                        )
+                      }
+                      style={{ width: 160 }}
+                    >
+                      <option value="score">Score</option>
+                      <option value="potencial_estimado">Potencial</option>
+                      <option value="impacto_pct">Impacto</option>
+                      <option value="facilidade">Facilidade</option>
+                      <option value="oportunidade">Oportunidade (A–Z)</option>
+                    </select>
+                  </label>
+                ) : null}
+              </div>
             }
           >
             {lMatriz || !matriz ? (
@@ -216,6 +265,11 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
               <Vazio icone={<Target size={36} />} titulo="Nenhuma oportunidade identificada neste período." />
             ) : (
               <div className="pilha" style={{ gap: 10 }}>
+                <Aviso tipo="info">
+                  Potencial e impacto são normalizados <b>dentro desta lista</b>. O score
+                  de um produto e o de um PDV não são comparáveis entre si — cada aba
+                  tem a sua própria escala.
+                </Aviso>
                 {itensMatriz.map((it: ItemOportunidade, i: number) => (
                   <div key={i} className="claim fato" style={{ margin: 0 }}>
                     <div className="linha entre">
@@ -240,6 +294,10 @@ function OportunidadesCliente({ clienteId, clientes }: { clienteId: number; clie
               </div>
             )}
           </Card>
+
+          <Combos dados={combos} foco={foco} setFoco={setFoco} />
+
+          <AjustePreco dados={ajuste} />
 
           <Card titulo="Alertas de performance">
             {alertas?.disponivel ? (

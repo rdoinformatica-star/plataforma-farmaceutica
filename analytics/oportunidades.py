@@ -39,13 +39,37 @@ def _normalizar(valores: list[float]) -> list[float]:
     return [(v - lo) / (hi - lo) * 100 for v in valores]
 
 
+# Cada tipo de oportunidade age sobre um produto ou sobre um PDV. Sao acoes
+# diferentes, para times diferentes — por isso a tela separa as duas listas.
+_ESCOPO_POR_TIPO = {
+    "ABC_QUEDA": "PRODUTO",
+    "COBERTURA": "PRODUTO",
+    "CONCENTRACAO": "PRODUTO",
+    "MIX": "PDV",
+}
+
+
 def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
                          *, peso_potencial: float = 40.0, peso_impacto: float = 35.0,
                          peso_facilidade: float = 25.0, incremento_pp: float = 10.0,
+                         uf: str | None = None, escopo: str | None = None,
                          top_n: int = 30) -> dict:
+    """escopo: None traz tudo, 'PRODUTO' ou 'PDV' filtra.
+
+    O filtro é aplicado ANTES de normalizar potencial e impacto — senão o
+    score de uma oportunidade de PDV dependeria de quais produtos entraram na
+    mesma consulta, e mudar o filtro reordenaria a lista sem nada ter mudado
+    no negócio.
+    """
     disp = carregar(con, client_id)
     if not disp.tem_sellout:
         return {"disponivel": False, "motivo": disp.motivo_indisponivel}
+    if uf is not None and not disp.tem_uf:
+        return {"disponivel": False,
+               "motivo": "Este cliente não tem UF de PDV resolvida nos dados importados."}
+    if escopo is not None and escopo not in ("PRODUTO", "PDV"):
+        return {"disponivel": False,
+               "motivo": "escopo deve ser 'PRODUTO', 'PDV' ou vazio."}
 
     soma_pesos = peso_potencial + peso_impacto + peso_facilidade
     if soma_pesos <= 0:
@@ -58,7 +82,7 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
     candidatas: list[dict] = []
 
     # 1) ABC classe A em queda — FATO, sem causa atribuida.
-    curva = abc.curva_abc(con, client_id, ini, fim, com_cobertura=False)
+    curva = abc.curva_abc(con, client_id, ini, fim, uf=uf, com_cobertura=False)
     if curva["disponivel"]:
         for i in curva["itens"]:
             if i["classe_abc"] == "A" and i["variacao_pct"] is not None and i["variacao_pct"] < 0:
@@ -77,13 +101,13 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
     # 2) Cobertura baixa + faturamento alto (quadrante PRIORITARIO).
     # Um cobertura_produtos() so, reusado nas duas chamadas abaixo — cada uma
     # sozinha pagaria de novo a contagem de PDV por produto (grao bruto).
-    _cob_base = cobertura.cobertura_produtos(con, client_id, ini, fim, limite=100000)
+    _cob_base = cobertura.cobertura_produtos(con, client_id, ini, fim, uf=uf, limite=100000)
     matriz_cob = cobertura.matriz_cobertura_faturamento(con, client_id, ini, fim,
-                                                        _cob=_cob_base)
+                                                        uf=uf, _cob=_cob_base)
     if matriz_cob["disponivel"]:
         potencial = cobertura.potencial_cobertura(con, client_id, ini, fim,
                                                   incremento_pp=incremento_pp,
-                                                  _cob=_cob_base)
+                                                  uf=uf, _cob=_cob_base)
         ganhos = {g["produto_id"]: g["potencial_estimado"]
                  for g in potencial.get("itens", [])} if potencial["disponivel"] else {}
         for i in matriz_cob["itens"]:
@@ -102,7 +126,7 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
                 })
 
     # 3) Expansao de mix.
-    expansao = mix.oportunidades_expansao(con, client_id, ini, fim)
+    expansao = mix.oportunidades_expansao(con, client_id, ini, fim, uf=uf)
     if expansao["disponivel"]:
         for i in expansao["itens"][:20]:
             gap = i["rs_por_pdv_faixa_referencia"] - i["faturamento_atual"]
@@ -137,8 +161,18 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
                 "referencia_id": None,
             })
 
+    # Contagem por escopo antes do filtro, para a tela poder dizer quantas
+    # existem do outro lado sem uma segunda consulta.
+    por_escopo = {"PRODUTO": 0, "PDV": 0}
+    for c in candidatas:
+        por_escopo[_ESCOPO_POR_TIPO.get(c["tipo"], "PRODUTO")] += 1
+    if escopo is not None:
+        candidatas = [c for c in candidatas
+                      if _ESCOPO_POR_TIPO.get(c["tipo"], "PRODUTO") == escopo]
+
     if not candidatas:
         return {"disponivel": True, "itens": [], "total": 0,
+               "uf": uf, "escopo": escopo, "por_escopo": por_escopo,
                "calculo": f.Calculo(
                    formula="Nenhuma oportunidade passou nos critérios desta consulta.",
                ).como_dict()}
@@ -153,6 +187,7 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
         prioridade = "Alta" if score >= 70 else ("Média" if score >= 40 else "Baixa")
         itens.append({
             "tipo": c["tipo"], "oportunidade": c["oportunidade"], "fonte": c["fonte"],
+            "escopo": _ESCOPO_POR_TIPO.get(c["tipo"], "PRODUTO"),
             "potencial_estimado": round(c["potencial_bruto"], 2),
             "impacto_pct": round(c["impacto_bruto"], 2),
             "facilidade": facilidade, "score": round(score, 1),
@@ -164,6 +199,7 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
 
     return {
         "disponivel": True, "total": len(itens), "itens": itens,
+        "uf": uf, "escopo": escopo, "por_escopo": por_escopo,
         "pesos": {"potencial": round(p_pot * 100, 1), "impacto": round(p_imp * 100, 1),
                  "facilidade": round(p_fac * 100, 1)},
         "calculo": f.Calculo(
@@ -182,6 +218,9 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
                 "tempo). Esta etapa ainda não resolve a sobreposição entre alavancas.",
                 "Esta é a estrutura inicial da matriz de oportunidades — a "
                 "priorização estratégica completa é de uma etapa futura.",
+                "Potencial e impacto são normalizados DENTRO do escopo filtrado: "
+                "os scores de produto e de PDV não são comparáveis entre si, "
+                "porque cada lista tem sua própria escala.",
             ],
         ).como_dict(),
     }
@@ -216,7 +255,7 @@ def alertas_expandidos(con: sqlite3.Connection, client_id: int, ini: int, fim: i
                 "produto_id": None, "valor_pct": None,
             })
 
-    curva = abc.curva_abc(con, client_id, ini, fim, com_cobertura=False)
+    curva = abc.curva_abc(con, client_id, ini, fim, uf=uf, com_cobertura=False)
     if curva["disponivel"] and curva["itens"]:
         top5_pct = sum(i["participacao_pct"] or 0 for i in
                        sorted(curva["itens"], key=lambda x: -x["faturamento_atual"])[:5])

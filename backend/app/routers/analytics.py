@@ -9,6 +9,7 @@ por engano).
 """
 import analytics.abc as abc_mod
 import analytics.cobertura as cobertura_mod
+import analytics.combos as combos_mod
 import analytics.estoque as estoque_mod
 import analytics.mercado as mercado_mod
 import analytics.mix as mix_mod
@@ -299,6 +300,8 @@ def oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
                   peso_potencial: float = 40.0, peso_impacto: float = 35.0,
                   peso_facilidade: float = 25.0,
                   incremento_pp: float = Query(10.0, gt=0, le=100),
+                  uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                  escopo: str | None = Query(None, pattern="^(PRODUTO|PDV)$"),
                   top_n: int = Query(30, le=200)):
     ini, fim = _periodo(periodo_ini, periodo_fim)
     with db.conexao() as con:
@@ -306,7 +309,49 @@ def oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
         return oportunidades_mod.matriz_oportunidades(
             con, client_id, ini, fim, peso_potencial=peso_potencial,
             peso_impacto=peso_impacto, peso_facilidade=peso_facilidade,
-            incremento_pp=incremento_pp, top_n=top_n)
+            incremento_pp=incremento_pp, uf=uf.upper() if uf else None,
+            escopo=escopo, top_n=top_n)
+
+
+@router.get("/{client_id}/combos")
+def combos(client_id: int, periodo_ini: int, periodo_fim: int,
+           foco: str = Query("geral", pattern="^(geral|criticos|zumbi|misto|giro_rapido)$"),
+           uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+           max_acompanhantes: int = Query(2, ge=1, le=5),
+           top_n: int = Query(20, le=200)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        try:
+            return combos_mod.sugerir_combos(
+                con, client_id, ini, fim, foco=foco, uf=uf.upper() if uf else None,
+                max_acompanhantes=max_acompanhantes, top_n=top_n)
+        except ValueError as e:
+            raise errors.invalido(str(e))
+
+
+@router.get("/{client_id}/combos/afinidade")
+def combos_afinidade(client_id: int, periodo_ini: int, periodo_fim: int,
+                     uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                     top_n: int = Query(100, le=1000)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return combos_mod.afinidade(con, client_id, ini, fim,
+                                    uf=uf.upper() if uf else None, top_n=top_n)
+
+
+@router.get("/{client_id}/ajuste-preco")
+def ajuste_preco(client_id: int, periodo_ini: int, periodo_fim: int,
+                 uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                 limite_alerta_pct: float = Query(8.0, ge=0, le=100),
+                 top_n: int = Query(30, le=200)):
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        return combos_mod.ajuste_preco(
+            con, client_id, ini, fim, uf=uf.upper() if uf else None,
+            limite_alerta_pct=limite_alerta_pct, top_n=top_n)
 
 
 @router.get("/{client_id}/alertas-expandidos")

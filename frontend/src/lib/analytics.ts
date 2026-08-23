@@ -530,12 +530,91 @@ export type MatrizOportunidades =
   | {
       disponivel: true
       total: number
+      uf?: string | null
+      escopo?: 'PRODUTO' | 'PDV' | null
+      por_escopo?: { PRODUTO: number; PDV: number }
       itens: ItemOportunidade[]
       pesos?: { potencial: number; impacto: number; facilidade: number }
       calculo: Calculo
     }
 
 export type AlertasExpandidos = Indisponivel | { disponivel: true; itens: Alerta[]; n_total: number; calculo: Calculo }
+
+/* Combos, afinidade e ajuste de preço — ver analytics/combos.py */
+
+export type FocoCombo = 'geral' | 'criticos' | 'zumbi' | 'misto' | 'giro_rapido'
+
+export interface Acompanhante {
+  produto_id: number
+  produto: string
+  pdvs_ambos: number
+  cobertura_pdvs: number
+  lift: number
+  confianca_pct: number
+  recorrencia: number | null
+  uso_continuo: boolean
+  dde: number | null
+  classe_estoque: string | null
+  estoque_un: number | null
+  estoque_valor: number | null
+}
+
+export interface Combo {
+  puxador_id: number
+  puxador: string
+  puxador_cobertura_pdvs: number
+  puxador_dde: number | null
+  puxador_classe_estoque: string | null
+  puxador_recorrencia: number | null
+  acompanhantes: Acompanhante[]
+  n_acompanhantes: number
+  lift_medio: number
+  capital_parado_no_combo: number
+  tem_uso_continuo: boolean
+}
+
+export type SugestaoCombos =
+  | Indisponivel
+  | {
+      disponivel: true
+      foco: FocoCombo
+      uf: string | null
+      tem_estoque: boolean
+      total: number
+      capital_parado_alcancado: number
+      itens: Combo[]
+      calculo: Calculo
+    }
+
+export interface ItemAjustePreco {
+  produto_id: number
+  produto: string
+  preco_cliente: number
+  preco_outros: number
+  diferenca_pct: number
+  ajuste_sugerido_pct: number
+  preco_alvo: number
+  unidades_cliente: number
+  faturamento_cliente: number
+  receita_cedida_no_volume_atual: number
+  dde: number | null
+  classe_estoque: string | null
+  estoque_valor: number | null
+  prioridade: 'ALTA' | 'MEDIA' | 'BAIXA'
+}
+
+export type AjustePreco =
+  | Indisponivel
+  | {
+      disponivel: true
+      uf: string | null
+      limite_alerta_pct: number
+      n_produtos: number
+      n_sem_volume: number
+      receita_cedida_total: number
+      itens: ItemAjustePreco[]
+      calculo: Calculo
+    }
 
 /* ── Etapa 4: estoque, mercado/IQVIA e preço ─────────────────────────────── */
 
@@ -1053,6 +1132,8 @@ export const analytics = {
     pesoPotencial = 40,
     pesoImpacto = 35,
     pesoFacilidade = 25,
+    uf?: string,
+    escopo?: 'PRODUTO' | 'PDV',
   ) =>
     api.get<MatrizOportunidades>(
       `/analytics/${cid}/oportunidades${q({
@@ -1061,7 +1142,25 @@ export const analytics = {
         peso_potencial: pesoPotencial,
         peso_impacto: pesoImpacto,
         peso_facilidade: pesoFacilidade,
+        uf,
+        escopo,
       })}`,
+    ),
+
+  combos: (
+    cid: number, ini: number, fim: number,
+    foco: FocoCombo = 'geral', uf?: string, maxAcompanhantes = 2, topN = 20,
+  ) =>
+    api.get<SugestaoCombos>(
+      `/analytics/${cid}/combos${q({
+        periodo_ini: ini, periodo_fim: fim, foco, uf,
+        max_acompanhantes: maxAcompanhantes, top_n: topN,
+      })}`,
+    ),
+
+  ajustePreco: (cid: number, ini: number, fim: number, uf?: string, topN = 30) =>
+    api.get<AjustePreco>(
+      `/analytics/${cid}/ajuste-preco${q({ periodo_ini: ini, periodo_fim: fim, uf, top_n: topN })}`,
     ),
 
   alertasExpandidos: (cid: number, ini: number, fim: number) =>
