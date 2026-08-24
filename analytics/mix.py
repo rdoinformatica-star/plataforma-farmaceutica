@@ -127,12 +127,14 @@ def monoproduto(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     nomes = dict(con.execute(
         f"SELECT id, nome_canonico FROM dim_product WHERE id IN ({_marca(len(top_ids))})",
         top_ids).fetchall()) if top_ids else {}
-    nomes_pdv = dict(con.execute(
-        f"SELECT id, razao_social FROM dim_pdv WHERE id IN ({marca})", ids).fetchall())
+    nomes_pdv = {r[0]: (r[1], r[2]) for r in con.execute(
+        f"SELECT id, razao_social, cnpj FROM dim_pdv WHERE id IN ({marca})", ids).fetchall()}
 
     total_valor = sum(p["faturamento"] for p in mono)
     itens = sorted(
-        [{"pdv_id": p["pdv_id"], "pdv": nomes_pdv.get(p["pdv_id"], f"PDV #{p['pdv_id']}"),
+        [{"pdv_id": p["pdv_id"],
+          "pdv": nomes_pdv.get(p["pdv_id"], (f"PDV #{p['pdv_id']}", None))[0],
+          "cnpj": nomes_pdv.get(p["pdv_id"], (None, None))[1],
           "faturamento": p["faturamento"],
           "produto_id": produto_do_pdv.get(p["pdv_id"]),
           "produto": nomes.get(produto_do_pdv.get(p["pdv_id"]), "—")}
@@ -221,18 +223,21 @@ def detalhe_faixa(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     mostrados = grupo[:limite]
     nomes_pdv: dict[int, str] = {}
     ufs_pdv: dict[int, str | None] = {}
+    cnpjs_pdv: dict[int, str | None] = {}
     ids_mostrados = [p["pdv_id"] for p in mostrados]
     for i in range(0, len(ids_mostrados), 900):
         lote = ids_mostrados[i:i + 900]
-        for pid, razao, u in con.execute(
-            f"SELECT id, razao_social, uf FROM dim_pdv WHERE id IN ({_marca(len(lote))})", lote):
+        for pid, razao, u, cnpj in con.execute(
+            f"SELECT id, razao_social, uf, cnpj FROM dim_pdv WHERE id IN ({_marca(len(lote))})", lote):
             nomes_pdv[pid] = razao
             ufs_pdv[pid] = u
+            cnpjs_pdv[pid] = cnpj
 
     faturamento = sum(p["faturamento"] for p in grupo)
     itens = [{"pdv_id": p["pdv_id"],
               "pdv": nomes_pdv.get(p["pdv_id"], f"PDV #{p['pdv_id']}"),
               "uf": ufs_pdv.get(p["pdv_id"]),
+              "cnpj": cnpjs_pdv.get(p["pdv_id"]),
               "faturamento": p["faturamento"], "unidades": p["unidades"],
               "n_skus": p["n_skus"]} for p in mostrados]
 
@@ -287,11 +292,13 @@ def alto_mix(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     alto = [p for p in pdvs if p["n_skus"] >= minimo_skus]
     faturamento = sum(p["faturamento"] for p in alto)
     ids = [p["pdv_id"] for p in alto]
-    nomes = dict(con.execute(
-        f"SELECT id, razao_social FROM dim_pdv WHERE id IN ({_marca(len(ids))})",
-        ids).fetchall()) if ids else {}
+    nomes = {r[0]: (r[1], r[2]) for r in con.execute(
+        f"SELECT id, razao_social, cnpj FROM dim_pdv WHERE id IN ({_marca(len(ids))})",
+        ids).fetchall()} if ids else {}
     itens = sorted(
-        [{"pdv_id": p["pdv_id"], "pdv": nomes.get(p["pdv_id"], f"PDV #{p['pdv_id']}"),
+        [{"pdv_id": p["pdv_id"],
+          "pdv": nomes.get(p["pdv_id"], (f"PDV #{p['pdv_id']}", None))[0],
+          "cnpj": nomes.get(p["pdv_id"], (None, None))[1],
           "faturamento": p["faturamento"], "n_skus": p["n_skus"]} for p in alto],
         key=lambda x: -x["faturamento"])[:limite]
 
@@ -348,11 +355,12 @@ def oportunidades_expansao(con: sqlite3.Connection, client_id: int, ini: int, fi
     itens = itens[:limite]
     if itens:
         ids = [i["pdv_id"] for i in itens]
-        nomes = dict(con.execute(
-            f"SELECT id, razao_social FROM dim_pdv WHERE id IN ({_marca(len(ids))})",
-            ids).fetchall())
+        nomes = {r[0]: (r[1], r[2]) for r in con.execute(
+            f"SELECT id, razao_social, cnpj FROM dim_pdv WHERE id IN ({_marca(len(ids))})",
+            ids).fetchall()}
         for i in itens:
-            i["pdv"] = nomes.get(i["pdv_id"], f"PDV #{i['pdv_id']}")
+            i["pdv"] = nomes.get(i["pdv_id"], (f"PDV #{i['pdv_id']}", None))[0]
+            i["cnpj"] = nomes.get(i["pdv_id"], (None, None))[1]
 
     return {
         "disponivel": True, "total": len(itens), "itens": itens,

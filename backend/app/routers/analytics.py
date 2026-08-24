@@ -174,6 +174,133 @@ def alertas(client_id: int, periodo_ini: int, periodo_fim: int):
         return vendas.alertas(con, client_id, ini, fim)
 
 
+@router.get("/{client_id}/dashboard/xlsx")
+def dashboard_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+                   ordenar: str = Query("faturamento",
+                                        pattern="^(faturamento|unidades|crescimento|queda)$"),
+                   uf_produtos: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+                   uf_pdvs: str | None = Query(None, pattern="^[A-Za-z]{2}$")):
+    """Uma planilha com as tabelas da tela de Desempenho: evolução mensal,
+    ranking de produtos, produtos em crescimento/queda, ranking de PDVs (com
+    CNPJ), UF, concentração e alertas."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    ufp = uf_produtos.upper() if uf_produtos else None
+    ufd = uf_pdvs.upper() if uf_pdvs else None
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+
+        evolucao = vendas.evolucao_mensal(con, client_id, "faturamento", ini, fim)
+        ranking = vendas.ranking_produtos(con, client_id, ini, fim, ordenar=ordenar,
+                                          uf=ufp, limite=100000)
+        cresc = vendas.variacao_produtos(con, client_id, ini, fim, direcao="crescimento")
+        queda = vendas.variacao_produtos(con, client_id, ini, fim, direcao="queda")
+        pdvs_rk = vendas.ranking_pdvs(con, client_id, ini, fim, visao="ranking",
+                                      uf=ufd, limite=100000)
+        uf_analise = vendas.analise_uf(con, client_id, ini, fim)
+        conc_prod = vendas.concentracao(con, client_id, ini, fim, contexto="produtos")
+        conc_pdv = vendas.concentracao(con, client_id, ini, fim, contexto="pdvs")
+        alertas_ = vendas.alertas(con, client_id, ini, fim)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if evolucao.get("disponivel") and evolucao["serie"]:
+        abas.append(xls.AbaXlsx("Evolução mensal", [
+            xls.ColunaXlsx("Período", "label", 12),
+            xls.ColunaXlsx("Faturamento", "valor", 16, "#,##0.00"),
+        ], evolucao["serie"]))
+        secoes.append(xls.SecaoCalculo(
+            "Evolução mensal", evolucao["calculo"]["formula"],
+            evolucao["calculo"].get("valores") or {}, evolucao["calculo"].get("premissas") or []))
+
+    if ranking.get("disponivel") and ranking["itens"]:
+        abas.append(xls.AbaXlsx("Ranking de produtos", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Faturamento", "faturamento_atual", 16, "#,##0.00"),
+            xls.ColunaXlsx("Unidades", "unidades_atual", 13, "#,##0"),
+            xls.ColunaXlsx("Participação %", "participacao_pct", 14, "0.00"),
+            xls.ColunaXlsx("Variação %", "variacao_pct", 13, "0.0"),
+        ], ranking["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Ranking de produtos", ranking["calculo"]["formula"],
+            ranking["calculo"].get("valores") or {}, ranking["calculo"].get("premissas") or []))
+
+    if cresc.get("disponivel") and cresc["itens"]:
+        abas.append(xls.AbaXlsx("Produtos em crescimento", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Classificação", "classificacao", 13),
+            xls.ColunaXlsx("Faturamento", "faturamento_atual", 16, "#,##0.00"),
+            xls.ColunaXlsx("Variação %", "variacao_pct", 13, "0.0"),
+        ], cresc["itens"]))
+
+    if queda.get("disponivel") and queda["itens"]:
+        abas.append(xls.AbaXlsx("Produtos em queda", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Classificação", "classificacao", 15),
+            xls.ColunaXlsx("Faturamento", "faturamento_atual", 16, "#,##0.00"),
+            xls.ColunaXlsx("Variação %", "variacao_pct", 13, "0.0"),
+        ], queda["itens"]))
+
+    if pdvs_rk.get("disponivel") and pdvs_rk["itens"]:
+        abas.append(xls.AbaXlsx("Ranking de PDVs", [
+            xls.ColunaXlsx("PDV", "pdv", 38),
+            xls.ColunaXlsx("CNPJ", "cnpj", 18),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+            xls.ColunaXlsx("Unidades", "unidades", 13, "#,##0"),
+            xls.ColunaXlsx("SKUs", "n_skus", 9, "#,##0"),
+            xls.ColunaXlsx("Participação %", "participacao_pct", 14, "0.00"),
+            xls.ColunaXlsx("Variação %", "variacao_pct", 13, "0.0"),
+        ], pdvs_rk["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Ranking de PDVs", pdvs_rk["calculo"]["formula"],
+            pdvs_rk["calculo"].get("valores") or {}, pdvs_rk["calculo"].get("premissas") or []))
+
+    if uf_analise.get("disponivel") and uf_analise["itens"]:
+        abas.append(xls.AbaXlsx("Análise por UF", [
+            xls.ColunaXlsx("UF", "uf", 8),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+            xls.ColunaXlsx("Unidades", "unidades", 13, "#,##0"),
+            xls.ColunaXlsx("Participação %", "participacao_pct", 14, "0.00"),
+            xls.ColunaXlsx("Variação %", "variacao_pct", 13, "0.0"),
+        ], uf_analise["itens"]))
+
+    if conc_prod.get("disponivel") and conc_prod["faixas"]:
+        abas.append(xls.AbaXlsx("Concentração de produtos", [
+            xls.ColunaXlsx("Top N", "top", 8),
+            xls.ColunaXlsx("Elementos", "n_elementos", 11),
+            xls.ColunaXlsx("Valor acumulado", "valor", 16, "#,##0.00"),
+            xls.ColunaXlsx("% do total", "percentual", 12, "0.00"),
+        ], conc_prod["faixas"]))
+
+    if conc_pdv.get("disponivel") and conc_pdv["faixas"]:
+        abas.append(xls.AbaXlsx("Concentração de PDVs", [
+            xls.ColunaXlsx("Top N", "top", 8),
+            xls.ColunaXlsx("Elementos", "n_elementos", 11),
+            xls.ColunaXlsx("Valor acumulado", "valor", 16, "#,##0.00"),
+            xls.ColunaXlsx("% do total", "percentual", 12, "0.00"),
+        ], conc_pdv["faixas"]))
+
+    if alertas_.get("disponivel") and alertas_["itens"]:
+        abas.append(xls.AbaXlsx("Alertas", [
+            xls.ColunaXlsx("Tipo", "tipo", 12),
+            xls.ColunaXlsx("Categoria", "categoria", 13),
+            xls.ColunaXlsx("Texto", "texto", 70),
+        ], alertas_["itens"]))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Desempenho para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Desempenho — {nome_cliente}", abas, secoes)
+    arquivo = f"desempenho_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
+
+
 # ─────────────────────────────── Etapa 3 ────────────────────────────────
 
 @router.get("/{client_id}/abc")
@@ -303,6 +430,75 @@ def cobertura_potencial(client_id: int, periodo_ini: int, periodo_fim: int,
             minimo_pdvs_compradores=minimo_pdvs_compradores, uf=uf)
 
 
+@router.get("/{client_id}/cobertura/xlsx")
+def cobertura_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+                   incremento_pp: float = Query(10.0, gt=0, le=100),
+                   minimo_pdvs_compradores: int = 5,
+                   uf: str | None = Query(None, pattern="^[A-Za-z]{2}$")):
+    """Uma planilha com cobertura por produto, matriz cobertura x faturamento
+    e o simulador de potencial de cobertura."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    ufu = uf.upper() if uf else None
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+
+        cob = cobertura_mod.cobertura_produtos(con, client_id, ini, fim, uf=ufu, limite=100000)
+        matriz = cobertura_mod.matriz_cobertura_faturamento(con, client_id, ini, fim, uf=ufu)
+        potencial = cobertura_mod.potencial_cobertura(
+            con, client_id, ini, fim, incremento_pp=incremento_pp,
+            minimo_pdvs_compradores=minimo_pdvs_compradores, uf=ufu, top_n=100000)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if cob.get("disponivel") and cob["itens"]:
+        abas.append(xls.AbaXlsx("Cobertura por produto", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Faturamento", "faturamento_atual", 16, "#,##0.00"),
+            xls.ColunaXlsx("PDVs compradores", "pdvs_compradores", 16, "#,##0"),
+            xls.ColunaXlsx("Cobertura %", "cobertura_pct", 13, "0.0"),
+        ], cob["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Cobertura por produto", cob["calculo"]["formula"],
+            cob["calculo"].get("valores") or {}, cob["calculo"].get("premissas") or []))
+
+    if matriz.get("disponivel") and matriz["itens"]:
+        abas.append(xls.AbaXlsx("Matriz cobertura x faturamento", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Quadrante", "quadrante", 24),
+            xls.ColunaXlsx("Faturamento", "faturamento_atual", 16, "#,##0.00"),
+            xls.ColunaXlsx("PDVs compradores", "pdvs_compradores", 16, "#,##0"),
+            xls.ColunaXlsx("Cobertura %", "cobertura_pct", 13, "0.0"),
+        ], matriz["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Matriz cobertura x faturamento", matriz["calculo"]["formula"],
+            matriz["calculo"].get("valores") or {}, matriz["calculo"].get("premissas") or []))
+
+    if potencial.get("disponivel") and potencial["itens"]:
+        abas.append(xls.AbaXlsx("Potencial de cobertura", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Cobertura %", "cobertura_pct", 13, "0.0"),
+            xls.ColunaXlsx("R$/PDV", "rs_por_pdv", 14, "#,##0.00"),
+            xls.ColunaXlsx("Potencial estimado", "potencial_estimado", 17, "#,##0.00"),
+        ], potencial["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Potencial de cobertura", potencial["calculo"]["formula"],
+            potencial["calculo"].get("valores") or {}, potencial["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Cobertura para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Cobertura — {nome_cliente}", abas, secoes)
+    arquivo = f"cobertura_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
+
+
 @router.get("/{client_id}/mix")
 def mix(client_id: int, periodo_ini: int, periodo_fim: int, uf: str | None = None):
     ini, fim = _periodo(periodo_ini, periodo_fim)
@@ -354,6 +550,115 @@ def mix_oportunidades(client_id: int, periodo_ini: int, periodo_fim: int,
     with db.conexao() as con:
         _cliente_existe(con, client_id)
         return mix_mod.oportunidades_expansao(con, client_id, ini, fim, uf=uf, limite=limite)
+
+
+@router.get("/{client_id}/mix/xlsx")
+def mix_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+            uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+            sku_min: int = Query(1, ge=1), sku_max: int | None = Query(1, ge=1),
+            minimo_skus: int = Query(10, ge=2)):
+    """Uma planilha com o resumo por faixa de mix, a faixa selecionada em
+    detalhe (PDVs com CNPJ), monoproduto, alto mix e oportunidades de
+    expansão — todas com CNPJ do PDV."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    ufu = uf.upper() if uf else None
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+
+        resumo = mix_mod.mix_por_pdv(con, client_id, ini, fim, uf=ufu)
+        try:
+            detalhe = mix_mod.detalhe_faixa(con, client_id, ini, fim, sku_min=sku_min,
+                                            sku_max=sku_max, uf=ufu, limite=2000)
+        except ValueError:
+            detalhe = {"disponivel": False}
+        mono = mix_mod.monoproduto(con, client_id, ini, fim, uf=ufu, limite=500)
+        alto = mix_mod.alto_mix(con, client_id, ini, fim, minimo_skus=minimo_skus,
+                                uf=ufu, limite=500)
+        expansao = mix_mod.oportunidades_expansao(con, client_id, ini, fim, uf=ufu, limite=200)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if resumo.get("disponivel") and resumo["resumo"]:
+        abas.append(xls.AbaXlsx("Resumo por faixa", [
+            xls.ColunaXlsx("Faixa", "faixa", 14),
+            xls.ColunaXlsx("PDVs", "n_pdvs", 10, "#,##0"),
+            xls.ColunaXlsx("% PDVs", "pct_pdvs", 10, "0.0"),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+            xls.ColunaXlsx("% Faturamento", "pct_faturamento", 13, "0.0"),
+            xls.ColunaXlsx("R$/PDV", "rs_por_pdv", 14, "#,##0.00"),
+        ], resumo["resumo"]))
+        secoes.append(xls.SecaoCalculo(
+            "Mix — resumo por faixa", resumo["calculo"]["formula"],
+            resumo["calculo"].get("valores") or {}, resumo["calculo"].get("premissas") or []))
+
+    if detalhe.get("disponivel") and detalhe.get("itens"):
+        abas.append(xls.AbaXlsx("PDVs na faixa selecionada", [
+            xls.ColunaXlsx("PDV", "pdv", 38),
+            xls.ColunaXlsx("CNPJ", "cnpj", 18),
+            xls.ColunaXlsx("UF", "uf", 8),
+            xls.ColunaXlsx("SKUs", "n_skus", 9, "#,##0"),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+        ], detalhe["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            f"Faixa selecionada ({detalhe.get('faixa')})", detalhe["calculo"]["formula"],
+            detalhe["calculo"].get("valores") or {}, detalhe["calculo"].get("premissas") or []))
+        if detalhe.get("top_produtos"):
+            abas.append(xls.AbaXlsx("Produtos da faixa selecionada", [
+                xls.ColunaXlsx("Produto", "produto", 42),
+                xls.ColunaXlsx("PDVs (da faixa)", "n_pdvs", 15, "#,##0"),
+                xls.ColunaXlsx("% da faixa", "pct_da_faixa", 12, "0.0"),
+                xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+            ], detalhe["top_produtos"]))
+
+    if mono.get("disponivel") and mono.get("itens"):
+        abas.append(xls.AbaXlsx("Monoproduto", [
+            xls.ColunaXlsx("PDV", "pdv", 38),
+            xls.ColunaXlsx("CNPJ", "cnpj", 18),
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+        ], mono["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Monoproduto", mono["calculo"]["formula"],
+            mono["calculo"].get("valores") or {}, mono["calculo"].get("premissas") or []))
+
+    if alto.get("disponivel") and alto.get("itens"):
+        abas.append(xls.AbaXlsx("Alto mix", [
+            xls.ColunaXlsx("PDV", "pdv", 38),
+            xls.ColunaXlsx("CNPJ", "cnpj", 18),
+            xls.ColunaXlsx("SKUs", "n_skus", 9, "#,##0"),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+        ], alto["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            f"Alto mix ({minimo_skus}+ SKUs)", alto["calculo"]["formula"],
+            alto["calculo"].get("valores") or {}, alto["calculo"].get("premissas") or []))
+
+    if expansao.get("disponivel") and expansao.get("itens"):
+        abas.append(xls.AbaXlsx("Oportunidades de expansão de mix", [
+            xls.ColunaXlsx("PDV", "pdv", 38),
+            xls.ColunaXlsx("CNPJ", "cnpj", 18),
+            xls.ColunaXlsx("Faixa atual", "faixa_atual", 14),
+            xls.ColunaXlsx("SKUs atuais", "n_skus_atual", 12, "#,##0"),
+            xls.ColunaXlsx("Faixa de referência", "faixa_referencia", 18),
+            xls.ColunaXlsx("Faturamento atual", "faturamento_atual", 17, "#,##0.00"),
+            xls.ColunaXlsx("R$/PDV de referência", "rs_por_pdv_faixa_referencia", 18, "#,##0.00"),
+        ], expansao["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Oportunidades de expansão de mix", expansao["calculo"]["formula"],
+            expansao["calculo"].get("valores") or {}, expansao["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Mix para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Mix de PDV — {nome_cliente}", abas, secoes)
+    arquivo = f"mix_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
 
 
 @router.get("/{client_id}/oportunidades")
@@ -430,6 +735,7 @@ def oportunidades_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
         abas.append(xls.AbaXlsx("Oportunidades - PDVs", [
             xls.ColunaXlsx("Tipo", "tipo", 14),
             xls.ColunaXlsx("Oportunidade", "oportunidade", 60),
+            xls.ColunaXlsx("CNPJ do PDV", "referencia_cnpj", 18),
             xls.ColunaXlsx("Prioridade", "prioridade", 11),
             xls.ColunaXlsx("Score", "score", 9, "0.0"),
             xls.ColunaXlsx("Potencial estimado", "potencial_estimado", 17, "#,##0.00"),
@@ -734,6 +1040,107 @@ def estoque_matriz(client_id: int, periodo_ini: int, periodo_fim: int,
                                                  filial=filial)
 
 
+@router.get("/{client_id}/estoque/xlsx")
+def estoque_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+                 base_velocidade: str = Query("fonte", pattern="^(fonte|periodo)$"),
+                 filial: str | None = None,
+                 objetivo_dias: float = Query(60, gt=0, le=3650),
+                 limite_dias_zumbi: float = Query(365, gt=0)):
+    """Uma planilha com posição de estoque, zumbi, capital parado, simulador
+    de liberação de capital e a matriz estoque x vendas."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+
+        pos = estoque_mod.posicao(con, client_id, ini, fim, base_velocidade=base_velocidade,
+                                  filial=filial, limite=100000)
+        zumbi = estoque_mod.zumbi(con, client_id, ini, fim, limite_dias=limite_dias_zumbi,
+                                  base_velocidade=base_velocidade, filial=filial, top_n=100000)
+        capital = estoque_mod.capital_parado(con, client_id, ini, fim,
+                                             base_velocidade=base_velocidade, filial=filial)
+        sim = estoque_mod.simulador(con, client_id, ini, fim, objetivo_dias=objetivo_dias,
+                                    base_velocidade=base_velocidade, filial=filial, top_n=100000)
+        matriz = estoque_mod.matriz_estoque_vendas(con, client_id, ini, fim,
+                                                    base_velocidade=base_velocidade, filial=filial)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if pos.get("disponivel") and pos["itens"]:
+        abas.append(xls.AbaXlsx("Posição de estoque", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Filial", "filial", 14),
+            xls.ColunaXlsx("Estoque disponível", "estoque_disp_un", 16, "#,##0"),
+            xls.ColunaXlsx("Valor do estoque", "valor_estoque", 16, "#,##0.00"),
+            xls.ColunaXlsx("DDE", "dde", 10, "0"),
+            xls.ColunaXlsx("Classificação", "classificacao", 13),
+        ], pos["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Posição de estoque", pos["calculo"]["formula"],
+            pos["calculo"].get("valores") or {}, pos["calculo"].get("premissas") or []))
+
+    if zumbi.get("disponivel") and zumbi["itens"]:
+        abas.append(xls.AbaXlsx("Estoque zumbi", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Filial", "filial", 14),
+            xls.ColunaXlsx("Estoque disponível", "estoque_disp_un", 16, "#,##0"),
+            xls.ColunaXlsx("Valor do estoque", "valor_estoque", 16, "#,##0.00"),
+            xls.ColunaXlsx("DDE", "dde", 10, "0"),
+        ], zumbi["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Estoque zumbi", zumbi["calculo"]["formula"],
+            zumbi["calculo"].get("valores") or {}, zumbi["calculo"].get("premissas") or []))
+
+    if capital.get("disponivel") and capital["faixas"]:
+        abas.append(xls.AbaXlsx("Capital parado", [
+            xls.ColunaXlsx("Acima de (dias)", "acima_de_dias", 15),
+            xls.ColunaXlsx("SKUs", "skus", 9, "#,##0"),
+            xls.ColunaXlsx("Valor", "valor", 16, "#,##0.00"),
+            xls.ColunaXlsx("% do estoque", "pct_do_estoque", 12, "0.0"),
+        ], capital["faixas"]))
+        secoes.append(xls.SecaoCalculo(
+            "Capital parado", capital["calculo"]["formula"],
+            capital["calculo"].get("valores") or {}, capital["calculo"].get("premissas") or []))
+
+    if sim.get("disponivel") and sim["itens"]:
+        abas.append(xls.AbaXlsx("Simulador de liberação", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Filial", "filial", 14),
+            xls.ColunaXlsx("Estoque atual", "estoque_atual_un", 14, "#,##0"),
+            xls.ColunaXlsx("Estoque objetivo", "estoque_objetivo_un", 15, "#,##0"),
+            xls.ColunaXlsx("Excesso (un)", "excesso_un", 13, "#,##0"),
+            xls.ColunaXlsx("Excesso (R$)", "excesso_valor", 15, "#,##0.00"),
+        ], sim["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            f"Simulador (objetivo {objetivo_dias:.0f} dias)", sim["calculo"]["formula"],
+            sim["calculo"].get("valores") or {}, sim["calculo"].get("premissas") or []))
+
+    if matriz.get("disponivel") and matriz["itens"]:
+        abas.append(xls.AbaXlsx("Matriz estoque x vendas", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Quadrante", "quadrante", 20),
+            xls.ColunaXlsx("Valor do estoque", "valor_estoque", 16, "#,##0.00"),
+            xls.ColunaXlsx("Faturamento", "faturamento", 16, "#,##0.00"),
+            xls.ColunaXlsx("DDE", "dde", 10, "0"),
+        ], matriz["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Matriz estoque x vendas", matriz["calculo"]["formula"],
+            matriz["calculo"].get("valores") or {}, matriz["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Estoque para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Estoque — {nome_cliente}", abas, secoes)
+    arquivo = f"estoque_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
+
+
 @router.get("/{client_id}/mercado/perfil")
 def mercado_perfil(client_id: int):
     with db.conexao() as con:
@@ -809,6 +1216,76 @@ def mercado_ponte(client_id: int, periodo_ini: int, periodo_fim: int,
                                           uf=uf, top_n=top_n)
 
 
+@router.get("/{client_id}/mercado/xlsx")
+def mercado_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+                 uf: str | None = None, mercado: str | None = None,
+                 molecula: str | None = None, canal: str | None = None):
+    """Uma planilha com ranking de mercados, análise regional e a ponte de
+    produtos do cliente com o mercado IQVIA."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+        d = carregar_disponibilidade(con, client_id)
+
+        ranking = mercado_mod.ranking_mercados(con, uf=uf, canal=canal, top_n=1000)
+        reg = mercado_mod.regional(con, mercado=mercado, molecula=molecula, canal=canal, top_n=1000)
+        ponte = mercado_mod.ponte_produtos(con, d.distribuidor_ids, ini, fim, uf=uf, top_n=1000)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if ranking.get("disponivel") and ranking["itens"]:
+        abas.append(xls.AbaXlsx("Ranking de mercados", [
+            xls.ColunaXlsx("Mercado", "mercado", 34),
+            xls.ColunaXlsx("Vitamedic (un)", "vitamedic_un", 15, "#,##0"),
+            xls.ColunaXlsx("Mercado (un)", "mercado_un", 15, "#,##0"),
+            xls.ColunaXlsx("Mercado (R$)", "mercado_valor", 16, "#,##0.00"),
+            xls.ColunaXlsx("Share %", "share_pct", 11, "0.00"),
+            xls.ColunaXlsx("Delta share (p.p.)", "delta_share_pp", 16, "0.0"),
+        ], ranking["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Ranking de mercados", ranking["calculo"]["formula"],
+            ranking["calculo"].get("valores") or {}, ranking["calculo"].get("premissas") or []))
+
+    if reg.get("disponivel") and reg["itens"]:
+        abas.append(xls.AbaXlsx("Regional (por UF)", [
+            xls.ColunaXlsx("UF", "uf", 8),
+            xls.ColunaXlsx("Mercado (un)", "mercado_un", 15, "#,##0"),
+            xls.ColunaXlsx("Mercado (R$)", "mercado_valor", 16, "#,##0.00"),
+            xls.ColunaXlsx("Vitamedic (un)", "vitamedic_un", 15, "#,##0"),
+            xls.ColunaXlsx("Share %", "share_pct", 11, "0.00"),
+            xls.ColunaXlsx("Delta share (p.p.)", "delta_share_pp", 16, "0.0"),
+        ], reg["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Regional", reg["calculo"]["formula"],
+            reg["calculo"].get("valores") or {}, reg["calculo"].get("premissas") or []))
+
+    if ponte.get("disponivel") and ponte["itens"]:
+        abas.append(xls.AbaXlsx("Ponte de produtos", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Mercado", "mercado", 30),
+            xls.ColunaXlsx("Nível de ligação", "nivel_ligacao", 15),
+            xls.ColunaXlsx("Faturamento cliente", "faturamento_cliente", 17, "#,##0.00"),
+            xls.ColunaXlsx("Share indústria %", "share_industria_pct", 16, "0.00"),
+        ], ponte["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Ponte de produtos", ponte["calculo"]["formula"],
+            ponte["calculo"].get("valores") or {}, ponte["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Mercado para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Mercado — {nome_cliente}", abas, secoes)
+    arquivo = f"mercado_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )
+
+
 @router.get("/{client_id}/preco/comparabilidade")
 def preco_comparabilidade(client_id: int):
     with db.conexao() as con:
@@ -852,3 +1329,73 @@ def preco_varejo(client_id: int, uf: str | None = None, mercado: str | None = No
         return preco_mod.preco_varejo_iqvia(con, uf=uf, mercado=mercado,
                                             molecula=molecula, top_n=top_n,
                                             minimo_unidades=minimo_unidades)
+
+
+@router.get("/{client_id}/preco/xlsx")
+def preco_xlsx(client_id: int, periodo_ini: int, periodo_fim: int,
+              uf: str | None = Query(None, pattern="^[A-Za-z]{2}$"),
+              minimo_unidades: float = Query(200, ge=0),
+              limite_alerta_pct: float = Query(8.0, gt=0)):
+    """Uma planilha com preço vs. outros distribuidores e preço de varejo
+    (Vitamedic x líderes de mercado)."""
+    ini, fim = _periodo(periodo_ini, periodo_fim)
+    ufu = uf.upper() if uf else None
+    with db.conexao() as con:
+        _cliente_existe(con, client_id)
+        row = db.uma(con, "SELECT nome FROM clients WHERE id = ?", (client_id,))
+        nome_cliente = (row or {}).get("nome", f"cliente {client_id}")
+        d = carregar_disponibilidade(con, client_id)
+
+        comp = preco_mod.preco_vs_concorrentes(
+            con, d.distribuidor_ids, ini, fim, uf=ufu, minimo_unidades=minimo_unidades,
+            limite_alerta_pct=limite_alerta_pct, top_n=100000)
+        varejo = preco_mod.preco_varejo_iqvia(con, uf=ufu, minimo_unidades=minimo_unidades,
+                                              top_n=1000)
+
+    abas: list[xls.AbaXlsx] = []
+    secoes: list[xls.SecaoCalculo] = []
+
+    if comp.get("disponivel") and comp["itens"]:
+        abas.append(xls.AbaXlsx("Preço x outros distribuidores", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Preço cliente", "preco_cliente", 13, "#,##0.00"),
+            xls.ColunaXlsx("Preço outros", "preco_outros", 13, "#,##0.00"),
+            xls.ColunaXlsx("Diferença %", "diferenca_pct", 12, "0.0"),
+            xls.ColunaXlsx("Posição", "posicao", 11),
+            xls.ColunaXlsx("Faturamento", "faturamento_cliente", 16, "#,##0.00"),
+        ], comp["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Preço x outros distribuidores", comp["calculo"]["formula"],
+            comp["calculo"].get("valores") or {}, comp["calculo"].get("premissas") or []))
+
+    if comp.get("disponivel") and comp["sem_volume"]:
+        abas.append(xls.AbaXlsx("Sem volume mínimo", [
+            xls.ColunaXlsx("Produto", "produto", 42),
+            xls.ColunaXlsx("Unidades cliente", "unidades_cliente", 15, "#,##0"),
+            xls.ColunaXlsx("Unidades outros", "unidades_outros", 15, "#,##0"),
+            xls.ColunaXlsx("Motivo", "motivo", 50),
+        ], comp["sem_volume"]))
+
+    if varejo.get("disponivel") and varejo["itens"]:
+        abas.append(xls.AbaXlsx("Preço de varejo (IQVIA)", [
+            xls.ColunaXlsx("Mercado", "mercado", 30),
+            xls.ColunaXlsx("Preço Vitamedic", "preco_vitamedic", 16, "#,##0.00"),
+            xls.ColunaXlsx("Líder", "lider", 24),
+            xls.ColunaXlsx("Preço líder", "preco_lider", 14, "#,##0.00"),
+            xls.ColunaXlsx("Índice vs líder %", "indice_vs_lider_pct", 16, "0.0"),
+            xls.ColunaXlsx("Concorrentes mais baratos", "concorrentes_mais_baratos", 20, "#,##0"),
+        ], varejo["itens"]))
+        secoes.append(xls.SecaoCalculo(
+            "Preço de varejo (IQVIA)", varejo["calculo"]["formula"],
+            varejo["calculo"].get("valores") or {}, varejo["calculo"].get("premissas") or []))
+
+    if not abas:
+        raise errors.invalido("Sem dados de Preço para exportar neste recorte.")
+
+    conteudo = xls.montar_workbook(f"Preço — {nome_cliente}", abas, secoes)
+    arquivo = f"preco_{xls.nome_arquivo_seguro(nome_cliente)}.xlsx"
+    return Response(
+        content=conteudo,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{arquivo}"'},
+    )

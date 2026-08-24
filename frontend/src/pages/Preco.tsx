@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { Tag as TagIcon, Users } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Download, Tag as TagIcon, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -138,6 +138,10 @@ function PrecoCliente({ clienteId, clientes }: { clienteId: number; clientes: Cl
     varejo?.disponivel ? varejo.itens.slice(0, 20) : [],
   )
 
+  const exportar = useMutation({
+    mutationFn: () => analytics.precoXlsx(clienteId, p!.ini, p!.fim, uf, minimo),
+  })
+
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
   const listaUf = ufs?.disponivel ? ufs.itens.map((i) => i.uf) : []
@@ -150,6 +154,11 @@ function PrecoCliente({ clienteId, clientes }: { clienteId: number; clientes: Cl
             <h1>Preço — {disp.cliente}</h1>
             <p className="dek">Preço praticado ao PDV, contra os demais distribuidores.</p>
           </div>
+          <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+          <button disabled={exportar.isPending || !habilitado} onClick={() => exportar.mutate()}>
+            <Download size={14} />
+            {exportar.isPending ? 'Gerando...' : 'Exportar Excel'}
+          </button>
           <select
             value={clienteId}
             onChange={(e) => setClienteAtual(Number(e.target.value))}
@@ -159,7 +168,11 @@ function PrecoCliente({ clienteId, clientes }: { clienteId: number; clientes: Cl
               <option key={c.id} value={c.id}>{c.nome}</option>
             ))}
           </select>
+          </div>
         </div>
+        {exportar.isError && (
+          <Aviso tipo="atencao">{(exportar.error as Error).message}</Aviso>
+        )}
       </header>
 
       {!disp.tem_sellout ? (

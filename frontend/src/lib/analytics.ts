@@ -1327,6 +1327,64 @@ export const analytics = {
       undefined, 'oportunidades.xlsx',
     ),
 
+  dashboardXlsx: (
+    cid: number, ini: number, fim: number,
+    ordenar = 'faturamento', ufProdutos?: string, ufPdvs?: string,
+  ) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/dashboard/xlsx${q({
+        periodo_ini: ini, periodo_fim: fim, ordenar,
+        uf_produtos: ufProdutos, uf_pdvs: ufPdvs,
+      })}`,
+      undefined, 'desempenho.xlsx',
+    ),
+
+  coberturaXlsx: (cid: number, ini: number, fim: number, incrementoPp = 10, uf?: string) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/cobertura/xlsx${q({
+        periodo_ini: ini, periodo_fim: fim, incremento_pp: incrementoPp, uf,
+      })}`,
+      undefined, 'cobertura.xlsx',
+    ),
+
+  mixXlsx: (
+    cid: number, ini: number, fim: number, uf?: string,
+    skuMin = 1, skuMax: number | undefined = 1, minimoSkus = 10,
+  ) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/mix/xlsx${q({
+        periodo_ini: ini, periodo_fim: fim, uf,
+        sku_min: skuMin, sku_max: skuMax, minimo_skus: minimoSkus,
+      })}`,
+      undefined, 'mix.xlsx',
+    ),
+
+  estoqueXlsx: (
+    cid: number, ini: number, fim: number,
+    baseVelocidade: 'fonte' | 'periodo' = 'fonte', filial?: string, objetivoDias = 60,
+  ) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/estoque/xlsx${q({
+        periodo_ini: ini, periodo_fim: fim, base_velocidade: baseVelocidade,
+        filial, objetivo_dias: objetivoDias,
+      })}`,
+      undefined, 'estoque.xlsx',
+    ),
+
+  mercadoXlsx: (cid: number, ini: number, fim: number, uf?: string) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/mercado/xlsx${q({ periodo_ini: ini, periodo_fim: fim, uf })}`,
+      undefined, 'mercado.xlsx',
+    ),
+
+  precoXlsx: (cid: number, ini: number, fim: number, uf?: string, minimoUnidades = 200) =>
+    _baixarArquivo(
+      `/api/analytics/${cid}/preco/xlsx${q({
+        periodo_ini: ini, periodo_fim: fim, uf, minimo_unidades: minimoUnidades,
+      })}`,
+      undefined, 'preco.xlsx',
+    ),
+
   combos: (
     cid: number, ini: number, fim: number,
     foco: FocoCombo = 'geral', uf?: string, maxAcompanhantes = 2, topN = 20,

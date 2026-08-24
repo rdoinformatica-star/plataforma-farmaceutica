@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { Boxes, LineChart, Users } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Boxes, Download, LineChart, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -156,6 +156,10 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
     posicao?.disponivel ? posicao.itens : [],
   )
 
+  const exportar = useMutation({
+    mutationFn: () => analytics.estoqueXlsx(clienteId, p!.ini, p!.fim, base, filial, objetivo),
+  })
+
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
   const filiais = perfil?.disponivel ? perfil.por_filial : []
@@ -168,16 +172,25 @@ function EstoqueCliente({ clienteId, clientes }: { clienteId: number; clientes: 
             <h1>Estoque — {disp.cliente}</h1>
             <p className="dek">Cobertura em dias, capital parado e o que dá para liberar.</p>
           </div>
-          <select
-            value={clienteId}
-            onChange={(e) => setClienteAtual(Number(e.target.value))}
-            style={{ width: 200 }}
-          >
-            {clientes.map((c) => (
-              <option key={c.id} value={c.id}>{c.nome}</option>
-            ))}
-          </select>
+          <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+            <button disabled={exportar.isPending || !habilitado} onClick={() => exportar.mutate()}>
+              <Download size={14} />
+              {exportar.isPending ? 'Gerando...' : 'Exportar Excel'}
+            </button>
+            <select
+              value={clienteId}
+              onChange={(e) => setClienteAtual(Number(e.target.value))}
+              style={{ width: 200 }}
+            >
+              {clientes.map((c) => (
+                <option key={c.id} value={c.id}>{c.nome}</option>
+              ))}
+            </select>
+          </div>
         </div>
+        {exportar.isError && (
+          <Aviso tipo="atencao">{(exportar.error as Error).message}</Aviso>
+        )}
       </header>
 
       {perfil && !perfil.disponivel ? (

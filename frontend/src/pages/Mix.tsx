@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { LineChart, Users } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Download, LineChart, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -115,6 +115,10 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
   const faixaAtiva = (min: number, max: number | null) =>
     faixa.min === min && faixa.max === max
 
+  const exportar = useMutation({
+    mutationFn: () => analytics.mixXlsx(clienteId, p!.ini, p!.fim, uf, faixa.min, faixa.max ?? undefined),
+  })
+
   if (carregandoDisp || !disp) return <Card><div className="mut">Carregando...</div></Card>
 
   return (
@@ -126,12 +130,19 @@ function MixCliente({ clienteId, clientes }: { clienteId: number; clientes: Clie
             <p className="dek">Quantos SKUs distintos cada PDV compra, e o quanto isso vale.</p>
           </div>
           <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+            <button disabled={exportar.isPending || !habilitado} onClick={() => exportar.mutate()}>
+              <Download size={14} />
+              {exportar.isPending ? 'Gerando...' : 'Exportar Excel'}
+            </button>
             <SeletorUF ufs={ufs} valor={uf} aoMudar={setUf} />
             <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
               {clientes.map((c) => (<option key={c.id} value={c.id}>{c.nome}</option>))}
             </select>
           </div>
         </div>
+        {exportar.isError && (
+          <Aviso tipo="atencao">{(exportar.error as Error).message}</Aviso>
+        )}
       </header>
 
       {!disp.tem_sellout ? (

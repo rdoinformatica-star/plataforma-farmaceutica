@@ -214,14 +214,15 @@ def potencial_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
         })
 
     ids = [p["pdv_id"] for p in pdvs]
-    nomes, ufs = {}, {}
+    nomes, ufs, cnpjs = {}, {}, {}
     for lote_ini in range(0, len(ids), 900):  # limite de variaveis do SQLite
         lote = ids[lote_ini:lote_ini + 900]
-        for pid, razao, u in con.execute(
-            f"SELECT id, razao_social, uf FROM dim_pdv WHERE id IN "
+        for pid, razao, u, cnpj in con.execute(
+            f"SELECT id, razao_social, uf, cnpj FROM dim_pdv WHERE id IN "
             f"({','.join('?' * len(lote))})", lote):
             nomes[pid] = razao
             ufs[pid] = u
+            cnpjs[pid] = cnpj
 
     itens = []
     sem_referencia = 0
@@ -243,6 +244,7 @@ def potencial_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
             "pdv_id": p["pdv_id"],
             "pdv": nomes.get(p["pdv_id"], f"PDV #{p['pdv_id']}"),
             "uf": ufs.get(p["pdv_id"]),
+            "cnpj": cnpjs.get(p["pdv_id"]),
             "faturamento_atual": p["faturamento"],
             "n_skus": p["n_skus"],
             "faixa_atual": fx[atual_idx][2],

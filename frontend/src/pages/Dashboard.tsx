@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { LineChart, Users } from 'lucide-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { Download, LineChart, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -12,7 +12,7 @@ import { RankingProdutos } from '../components/dashboard/RankingProdutos'
 import { ResumoExecutivo } from '../components/dashboard/ResumoExecutivo'
 import { SeletorPeriodo } from '../components/dashboard/SeletorPeriodo'
 import { VariacaoProdutos } from '../components/dashboard/VariacaoProdutos'
-import { Card, Vazio } from '../components/ui'
+import { Aviso, Card, Vazio } from '../components/ui'
 import { analytics } from '../lib/analytics'
 import { api, type Cliente } from '../lib/api'
 import { faixaPeriodo } from '../lib/format'
@@ -147,6 +147,10 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
     enabled: habilitado,
   })
 
+  const exportar = useMutation({
+    mutationFn: () => analytics.dashboardXlsx(clienteId, p!.ini, p!.fim, ordenar, ufProdutos, ufPdvs),
+  })
+
   if (carregandoDisp || !disp) {
     return (
       <>
@@ -164,12 +168,21 @@ function DashboardCliente({ clienteId, clientes }: { clienteId: number; clientes
             <h1>{disp.cliente}</h1>
             <p className="dek">Desempenho comercial — sell-out</p>
           </div>
-          <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
-            {clientes.map((c) => (
-              <option key={c.id} value={c.id}>{c.nome}</option>
-            ))}
-          </select>
+          <div className="linha" style={{ gap: 10, alignItems: 'flex-end' }}>
+            <button disabled={exportar.isPending || !habilitado} onClick={() => exportar.mutate()}>
+              <Download size={14} />
+              {exportar.isPending ? 'Gerando...' : 'Exportar Excel'}
+            </button>
+            <select value={clienteId} onChange={(e) => setClienteAtual(Number(e.target.value))} style={{ width: 200 }}>
+              {clientes.map((c) => (
+                <option key={c.id} value={c.id}>{c.nome}</option>
+              ))}
+            </select>
+          </div>
         </div>
+        {exportar.isError && (
+          <Aviso tipo="atencao">{(exportar.error as Error).message}</Aviso>
+        )}
       </header>
 
       {!disp.tem_sellout ? (

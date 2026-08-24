@@ -439,14 +439,15 @@ def ranking_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
         agg = agg_atual if eh_novo else agg_ant
         total_janela = sum(v for v, _, _ in agg.values())
 
-        nomes = dict(con.execute(
-            f"SELECT id, razao_social FROM dim_pdv WHERE id IN ({_marca(len(alvo_ids))})",
-            alvo_ids).fetchall()) if alvo_ids else {}
+        nomes = {r[0]: (r[1], r[2]) for r in con.execute(
+            f"SELECT id, razao_social, cnpj FROM dim_pdv WHERE id IN ({_marca(len(alvo_ids))})",
+            alvo_ids).fetchall()} if alvo_ids else {}
         itens = []
         for i in alvo_ids:
             valor, unidades, n_skus = agg.get(i, (0.0, 0.0, 0))
+            razao, cnpj = nomes.get(i, (f"PDV #{i}", None))
             itens.append({
-                "pdv_id": i, "pdv": nomes.get(i, f"PDV #{i}"),
+                "pdv_id": i, "pdv": razao, "cnpj": cnpj,
                 "faturamento": valor, "unidades": unidades, "n_skus": n_skus,
                 "participacao_pct": f.participacao_pct(valor, total_janela),
                 "variacao_pct": None,  # nao ha as duas pontas para comparar
@@ -497,12 +498,14 @@ def ranking_pdvs(con: sqlite3.Connection, client_id: int, ini: int, fim: int,
     ) if comparacao_valida else {}
     total = sum(v for _, v, _, _ in atuais)
     ids = [p for p, _, _, _ in atuais]
-    nomes = dict(con.execute(
-        f"SELECT id, razao_social FROM dim_pdv WHERE id IN ({_marca(len(ids))})",
-        ids).fetchall()) if ids else {}
+    nomes = {r[0]: (r[1], r[2]) for r in con.execute(
+        f"SELECT id, razao_social, cnpj FROM dim_pdv WHERE id IN ({_marca(len(ids))})",
+        ids).fetchall()} if ids else {}
 
     linhas = [{
-        "pdv_id": pdv_id, "pdv": nomes.get(pdv_id, f"PDV #{pdv_id}"),
+        "pdv_id": pdv_id,
+        "pdv": nomes.get(pdv_id, (f"PDV #{pdv_id}", None))[0],
+        "cnpj": nomes.get(pdv_id, (None, None))[1],
         "faturamento": v, "unidades": u, "n_skus": n,
         "participacao_pct": f.participacao_pct(v, total),
         "variacao_pct": (f.crescimento_pct(v, anteriores.get(pdv_id, 0.0))

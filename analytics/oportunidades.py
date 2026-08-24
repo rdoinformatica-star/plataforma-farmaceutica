@@ -142,6 +142,7 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
                 "premissa": "Leitura de similaridade com PDVs de mix maior — não "
                            "afirma que o PDV vai comprar mais SKUs.",
                 "referencia_id": i["pdv_id"],
+                "referencia_cnpj": i.get("cnpj"),
             })
 
     # 4) Concentracao excessiva (top 5 produtos > 50% do faturamento).
@@ -193,6 +194,7 @@ def matriz_oportunidades(con: sqlite3.Connection, client_id: int, ini: int, fim:
             "facilidade": facilidade, "score": round(score, 1),
             "prioridade": prioridade, "premissa": c["premissa"],
             "rotulo": "FATO", "referencia_id": c["referencia_id"],
+            "referencia_cnpj": c.get("referencia_cnpj"),
         })
     itens.sort(key=lambda i: -i["score"])
     itens = itens[:top_n]
