@@ -25,6 +25,8 @@ import {
 } from 'lucide-react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
+import vitamedicIcone from '../assets/vitamedic-icone.png'
+import vitamedicLogo from '../assets/vitamedic-logo.png'
 import { api, type Cliente, type Estatisticas } from '../lib/api'
 import { useEstado } from '../lib/estado'
 
@@ -144,12 +146,11 @@ export function AppShell() {
     <div className={`app ${sidebarRecolhida ? 'recolhida' : ''}`}>
       <aside className="sidebar">
         <div className="marca">
-          <div className="sigla">PI</div>
-          {!sidebarRecolhida && (
-            <div className="nome">
-              Pharma
-              <br />
-              Intelligence
+          {sidebarRecolhida ? (
+            <img src={vitamedicIcone} alt="Vitamedic" className="marca-icone" />
+          ) : (
+            <div className="marca-texto">
+              <img src={vitamedicLogo} alt="Vitamedic — Amor pela vida" className="marca-logo" />
               <small>Etapa 4</small>
             </div>
           )}

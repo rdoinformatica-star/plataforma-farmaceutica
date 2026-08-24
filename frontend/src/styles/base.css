@@ -112,35 +112,33 @@ th.num {
   overflow: hidden;
 }
 .sidebar .marca {
-  padding: 16px 18px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--sidebar-border);
   display: flex;
   align-items: center;
-  gap: 10px;
 }
-.sidebar .marca .sigla {
+.sidebar .marca .marca-icone {
   width: 28px;
   height: 28px;
   flex: none;
-  display: grid;
-  place-items: center;
-  background: var(--wine-2);
-  color: #fff;
-  font-family: var(--serif);
-  font-weight: 800;
-  font-size: 13px;
-  border-radius: var(--radius-2);
+  object-fit: contain;
 }
-.sidebar .marca .nome {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 13.5px;
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
+.sidebar .marca .marca-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
 }
-.sidebar .marca .nome small {
+.sidebar .marca .marca-logo {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
   display: block;
+  filter: brightness(1.7); /* tagline cinza-escura do PNG precisa de realce sobre a sidebar escura */
+}
+.sidebar .marca .marca-texto small {
+  display: block;
+  margin-top: 5px;
   font-family: var(--mono);
   font-size: 9.5px;
   font-weight: 400;

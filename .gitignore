@@ -24,3 +24,6 @@ prompts/*
 # dados reais de cliente (faturamento, nomes de PDV, CNPJ) — nunca versionar
 dados/*
 !dados/.gitkeep
+
+# backups zipados do projeto — nao versionar (bloataria o historico)
+bkp/
