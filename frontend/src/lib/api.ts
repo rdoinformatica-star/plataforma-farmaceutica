@@ -16,7 +16,10 @@ export class FalhaApi extends Error {
 }
 
 async function req<T>(rota: string, init?: RequestInit): Promise<T> {
-  const r = await fetch(`/api${rota}`, {
+  const baseUrl = import.meta.env.DEV
+    ? '/api'
+    : 'https://plataforma-farmaceutica-production.up.railway.app/api'
+  const r = await fetch(`${baseUrl}${rota}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
   })
