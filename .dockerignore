@@ -1,0 +1,16 @@
+frontend/
+*.bat
+dados/
+imports/
+reports/
+prompts/
+bkp/
+cache/
+.git/
+.gitignore
+README.md
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
