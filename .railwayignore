@@ -1,0 +1,9 @@
+frontend/
+*.bat
+dados/
+imports/
+reports/
+prompts/
+bkp/
+cache/
+.git/
