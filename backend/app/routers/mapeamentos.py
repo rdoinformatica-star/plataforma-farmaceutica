@@ -73,11 +73,29 @@ def criar(dados: MapeamentoEntrada):
                       (dados.entity_id,))
         if not alvo:
             raise errors.nao_encontrado(dados.entidade.capitalize(), dados.entity_id)
+        if db.USE_POSTGRES:
+            # INSERT OR REPLACE apaga+reinsere a linha inteira no SQLite;
+            # o equivalente em Postgres precisa nomear a constraint unica.
+            upsert_sql = (
+                "INSERT INTO source_mappings(entidade, data_source_id,"
+                " codigo_origem, texto_origem, entity_id, metodo, confianca, status,"
+                " confirmado_por, observacao)"
+                " VALUES (?,?,?,?,?,'MANUAL',1.0,'ATIVO','usuario',?)"
+                " ON CONFLICT (entidade, data_source_id, texto_origem) DO UPDATE SET"
+                " codigo_origem=EXCLUDED.codigo_origem, entity_id=EXCLUDED.entity_id,"
+                " metodo=EXCLUDED.metodo, confianca=EXCLUDED.confianca,"
+                " status=EXCLUDED.status, confirmado_por=EXCLUDED.confirmado_por,"
+                " observacao=EXCLUDED.observacao"
+            )
+        else:
+            upsert_sql = (
+                "INSERT OR REPLACE INTO source_mappings(entidade, data_source_id,"
+                " codigo_origem, texto_origem, entity_id, metodo, confianca, status,"
+                " confirmado_por, observacao)"
+                " VALUES (?,?,?,?,?,'MANUAL',1.0,'ATIVO','usuario',?)"
+            )
         con.execute(
-            "INSERT OR REPLACE INTO source_mappings(entidade, data_source_id,"
-            " codigo_origem, texto_origem, entity_id, metodo, confianca, status,"
-            " confirmado_por, observacao)"
-            " VALUES (?,?,?,?,?,'MANUAL',1.0,'ATIVO','usuario',?)",
+            upsert_sql,
             (dados.entidade, dados.data_source_id, dados.codigo_origem,
              dados.texto_origem, dados.entity_id, dados.observacao))
         audit.registrar(

@@ -20,6 +20,8 @@ IMPORTS_TMP = IMPORTS / "tmp"
 DB_PATH = DATABASE / "pharma.db"
 SCHEMA_SQL = DATABASE / "schema.sql"
 SEED_SQL = DATABASE / "seed.sql"
+SCHEMA_POSTGRES_SQL = DATABASE / "schema_postgres.sql"
+SEED_POSTGRES_SQL = DATABASE / "seed_postgres.sql"
 
 VERSAO = "4.0.0-etapa4"
 ETAPA = 4

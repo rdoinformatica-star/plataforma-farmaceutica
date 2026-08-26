@@ -12,12 +12,25 @@ router = APIRouter(tags=["sistema"])
 @router.get("/health")
 def health():
     with db.conexao() as con:
-        tabelas = [
-            r["name"] for r in con.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
-                "AND name NOT LIKE 'sqlite_%' ORDER BY name"
-            )
-        ]
+        if db.USE_POSTGRES:
+            tabelas = [
+                r["name"] for r in con.execute(
+                    "SELECT table_name AS name FROM information_schema.tables "
+                    "WHERE table_schema='public' AND table_type='BASE TABLE' "
+                    "ORDER BY table_name"
+                )
+            ]
+            versao_bd = db.escalar(con, "SELECT version()")
+            tamanho = db.escalar(con, "SELECT pg_database_size(current_database())") / (1024 * 1024)
+        else:
+            tabelas = [
+                r["name"] for r in con.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%' ORDER BY name"
+                )
+            ]
+            versao_bd = f"SQLite {sqlite3.sqlite_version}"
+            tamanho = settings.DB_PATH.stat().st_size / (1024 * 1024) if settings.DB_PATH.exists() else 0
         fontes = db.escalar(con, "SELECT count(*) FROM data_sources")
 
     try:
@@ -26,15 +39,14 @@ def health():
     except Exception as e:  # a ponte nunca pode derrubar o health
         engine_ok, engine_msg = False, str(e)
 
-    tamanho = settings.DB_PATH.stat().st_size / (1024 * 1024) if settings.DB_PATH.exists() else 0
     return {
         "ok": True,
         "produto": "Pharma Intelligence",
         "versao": settings.VERSAO,
         "etapa": settings.ETAPA,
         "python": sys.version.split()[0],
-        "sqlite": sqlite3.sqlite_version,
-        "db_path": str(settings.DB_PATH),
+        "banco": versao_bd,
+        "db_path": str(settings.DB_PATH) if not db.USE_POSTGRES else "postgres",
         "db_tamanho_mb": round(tamanho, 2),
         "tabelas": tabelas,
         "n_tabelas": len(tabelas),
