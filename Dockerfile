@@ -12,6 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o código do backend
 COPY backend /app/backend
+COPY analytics /app/analytics
+COPY engine /app/engine
 COPY database /app/database
 
 # Expõe a porta
