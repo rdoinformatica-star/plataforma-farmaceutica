@@ -110,43 +110,51 @@ def migrate():
         tables = ([t for t in ordem if t in existentes]
                   + sorted(existentes - set(ordem)))
 
+        BLOCO = 50_000  # fact_sales tem milhoes de linhas: ler tudo de uma vez
+                        # com fetchall() estouraria a memoria da maquina.
+
         total_registros = 0
         falhas = []
         for table in tables:
-            # Lê todos os dados da tabela
             sqlite_cursor.execute(f"SELECT * FROM {table}")
-            rows = sqlite_cursor.fetchall()
-
-            if not rows:
-                print(f"  - {table}: vazio")
-                continue
-
-            # Pega nomes das colunas
             cols = [desc[0] for desc in sqlite_cursor.description]
             col_names = ', '.join(cols)
-
-            # Converte para tuples para o execute_values
-            values = [tuple(row) for row in rows]
-
-            # Insere em batch (muito mais rápido)
             insert_sql = f"""
                 INSERT INTO {table} ({col_names})
                 VALUES %s
                 ON CONFLICT DO NOTHING
             """
-            try:
-                execute_values(pg_cursor, insert_sql, values, page_size=1000, fetch=False)
-                pg_conn.commit()
-                total_registros += len(rows)
-                print(f"  ✓ {table}: {len(rows):,} registros")
-            except Exception as e:
-                # ROLLBACK e essencial: sem ele o Postgres aborta a transacao
-                # inteira e TODAS as tabelas seguintes falham em cascata com
-                # "current transaction is aborted".
-                pg_conn.rollback()
-                msg = str(e).strip().splitlines()[0]
-                falhas.append((table, msg))
-                print(f"  ✗ {table}: {msg}")
+
+            copiados = 0
+            erro = None
+            while True:
+                rows = sqlite_cursor.fetchmany(BLOCO)
+                if not rows:
+                    break
+                try:
+                    execute_values(pg_cursor, insert_sql,
+                                   [tuple(r) for r in rows],
+                                   page_size=1000, fetch=False)
+                    pg_conn.commit()
+                    copiados += len(rows)
+                    if copiados % 500_000 == 0:
+                        print(f"    ... {table}: {copiados:,} ate agora")
+                except Exception as e:
+                    # ROLLBACK e essencial: sem ele o Postgres aborta a transacao
+                    # inteira e TODAS as tabelas seguintes falham em cascata com
+                    # "current transaction is aborted".
+                    pg_conn.rollback()
+                    erro = str(e).strip().splitlines()[0]
+                    break
+
+            if erro:
+                falhas.append((table, erro))
+                print(f"  ✗ {table}: {erro}")
+            elif copiados:
+                total_registros += copiados
+                print(f"  ✓ {table}: {copiados:,} registros")
+            else:
+                print(f"  - {table}: vazio")
 
         # Reajusta as sequences: as linhas foram inseridas com id explicito,
         # entao o contador de identity continua no valor antigo e o proximo
